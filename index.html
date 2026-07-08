@@ -135,75 +135,68 @@ body{
     .hero-actions .btn-primary{ width:100%; justify-content:center; }
 }
 
-/* ========== Hero 視覚オブジェクト：vanishing seat ========== */
-/* 中小企業の人員グリッド（6列×4行=24席）のうち、1席が薄く消える。
-   既存社員は触らない。次の欠員を採用で埋めない、という意味の視覚化。 */
-/* Hero 右側にうっすら大きく展開する vanishing seat OS
-   緩い俯瞰角度でグリッド感維持・中心を主役・伝播は近隣に限定 */
+/* ========== Hero 視覚オブジェクト：組織の海（canvas 実装） ==========
+   世界最高峰路線：中小企業の人員グリッドを canvas の 3D 投影で「海」として描く。
+   開幕の降着 → 1席の離席 → AI 充填 → 光の波が組織全体へ → 完成形 stay のループを
+   時間・ポインター・スクロールの3入力で連続的に演じる。実体は #seat-canvas。 */
 .hero-visual{
     position:absolute;
     right:0; top:0; bottom:0;
-    width:68%;
+    width:74%;
     pointer-events:none; z-index:0;
     overflow:hidden;
-    will-change:transform;
-    perspective:2000px;
-    perspective-origin:62% 45%;
-    -webkit-mask-image:radial-gradient(ellipse 82% 95% at 80% 50%, #000 25%, transparent 80%);
-    mask-image:radial-gradient(ellipse 82% 95% at 80% 50%, #000 25%, transparent 80%);
+    -webkit-mask-image:radial-gradient(ellipse 92% 105% at 76% 46%, #000 34%, transparent 82%);
+    mask-image:radial-gradient(ellipse 92% 105% at 76% 46%, #000 34%, transparent 82%);
 }
-.hero-visual svg{
+.hero-visual canvas{
+    position:absolute; inset:0;
     width:100%; height:100%;
-    opacity:.78;
-    transform:rotateX(28deg) rotateZ(-6deg) translateY(-1%);
-    transform-style:preserve-3d;
-    transform-origin:center center;
-}
-/* 各球：距離ベースで opacity が薄くなる（中心近い：濃い／外周：薄い） */
-/* アニメーションは JS で個別 keyframes を生成して inject（完成形を見せる設計） */
-.hero-visual .seat{
-    fill:url(#sphere-grey);
-    opacity:var(--seat-op, 1);
-    filter:drop-shadow(0 8px 12px rgba(15,15,30,.2))
-           drop-shadow(0 2px 3px rgba(15,15,30,.16));
-}
-.hero-visual .seat-empty{
-    fill:none; stroke:#635BFF; stroke-width:1.8; stroke-dasharray:5 6; opacity:.6;
-    animation:emptyFade 22s ease-in-out infinite;
-}
-/* AI 球：圧倒的に大きく＆発光（中心が主役） */
-.hero-visual .ai-fill{
-    fill:url(#sphere-ai); opacity:0;
-    filter:drop-shadow(0 28px 48px rgba(99,91,255,.75))
-           drop-shadow(0 12px 22px rgba(99,91,255,.6))
-           drop-shadow(0 0 36px rgba(165,160,255,.6));
-    animation:aiFill 22s ease-in-out infinite;
-}
-.hero-visual .ai-ring{
-    fill:none; stroke:#635BFF; stroke-width:3; opacity:0;
-    animation:aiRing 22s ease-in-out infinite;
-}
-/* 紫パルス：各 seat の個別 keyframes は JS で動的生成（完成形 stay 設計） */
-@keyframes emptyFade{
-    0%, 6% { opacity:.6; }
-    25%, 100% { opacity:0; }
-}
-@keyframes aiFill{
-    0%, 8% { opacity:0; r:8; }
-    35%, 75% { opacity:1; r:38; }
-    90%, 100% { opacity:0; r:38; }
-}
-@keyframes aiRing{
-    0%, 30% { opacity:0; r:38; }
-    50% { opacity:.7; r:90; }
-    72%, 100% { opacity:0; r:170; }
+    display:block;
 }
 @media (max-width:1024px){
-    .hero-visual{ position:relative; right:auto; top:auto; transform:none; width:min(80%,360px); margin:48px auto 0; }
+    .hero-visual{
+        position:relative; right:auto; top:auto; bottom:auto;
+        width:100%; height:min(58vw, 400px);
+        margin:44px 0 0;
+        order:2;
+        -webkit-mask-image:radial-gradient(ellipse 100% 110% at 50% 42%, #000 44%, transparent 88%);
+        mask-image:radial-gradient(ellipse 100% 110% at 50% 42%, #000 44%, transparent 88%);
+    }
 }
 @media (max-width:640px){
-    .hero-visual{ width:min(96%,320px); margin:36px auto 0; }
+    .hero-visual{ height:min(72vw, 340px); margin:32px 0 0; }
 }
+
+/* ========== Hero 見出し：文字単位の結像（降着と同期） ========== */
+/* JS が .hero-tagline に .split を付けたら、行単位フェードをやめて文字単位へ */
+.hero-tagline.split .hero-line{ animation:none; opacity:1; }
+.h-char{
+    display:inline-block;
+    opacity:0;
+    filter:blur(18px);
+    animation:charIn 1.05s cubic-bezier(.22,.61,.21,1) forwards;
+    animation-delay:calc(.38s + var(--ci) * .06s);
+}
+@keyframes charIn{
+    55%{ opacity:1; }
+    to{ opacity:1; filter:blur(0); }
+}
+/* 2行目「採用しない。」はグラデを割らず一塊で開花 */
+.h-bloom{
+    display:inline-block;
+    opacity:0;
+    filter:blur(26px);
+    animation:bloomIn 1.5s cubic-bezier(.17,.6,.18,1) 1.05s forwards;
+}
+@keyframes bloomIn{
+    52%{ opacity:1; }
+    to{ opacity:1; filter:blur(0); }
+}
+
+/* ========== 引用スクラブ（philosophy）：スクロールで一文字ずつ点灯 ========== */
+.pull-quote p.scrub-ready .q-char{ color:#CFCFD4; transition:color .55s ease; }
+.pull-quote p.scrub-ready .q-char.on{ color:var(--ink); }
+.pull-quote p.scrub-ready .q-char.q-key.on{ color:var(--accent-1); }
 
 /* ========== グラデーション ========== */
 .grad-text{
@@ -582,8 +575,13 @@ header.scrolled{
 }
 .content-max{ max-width:760px; }
 
-/* ヒーロー余白を再配分（上部にゆとり・左右にゆとり・バランス重視） */
-#hero{ padding-top:clamp(112px,10vw,160px); padding-bottom:clamp(80px,7vw,112px); }
+/* ヒーロー＝一枚の舞台：ビューポート全高・コピーは垂直センター */
+#hero{
+    min-height:max(660px, 100svh);
+    display:flex; flex-direction:column; justify-content:center;
+    padding-top:clamp(104px,9vw,148px); padding-bottom:clamp(72px,6.5vw,104px);
+}
+#hero .container-wide{ order:1; width:100%; }
 #hero .container-wide{ padding:0 clamp(32px, 4.5vw, 72px); }
 .hero-inner{ max-width:100%; }
 @media (min-width:1280px){
@@ -626,13 +624,14 @@ header.scrolled{
     html{ scroll-behavior:auto; }
     .reveal, .reveal-stagger > *{ opacity:1 !important; transition:none !important; }
     .hero-line{ animation:none; opacity:1; }
+    .h-char, .h-bloom{ animation:none; opacity:1; filter:none; }
     .grad-text{ animation:none; }
     .chip-pulse::after{ animation:none; opacity:0; }
     .btn-primary::before{ content:none; }
-    /* hero visual は「AIが席を埋めた完成形」で静止 */
-    .hero-visual .seat-empty{ animation:none; opacity:0; }
-    .hero-visual .ai-fill{ animation:none; opacity:1; }
-    .hero-visual .ai-ring{ animation:none; opacity:0; }
+    /* canvas は JS 側が「AIが席を満たした完成形」の1フレームだけを静止描画する */
+    /* 引用スクラブは点灯済みで静止 */
+    .pull-quote p.scrub-ready .q-char{ color:var(--ink); transition:none; }
+    .pull-quote p.scrub-ready .q-char.q-key{ color:var(--accent-1); }
 }
 </style>
 </head>
@@ -674,103 +673,11 @@ header.scrolled{
 <!-- ========== 1. HERO ========== -->
 <section id="hero" class="relative overflow-hidden">
 
-    <!-- 抽象オブジェクト：vanishing seat OS — 3D 球面表現＋空席→AI充填→全体波及 -->
+    <!-- 抽象オブジェクト：組織の海 — canvas 3D投影。
+         降着 → 1席の離席 → AI充填 → 光が組織全体へ波及 → 完成形 stay のループ。
+         ポインターで席が呼吸し、スクロールでカメラが引く。 -->
     <div class="hero-visual" aria-hidden="true">
-        <svg viewBox="0 0 1280 720" preserveAspectRatio="xMidYMid slice">
-            <defs>
-                <!-- グレー球：左上から光が当たる球面 -->
-                <radialGradient id="sphere-grey" cx="32%" cy="28%" r="72%">
-                    <stop offset="0%" stop-color="#FAFAFA"/>
-                    <stop offset="45%" stop-color="#D4D4D8"/>
-                    <stop offset="100%" stop-color="#71717A"/>
-                </radialGradient>
-                <!-- 紫球：AI 充填の発光球面 -->
-                <radialGradient id="sphere-ai" cx="32%" cy="28%" r="72%">
-                    <stop offset="0%" stop-color="#E0DDFF"/>
-                    <stop offset="40%" stop-color="#9B92FF"/>
-                    <stop offset="100%" stop-color="#3F3793"/>
-                </radialGradient>
-                <!-- 球の下に落ちる楕円影 -->
-                <radialGradient id="seat-shadow" cx="50%" cy="50%" r="50%">
-                    <stop offset="0%" stop-color="#000" stop-opacity=".25"/>
-                    <stop offset="70%" stop-color="#000" stop-opacity=".05"/>
-                    <stop offset="100%" stop-color="#000" stop-opacity="0"/>
-                </radialGradient>
-            </defs>
-            <g transform="translate(80, 80)">
-                <!-- 10列×6行 = 60席 を 120px間隔で配置。
-                     vanishing position は中央右寄り（row 3, col 7） -->
-                <!-- row 0 (y=0) -->
-                <circle class="seat" cx="0"    cy="0" r="22"/>
-                <circle class="seat" cx="120"  cy="0" r="22"/>
-                <circle class="seat" cx="240"  cy="0" r="22"/>
-                <circle class="seat" cx="360"  cy="0" r="22"/>
-                <circle class="seat" cx="480"  cy="0" r="22"/>
-                <circle class="seat" cx="600"  cy="0" r="22"/>
-                <circle class="seat" cx="720"  cy="0" r="22"/>
-                <circle class="seat" cx="840"  cy="0" r="22"/>
-                <circle class="seat" cx="960"  cy="0" r="22"/>
-                <circle class="seat" cx="1080" cy="0" r="22"/>
-                <!-- row 1 (y=112) -->
-                <circle class="seat" cx="0"    cy="112" r="22"/>
-                <circle class="seat" cx="120"  cy="112" r="22"/>
-                <circle class="seat" cx="240"  cy="112" r="22"/>
-                <circle class="seat" cx="360"  cy="112" r="22"/>
-                <circle class="seat" cx="480"  cy="112" r="22"/>
-                <circle class="seat" cx="600"  cy="112" r="22"/>
-                <circle class="seat" cx="720"  cy="112" r="22"/>
-                <circle class="seat" cx="840"  cy="112" r="22"/>
-                <circle class="seat" cx="960"  cy="112" r="22"/>
-                <circle class="seat" cx="1080" cy="112" r="22"/>
-                <!-- row 2 (y=224) -->
-                <circle class="seat" cx="0"    cy="224" r="22"/>
-                <circle class="seat" cx="120"  cy="224" r="22"/>
-                <circle class="seat" cx="240"  cy="224" r="22"/>
-                <circle class="seat" cx="360"  cy="224" r="22"/>
-                <circle class="seat" cx="480"  cy="224" r="22"/>
-                <circle class="seat" cx="600"  cy="224" r="22"/>
-                <circle class="seat" cx="720" cy="224" r="22"/>
-                <circle class="seat" cx="840" cy="224" r="22"/>
-                <circle class="seat" cx="960" cy="224" r="22"/>
-                <circle class="seat" cx="1080" cy="224" r="22"/>
-                <!-- row 3 (y=336) — 空席→AI充填 位置：col 7 (x=840)・周囲は boost -->
-                <circle class="seat" cx="0"    cy="336" r="22"/>
-                <circle class="seat" cx="120"  cy="336" r="22"/>
-                <circle class="seat" cx="240"  cy="336" r="22"/>
-                <circle class="seat" cx="360"  cy="336" r="22"/>
-                <circle class="seat" cx="480"  cy="336" r="22"/>
-                <circle class="seat" cx="600"  cy="336" r="22"/>
-                <circle class="seat" cx="720" cy="336" r="22"/>
-                <!-- 空席 → AI充填 -->
-                <circle class="seat-empty" cx="840" cy="336" r="22"/>
-                <circle class="ai-fill" cx="840" cy="336" r="22"/>
-                <circle class="ai-ring" cx="840" cy="336" r="22"/>
-                <circle class="seat" cx="960" cy="336" r="22"/>
-                <circle class="seat" cx="1080" cy="336" r="22"/>
-                <!-- row 4 (y=448) -->
-                <circle class="seat" cx="0"    cy="448" r="22"/>
-                <circle class="seat" cx="120"  cy="448" r="22"/>
-                <circle class="seat" cx="240"  cy="448" r="22"/>
-                <circle class="seat" cx="360"  cy="448" r="22"/>
-                <circle class="seat" cx="480"  cy="448" r="22"/>
-                <circle class="seat" cx="600"  cy="448" r="22"/>
-                <circle class="seat" cx="720" cy="448" r="22"/>
-                <circle class="seat" cx="840" cy="448" r="22"/>
-                <circle class="seat" cx="960" cy="448" r="22"/>
-                <circle class="seat" cx="1080" cy="448" r="22"/>
-                <!-- row 5 (y=560) -->
-                <circle class="seat" cx="0"    cy="560" r="22"/>
-                <circle class="seat" cx="120"  cy="560" r="22"/>
-                <circle class="seat" cx="240"  cy="560" r="22"/>
-                <circle class="seat" cx="360"  cy="560" r="22"/>
-                <circle class="seat" cx="480"  cy="560" r="22"/>
-                <circle class="seat" cx="600"  cy="560" r="22"/>
-                <circle class="seat" cx="720"  cy="560" r="22"/>
-                <circle class="seat" cx="840"  cy="560" r="22"/>
-                <circle class="seat" cx="960"  cy="560" r="22"/>
-                <circle class="seat" cx="1080" cy="560" r="22"/>
-            </g>
-        </svg>
+        <canvas id="seat-canvas"></canvas>
     </div>
 
     <div class="container-wide relative z-10">
@@ -1557,34 +1464,33 @@ document.querySelectorAll('.reveal, .reveal-stagger').forEach(el => observer.obs
     els.forEach(el => io.observe(el));
 })();
 
-// Hero visual：ポインター視差（デスクトップ・fine pointer のみ・lerpで滑らかに）
-(function heroParallax(){
-    if(REDUCED_MOTION) return;
-    if(!window.matchMedia('(pointer:fine)').matches) return;
-    if(!window.matchMedia('(min-width:1024px)').matches) return;
-    const vis = document.querySelector('.hero-visual');
-    const hero = document.getElementById('hero');
-    if(!vis || !hero) return;
-    let tx = 0, ty = 0, cx = 0, cy = 0, raf = null;
-    function loop(){
-        raf = requestAnimationFrame(() => {
-            cx += (tx - cx) * 0.055;
-            cy += (ty - cy) * 0.055;
-            vis.style.transform = `translate3d(${cx.toFixed(2)}px, ${cy.toFixed(2)}px, 0)`;
-            if(Math.abs(tx - cx) > 0.05 || Math.abs(ty - cy) > 0.05){ loop(); } else { raf = null; }
-        });
-    }
-    hero.addEventListener('pointermove', (e) => {
-        const r = hero.getBoundingClientRect();
-        // 視差：カーソルと逆方向へ僅かに（奥行きの表現）
-        tx = -((e.clientX - r.left) / r.width  - 0.5) * 14;
-        ty = -((e.clientY - r.top)  / r.height - 0.5) * 10;
-        if(!raf) loop();
-    }, { passive: true });
-    hero.addEventListener('pointerleave', () => {
-        tx = 0; ty = 0;
-        if(!raf) loop();
+// Hero 見出し：文字単位の結像（1行目＝文字刻み・2行目＝グラデ一塊の開花）
+(function heroTitle(){
+    const tag = document.querySelector('.hero-tagline');
+    if(!tag) return;
+    if(REDUCED_MOTION){ tag.classList.add('split'); return; }
+    const lines = tag.querySelectorAll('.hero-line');
+    if(lines.length < 2) return;
+    // 1行目「次の一人は、」→ 文字span化
+    const l1 = lines[0];
+    const text = l1.textContent;
+    l1.textContent = '';
+    [...text].forEach((ch, i) => {
+        const sp = document.createElement('span');
+        sp.className = 'h-char';
+        sp.style.setProperty('--ci', i);
+        sp.textContent = ch;
+        l1.appendChild(sp);
     });
+    // 2行目：grad-text を割らずに一塊で（blur は wrapper 側＝background-clip:text と filter の同居を避ける）
+    const grad = lines[1].querySelector('.grad-text');
+    if(grad){
+        const wrap2 = document.createElement('span');
+        wrap2.className = 'h-bloom';
+        grad.parentNode.insertBefore(wrap2, grad);
+        wrap2.appendChild(grad);
+    }
+    tag.classList.add('split');
 })();
 
 // モバイルメニュー
@@ -1592,64 +1498,458 @@ const mobileBtn = document.getElementById('mobile-menu-button');
 const mobileMenu = document.getElementById('mobile-menu');
 mobileBtn.addEventListener('click', () => mobileMenu.classList.toggle('hidden'));
 
-// Hero vanishing seat：じわじわ広がる・完成形stay型アニメ
-// - 周期 22秒
-// - 中心から外へ非常にゆっくり紫に染まる（fade-in 個別・25%幅でじわじわ）
-// - 全 seat 紫キープ（完成形）2.6秒
-// - 全 seat 一斉にじわじわグレーに戻る
-// - 静止2秒 → ループ
-(function setSeatStyles(){
-    const seats = document.querySelectorAll('.hero-visual .seat');
-    if(REDUCED_MOTION){
-        // 距離ベースの静的opacityのみ適用し、波及キーフレームは生成しない
-        const CX0 = 840, CY0 = 336, G0 = 120;
-        seats.forEach(s => {
-            const dx = parseFloat(s.getAttribute('cx')) - CX0;
-            const dy = parseFloat(s.getAttribute('cy')) - CY0;
-            const op = Math.max(0.3, 1 - (Math.sqrt(dx*dx + dy*dy) / G0) * 0.1);
-            s.style.setProperty('--seat-op', op.toFixed(2));
-        });
-        return;
+// ============================================================
+// 組織の海 — Hero canvas エンジン
+// 物語：降着（開幕）→ 1席が静かに離席 → 空席の気配（破線）→
+//       AIの光球が満ちる → 光の波が組織全体へ伝播 →
+//       通過した席はわずかに明るいまま残る（全体にプラス）→
+//       完成形 stay → 静かに次の周期へ。
+// 入力：時間（26s周期）・ポインター（磁力＋光の追従）・スクロール（ドリーバック＋溶暗）
+// ============================================================
+(function seatField(){
+    const canvas = document.getElementById('seat-canvas');
+    const wrap = document.querySelector('.hero-visual');
+    const hero = document.getElementById('hero');
+    if(!canvas || !wrap || !hero) return;
+    const ctx = canvas.getContext('2d');
+    const FINE = window.matchMedia('(pointer:fine)').matches;
+
+    // ---------- パラメータ ----------
+    const R_W = 30;                 // 球の世界半径
+    const LOOP = 26;                // 物語の周期（秒）
+    const INTRO = 2.0;              // 降着の所要（秒）
+    const LIFT = 0.16;              // 波の通過後に残る紫（全体にプラス）
+    const ROLL = -6 * Math.PI/180;  // 画面ロール（対角の勢い）
+
+    let COLS = 13, ROWS = 8, S = 112;
+    let VAC = { gx: 9, gz: 3 };     // 空く席（中央右）
+    let seats = [], vacSeat = null;
+    let W = 0, H = 0, DPR = 1;
+    let compact = false;
+
+    // ---------- イージング ----------
+    const clamp = (v,a,b) => v<a?a:(v>b?b:v);
+    const eio  = p => p<.5 ? 4*p*p*p : 1-Math.pow(-2*p+2,3)/2;
+    const eoq  = p => 1-Math.pow(1-p,5);
+    const eoc  = p => 1-Math.pow(1-p,3);
+    const eob  = p => { const c=1.35; return 1+(c+1)*Math.pow(p-1,3)+c*Math.pow(p-1,2); };
+
+    // ---------- スプライト（球・影・光）を事前描画 ----------
+    function sphereSprite(size, stops){
+        const cv = document.createElement('canvas'); cv.width = cv.height = size;
+        const g = cv.getContext('2d');
+        const grad = g.createRadialGradient(size*.36, size*.30, size*.04, size*.5, size*.5, size*.52);
+        stops.forEach(s => grad.addColorStop(s[0], s[1]));
+        g.fillStyle = grad;
+        g.beginPath(); g.arc(size/2, size/2, size/2, 0, Math.PI*2); g.fill();
+        return cv;
     }
-    const CX = 840, CY = 336;
-    const GRID = 120;
-    const RIPPLE_RANGE = 4.5;
-    seats.forEach((s, i) => {
-        const dx = parseFloat(s.getAttribute('cx')) - CX;
-        const dy = parseFloat(s.getAttribute('cy')) - CY;
-        const dPx = Math.sqrt(dx*dx + dy*dy);
-        const dGrid = dPx / GRID;
-        // 全 seat：距離ベースで opacity（中心近い：濃い・外周：薄い）
-        const op = Math.max(0.3, 1 - dGrid * 0.1);
-        s.style.setProperty('--seat-op', op.toFixed(2));
+    function glowSprite(size, rgb, a0){
+        const cv = document.createElement('canvas'); cv.width = cv.height = size;
+        const g = cv.getContext('2d');
+        const grad = g.createRadialGradient(size/2,size/2,0, size/2,size/2,size/2);
+        grad.addColorStop(0, `rgba(${rgb},${a0})`);
+        grad.addColorStop(.45, `rgba(${rgb},${a0*.32})`);
+        grad.addColorStop(1, `rgba(${rgb},0)`);
+        g.fillStyle = grad;
+        g.fillRect(0,0,size,size);
+        return cv;
+    }
+    const SP_GREY   = sphereSprite(160, [[0,'#FBFBFC'],[.45,'#D6D6DB'],[1,'#70707A']]);
+    const SP_VIOLET = sphereSprite(160, [[0,'#E9E6FF'],[.42,'#9B92FF'],[1,'#42399B']]);
+    const SP_ORB    = sphereSprite(200, [[0,'#F4F2FF'],[.34,'#B0A8FF'],[.75,'#6E63FF'],[1,'#4038A8']]);
+    const SP_SHADOW = glowSprite(160, '18,18,32', .30);
+    const SP_GLOW   = glowSprite(220, '135,126,255', .55);
+    const SP_BLOOM  = glowSprite(300, '120,110,255', .40);
+
+    // ---------- グリッド構築 ----------
+    function buildSeats(){
+        compact = W < 760;
+        COLS = compact ? 9 : 13;
+        ROWS = compact ? 6 : 8;
+        VAC  = compact ? {gx:6, gz:2} : {gx:9, gz:3};
+        seats = [];
+        for(let gz=0; gz<ROWS; gz++){
+            for(let gx=0; gx<COLS; gx++){
+                const X = (gx-(COLS-1)/2)*S, Z = (gz-(ROWS-1)/2)*S;
+                const isVac = (gx===VAC.gx && gz===VAC.gz);
+                const seat = {
+                    gx, gz, X, Z, isVac,
+                    dist: 0,                                   // 空席からの世界距離
+                    phase: Math.random()*Math.PI*2,
+                    phase2: Math.random()*Math.PI*2,
+                    delay: .1 + (gx+(ROWS-1-gz))/(COLS+ROWS)*.75 + Math.random()*.22,
+                    lit: 0,                                    // 紫（0-1）
+                    glow: 0,                                   // ポインター光（0-1）
+                    ox:0, oy:0, ovx:0, ovy:0,                  // 画面系ばね変位
+                    sx:0, sy:0, sr:0, sz:1                     // 投影キャッシュ
+                };
+                seats.push(seat);
+                if(isVac) vacSeat = seat;
+            }
+        }
+        const vx = (VAC.gx-(COLS-1)/2)*S, vz = (VAC.gz-(ROWS-1)/2)*S;
+        seats.forEach(s => { s.dist = Math.hypot(s.X-vx, s.Z-vz); });
+    }
+
+    // ---------- カメラと投影 ----------
+    const cam = { x:0, h:560, z:-820, f:600, ax:0, ay:0, pitch:0, yaw:0 };
+    function project(X, Y, Z, out){
+        let x = X - cam.x, y = Y - cam.h, z = Z - cam.z;
+        const cy = Math.cos(cam.yaw), sy = Math.sin(cam.yaw);
+        const x1 = x*cy - z*sy, z1 = x*sy + z*cy;
+        const cp = Math.cos(cam.pitch), sp = Math.sin(cam.pitch);
+        const y2 = y*cp + z1*sp;
+        const z2 = -y*sp + z1*cp;
+        if(z2 < 80) { out.z = -1; return out; }
+        const s = cam.f / z2;
+        const px = x1*s, py = -y2*s;
+        const cr = Math.cos(ROLL), sr = Math.sin(ROLL);
+        out.x = cam.ax + px*cr - py*sr;
+        out.y = cam.ay + px*sr + py*cr;
+        out.s = s; out.z = z2;
+        return out;
+    }
+    function ringPath(cx, cz, r, y){
+        ctx.beginPath();
+        const p = {};
+        for(let i=0; i<=44; i++){
+            const a = i/44*Math.PI*2;
+            project(cx+Math.cos(a)*r, y||1, cz+Math.sin(a)*r, p);
+            if(p.z<0) continue;
+            if(i===0) ctx.moveTo(p.x,p.y); else ctx.lineTo(p.x,p.y);
+        }
+    }
+
+    // ---------- 物語タイムライン ----------
+    function timeline(tt){
+        const st = { vacA:1, vacY:0, ringA:0, orb:0, orbA:0, front:-1, release:0, ripples:[] };
+        if(tt >= 3 && tt < 5.2){ const p = eio((tt-3)/2.2); st.vacY = 170*p; st.vacA = 1-p; }
+        else if(tt >= 5.2){ st.vacA = 0; }
+        if(tt >= 23.8){ const p = eio(clamp((tt-23.8)/1.7,0,1)); st.vacA = p; st.vacY = 170*(1-p); }
+        if(tt >= 5.2 && tt < 10.2){
+            const inA  = clamp((tt-5.2)/.8,0,1);
+            const outA = tt>9.2 ? 1-clamp((tt-9.2)/1,0,1) : 1;
+            st.ringA = .55 * inA * outA * (.75 + .25*Math.sin((tt-5.2)*2.4));
+        }
+        if(tt >= 9.0){
+            st.orb  = eob(clamp((tt-9.0)/2.2,0,1));
+            st.orbA = clamp((tt-9.0)/.9,0,1);
+            if(tt > 23.2){ const f = clamp((tt-23.2)/1.5,0,1); st.orbA *= 1-f; }
+        }
+        if(tt >= 11.2) st.front = (tt-11.2)*300;
+        if(tt >= 21.5) st.release = eio(clamp((tt-21.5)/3,0,1));
+        for(const t0 of [11.2, 12.15]){
+            if(tt >= t0 && tt < t0+2.8){
+                const p = (tt-t0)/2.8;
+                st.ripples.push({ r: eoc(p)*780, a: .5*(1-p) });
+            }
+        }
+        return st;
+    }
+
+    // ---------- ポインター ----------
+    let px = -1e5, py = -1e5, pEnergy = 0, pnx = 0, pny = 0;
+    let burst = null;
+    if(FINE){
+        let lx = null, ly = null;
+        hero.addEventListener('pointermove', e => {
+            const r = canvas.getBoundingClientRect();
+            px = e.clientX - r.left; py = e.clientY - r.top;
+            pnx = (e.clientX/window.innerWidth - .5)*2;
+            pny = (e.clientY/window.innerHeight - .5)*2;
+            if(lx !== null) pEnergy = Math.min(pEnergy + Math.hypot(px-lx, py-ly)/70, 1.6);
+            lx = px; ly = py;
+        }, { passive:true });
+        hero.addEventListener('pointerleave', () => { px = py = -1e5; lx = ly = null; }, { passive:true });
+    }
+    hero.addEventListener('pointerdown', e => {
+        const r = canvas.getBoundingClientRect();
+        burst = { x: e.clientX-r.left, y: e.clientY-r.top, t: 0 };
+    }, { passive:true });
+
+    // ---------- リサイズ ----------
+    let camPnx = 0, camPny = 0;
+    function fit(){
+        const r = wrap.getBoundingClientRect();
+        DPR = Math.min(window.devicePixelRatio||1, 2);
+        W = Math.max(r.width, 1); H = Math.max(r.height, 1);
+        canvas.width = Math.round(W*DPR); canvas.height = Math.round(H*DPR);
+        ctx.setTransform(DPR,0,0,DPR,0,0);
+        const wasCompact = compact;
+        if(seats.length === 0 || (W<760) !== wasCompact) buildSeats();
+        cam.f = compact ? W*.86 : Math.min(Math.max(W*.56, 380), 980);
+        cam.ax = compact ? W*.5 : W*.44;
+        cam.ay = compact ? H*.46 : H*.47;
+        if(STATIC) drawFrame(999, 18, 1);   // 静止版は再描画
+    }
+
+    // ---------- 1フレーム描画 ----------
+    const P = {};
+    function drawFrame(t, tt, globalA){
+        ctx.clearRect(0,0,W,H);
+        if(globalA <= 0.005) return;
+
+        const st = timeline(tt);
+
+        // 投影を全席分キャッシュ
+        for(const s of seats){
+            const bob = STATIC ? 0 : 3.2*Math.sin(t*.6 + s.phase);
+            let iy = 0, ia = 1;
+            if(!STATIC && t < INTRO + s.delay){
+                const p = clamp((t - s.delay)/1.2, 0, 1);
+                const e = eoq(p);
+                iy = -360*(1-e); ia = Math.pow(e,1.2);
+            }
+            s.ia = ia;
+            let vy = 0, va = 1;
+            if(s.isVac){ vy = st.vacY; va = st.vacA; }
+            s.va = va;
+            project(s.X, R_W + bob + iy + vy, s.Z, P);
+            if(P.z < 0){ s.sz = -1; continue; }
+            s.sx = P.x + s.ox; s.sy = P.y + s.oy; s.sr = P.s * R_W; s.sz = P.z;
+        }
+
+        // 席ごとの紫（波）とポインター光を更新
+        for(const s of seats){
+            if(!STATIC){
+                // 波：波頭からの距離で 立ち上がり→ピーク→定着
+                let target = 0;
+                if(st.front >= 0){
+                    const xw = st.front - s.dist;
+                    if(xw > 0){
+                        if(xw < 160) target = .92 * (xw/160);
+                        else {
+                            const decay = clamp((xw-160)/420, 0, 1);
+                            target = .92*(1-decay) + LIFT*decay;
+                        }
+                    }
+                }
+                target *= (1 - st.release);
+                s.lit += (target - s.lit) * .08;
+
+                // ポインター光＋磁力（fine pointer）
+                let gT = 0, txo = 0, tyo = 0;
+                if(FINE && px > -1e4){
+                    const dx = s.sx-px, dy = s.sy-py;
+                    const d2 = dx*dx + dy*dy;
+                    const fall = Math.exp(-d2/(2*120*120));
+                    gT = fall * (.3 + .7*Math.min(pEnergy,1));
+                    const d = Math.sqrt(d2)+.001;
+                    const rep = 15 * Math.exp(-d2/(2*140*140));
+                    txo = dx/d*rep; tyo = dy/d*rep;
+                }
+                if(burst){
+                    const d = Math.hypot(s.sx-burst.x, s.sy-burst.y);
+                    const ring = Math.exp(-Math.pow(d - burst.t*430, 2)/(2*75*75));
+                    gT = Math.max(gT, ring * Math.max(0, 1-burst.t/1.1));
+                }
+                s.glow += (gT - s.glow) * .12;
+                s.ovx += (txo - s.ox)*.05;  s.ovy += (tyo - s.oy)*.05;
+                s.ovx *= .88; s.ovy *= .88;
+                s.ox += s.ovx; s.oy += s.ovy;
+            } else {
+                s.lit = LIFT; s.glow = 0;
+            }
+        }
+
+        // ---- pass 1：床（影・破線リング・リップル） ----
+        const vx = vacSeat.X, vz = vacSeat.Z;
+        for(const s of seats){
+            if(s.sz < 0) continue;
+            const depthA = clamp(1.35 - s.sz/1500, .16, 1);
+            const a = depthA * s.ia * (s.isVac ? s.va : 1) * globalA;
+            if(a <= .01) continue;
+            project(s.X, 0, s.Z, P);
+            if(P.z < 0) continue;
+            const sw = P.s * R_W * 2.4, sh = sw*.34;
+            ctx.globalAlpha = a * .5;
+            ctx.drawImage(SP_SHADOW, P.x + s.ox - sw/2, P.y + s.oy - sh/2, sw, sh);
+        }
+        if(st.ringA > .01){
+            ctx.globalAlpha = st.ringA * globalA;
+            ctx.strokeStyle = '#635BFF';
+            ctx.lineWidth = 1.6;
+            ctx.setLineDash([7,8]);
+            ringPath(vx, vz, 46);
+            ctx.stroke();
+            ctx.setLineDash([]);
+        }
+        for(const rp of st.ripples){
+            ctx.globalAlpha = rp.a * globalA;
+            ctx.strokeStyle = '#635BFF';
+            ctx.lineWidth = 2.2 * (1 - rp.r/900) + .6;
+            ringPath(vx, vz, 60 + rp.r);
+            ctx.stroke();
+        }
+        // AI球の床光
+        if(st.orbA > .01){
+            project(vx, 0, vz, P);
+            if(P.z > 0){
+                const gw = P.s * R_W * 6 * st.orb;
+                ctx.globalAlpha = .34 * st.orbA * globalA;
+                ctx.drawImage(SP_BLOOM, P.x-gw/2, P.y-gw*.17, gw, gw*.34);
+            }
+        }
+
+        // ---- pass 2：球（奥→手前） ----
+        const order = seats.slice().sort((a,b) => b.sz - a.sz);
+        // AI球の描画深度を得る
+        let orbP = null;
+        if(st.orbA > .01){
+            const pulse = STATIC ? 1 : 1 + .045*Math.sin(t*2.1);
+            const oR = R_W * 1.42 * st.orb * pulse;
+            const oP = {};
+            project(vx, oR + 4, vz, oP);
+            if(oP.z > 0) orbP = { x:oP.x, y:oP.y, r:oP.s*oR, z:oP.z, a:st.orbA };
+        }
+        let orbDrawn = false;
+        for(const s of order){
+            if(orbP && !orbDrawn && orbP.z > s.sz){ drawOrb(orbP, globalA, t); orbDrawn = true; }
+            if(s.sz < 0) continue;
+            if(s.isVac && s.va <= .01) continue;
+            const depthA = clamp(1.35 - s.sz/1500, .16, 1);
+            const a = depthA * s.ia * (s.isVac ? s.va : 1) * globalA;
+            if(a <= .01) continue;
+            const breath = STATIC ? 1 : 1 + .018*Math.sin(t*.5 + s.phase2);
+            const r = s.sr * breath * (1 + .1*s.glow);
+            ctx.globalAlpha = a;
+            ctx.drawImage(SP_GREY, s.sx-r, s.sy-r, r*2, r*2);
+            if(s.lit > .01){
+                ctx.globalAlpha = a * s.lit;
+                ctx.drawImage(SP_VIOLET, s.sx-r, s.sy-r, r*2, r*2);
+            }
+            if(s.glow > .02){
+                const gr = r*2.4;
+                ctx.globalCompositeOperation = 'lighter';
+                ctx.globalAlpha = s.glow * .5 * globalA;
+                ctx.drawImage(SP_GLOW, s.sx-gr, s.sy-gr, gr*2, gr*2);
+                ctx.globalCompositeOperation = 'source-over';
+            }
+        }
+        if(orbP && !orbDrawn) drawOrb(orbP, globalA, t);
+        ctx.globalAlpha = 1;
+    }
+    function drawOrb(o, globalA, t){
+        // 外光 → 中光 → 実体の3層（発光はlighter合成）
+        ctx.globalCompositeOperation = 'lighter';
+        const g1 = o.r*4.6;
+        ctx.globalAlpha = .5 * o.a * globalA;
+        ctx.drawImage(SP_BLOOM, o.x-g1, o.y-g1, g1*2, g1*2);
+        const g2 = o.r*2.2;
+        ctx.globalAlpha = .7 * o.a * globalA;
+        ctx.drawImage(SP_GLOW, o.x-g2, o.y-g2, g2*2, g2*2);
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.globalAlpha = o.a * globalA;
+        ctx.drawImage(SP_ORB, o.x-o.r, o.y-o.r, o.r*2, o.r*2);
+    }
+
+    // ---------- メインループ ----------
+    const STATIC = REDUCED_MOTION;
+    // 検証用の時刻シード（?seatT=12 で物語の途中から再生）
+    const seedT = parseFloat(new URLSearchParams(location.search).get('seatT'));
+    let t = Number.isFinite(seedT) ? seedT : 0;
+    let last = null, running = false, inView = true;
+    function frame(now){
+        if(!running) return;
+        if(last === null) last = now;
+        const dt = Math.min((now-last)/1000, .05);
+        last = now;
+        t += dt;
+        pEnergy *= .95;
+        if(burst){ burst.t += dt; if(burst.t > 1.2) burst = null; }
+
+        // スクロール：ドリーバック＋溶暗
+        const sp = clamp(window.scrollY / (hero.offsetHeight*.85), 0, 1);
+        const globalA = 1 - eio(clamp((sp-.45)/.55, 0, 1));
+
+        // カメラ：ゆっくり漂う＋ポインター視差＋スクロールドリー
+        camPnx += (pnx - camPnx)*.03;
+        camPny += (pny - camPny)*.03;
+        cam.x = 26*Math.sin(t*.07) + camPnx*-34;
+        cam.h = 560 + 10*Math.sin(t*.11) + camPny*-22 + sp*150;
+        cam.z = -820 - sp*280;
+        const dz = 60 - cam.z;
+        cam.pitch = Math.atan2(cam.h, dz);
+        cam.yaw = -cam.x/dz*.6;
+
+        const ttRaw = t - INTRO - .9;
+        const tt = ttRaw < 0 ? 0 : ttRaw % LOOP;
+        drawFrame(t, tt, globalA);
+        requestAnimationFrame(frame);
+    }
+    function start(){
+        if(STATIC || running || !inView || document.hidden) return;
+        running = true; last = null;
+        requestAnimationFrame(frame);
+    }
+    function stop(){ running = false; }
+
+    new IntersectionObserver((entries) => {
+        inView = entries[0].isIntersecting;
+        if(inView) start(); else stop();
+    }, { rootMargin:'120px' }).observe(hero);
+    document.addEventListener('visibilitychange', () => {
+        if(document.hidden) stop(); else start();
     });
-    // 個別 keyframes 生成（じわじわ感を出す配分）：
-    // 0-6%    : 静止
-    // 6-S%    : fade-in 待ち（距離が遠いほど遅く始まる）
-    // S-(S+25)%: グレー → 紫（25%幅でじわじわ移行）
-    // 65-75%  : 全 seat 紫キープ（完成形 stay 2.2秒）
-    // 75-90%  : 全 seat 一斉にじわじわグレーに戻る（15%幅）
-    // 90-100% : グレー静止
-    let styles = '';
-    seats.forEach((s, i) => {
-        const dx = parseFloat(s.getAttribute('cx')) - CX;
-        const dy = parseFloat(s.getAttribute('cy')) - CY;
-        const dGrid = Math.sqrt(dx*dx + dy*dy) / GRID;
-        if (dGrid > RIPPLE_RANGE) return;
-        const startPct = 6 + (dGrid / RIPPLE_RANGE) * 34;    // 6〜40% で fade-in 開始
-        const peakPct = Math.min(startPct + 25, 65);          // 25%幅でじわじわ紫到達
-        s.classList.add(`s${i}`);
-        styles += `
-.hero-visual .s${i}{ animation:p${i} 22s cubic-bezier(.45,.05,.45,.95) infinite; }
-@keyframes p${i}{
-    0%, ${startPct.toFixed(1)}% { fill:url(#sphere-grey); }
-    ${peakPct.toFixed(1)}%, 75% { fill:url(#sphere-ai); }
-    90%, 100% { fill:url(#sphere-grey); }
-}`;
+
+    // 静止版（reduced motion）：AIが席を満たした完成形の1フレームのみ
+    function staticFrame(){
+        cam.x = 0; cam.h = 560; cam.z = -820;
+        const dz = 60 - cam.z;
+        cam.pitch = Math.atan2(cam.h, dz);
+        cam.yaw = 0;
+        drawFrame(999, 18, 1);
+    }
+
+    let roTimer = null;
+    new ResizeObserver(() => {
+        clearTimeout(roTimer);
+        roTimer = setTimeout(() => { fit(); if(STATIC) staticFrame(); }, 80);
+    }).observe(wrap);
+    fit();
+    if(STATIC) staticFrame(); else start();
+})();
+
+// 引用スクラブ（philosophy）：スクロールで一文字ずつ点灯・「消す。」だけ紫で着地
+(function quoteScrub(){
+    const q = document.querySelector('#philosophy .pull-quote p');
+    if(!q) return;
+    const raw = q.textContent;
+    const keyFrom = raw.indexOf('消す。');
+    // 文字span化（<br>等の要素はそのまま残す）
+    const chars = [];
+    let idx = 0;
+    const nodes = Array.from(q.childNodes);
+    nodes.forEach(node => {
+        if(node.nodeType !== Node.TEXT_NODE) return;
+        const frag = document.createDocumentFragment();
+        [...node.textContent].forEach(ch => {
+            const sp = document.createElement('span');
+            sp.className = 'q-char' + (keyFrom >= 0 && idx >= keyFrom ? ' q-key' : '');
+            sp.textContent = ch;
+            frag.appendChild(sp);
+            chars.push(sp);
+            idx++;
+        });
+        q.replaceChild(frag, node);
     });
-    const styleEl = document.createElement('style');
-    styleEl.textContent = styles;
-    document.head.appendChild(styleEl);
+    q.classList.add('scrub-ready');
+    if(REDUCED_MOTION) return;   // CSS側で点灯済み静止
+    let ticking = false;
+    function update(){
+        ticking = false;
+        const r = q.getBoundingClientRect();
+        const vh = window.innerHeight;
+        const p = clamp01((vh*.88 - r.top) / (vh*.5));
+        const active = Math.floor(p * chars.length + .0001);
+        chars.forEach((c, i) => c.classList.toggle('on', i < active));
+    }
+    function clamp01(v){ return v<0?0:(v>1?1:v); }
+    window.addEventListener('scroll', () => {
+        if(!ticking){ ticking = true; requestAnimationFrame(update); }
+    }, { passive:true });
+    update();
 })();
 
 // FAQ アコーディオン（実測高さで滑らかに開閉・キーボード操作対応）
