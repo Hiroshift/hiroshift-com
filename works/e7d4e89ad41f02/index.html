@@ -1,0 +1,360 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>設備保全 引き継ぎカード ｜ タキ食品工業</title>
+<style>
+  :root{
+    --ink:#22262b; --sub:#6a7078; --line:#e0ddd3; --edge:#d3cfc2;
+    --paper:#f4f0e7; --card:#fffdf8; --cream:#faf7ef;
+    --steel:#2f6f8f; --steel-d:#255b76;
+    --ok:#2f7d4d; --ok-bg:#eef6ef; --ok-ink:#256b40;
+    --warn:#b83218; --warn-bg:#fbeee9; --warn-ink:#9c2c14;
+    --amber:#e0a020; --coal:#2c2a26;
+    --gray:#8b8f96;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0; color:var(--ink); background:var(--paper);
+    background-image:radial-gradient(rgba(90,80,55,.035) 1px, transparent 1px);
+    background-size:4px 4px;
+    font-family:-apple-system,"Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,sans-serif;
+    line-height:1.7; letter-spacing:.01em;
+  }
+  .wrap{max-width:900px; margin:0 auto; padding:22px 18px 64px}
+
+  .head{
+    background:linear-gradient(180deg,#2b3037,#23262b);
+    color:#fff; border-radius:12px; padding:16px 20px; display:flex;
+    align-items:center; gap:14px; box-shadow:0 3px 0 #1a1d21, 0 8px 20px rgba(20,22,26,.22);
+    position:relative; overflow:hidden;
+  }
+  .head::after{content:"";position:absolute;left:0;right:0;bottom:0;height:6px;
+    background:repeating-linear-gradient(45deg,var(--amber) 0 14px,#202226 14px 28px);opacity:.9}
+  .badge{width:46px;height:46px;border-radius:9px;flex:none;background:var(--amber);color:#3a2c05;
+    display:flex;align-items:center;justify-content:center;font-weight:900;font-size:21px;
+    box-shadow:inset 0 0 0 2px rgba(0,0,0,.12);transform:rotate(-3deg)}
+  .head h1{font-size:17.5px;margin:0;font-weight:900;letter-spacing:.03em}
+  .head .meta{font-size:12px;color:#c3cad2;margin-top:3px}
+  .tag-live{margin-left:auto;font-size:10.5px;color:#d7dee6;border:1px solid #4a545f;
+    padding:4px 10px;border-radius:999px;white-space:nowrap;font-family:ui-monospace,Menlo,monospace}
+
+  /* purpose — one clear sentence */
+  .purpose{
+    margin:14px 2px 0;background:var(--card);border:1px solid var(--edge);border-left:5px solid var(--steel);
+    border-radius:0 11px 11px 0;padding:13px 16px;box-shadow:0 2px 6px rgba(80,70,45,.05);
+  }
+  .purpose .k{font-size:11px;font-weight:800;color:var(--steel-d);letter-spacing:.08em}
+  .purpose p{margin:3px 0 0;font-size:14.5px;color:#2a2f35;line-height:1.6;font-weight:600}
+  .purpose p b{color:var(--warn-ink)}
+
+  .note{margin:10px 2px 0;font-size:11.5px;color:var(--sub);background:var(--cream);
+    border:1px solid var(--line);border-radius:9px;padding:8px 13px}
+  .note b{color:#43484e}
+
+  .board-h{display:flex;align-items:baseline;gap:12px;margin:26px 2px 14px;flex-wrap:wrap}
+  .board-h h2{font-size:18px;margin:0;font-weight:900;color:#1e2228;letter-spacing:.02em}
+  .board-h .sub{font-size:12.5px;color:var(--sub)}
+
+  .pick{background:var(--card);border:1px solid var(--edge);border-radius:12px;padding:12px 14px;
+    display:flex;gap:11px;align-items:center;flex-wrap:wrap;box-shadow:0 1px 0 #fff inset,0 2px 6px rgba(80,70,45,.05)}
+  .pick .mag{font-size:16px;opacity:.5}
+  .pick input{flex:1;min-width:170px;border:0;border-bottom:2px solid var(--line);padding:7px 4px;
+    font-size:15px;font-family:inherit;color:#2a2f35;background:transparent}
+  .pick input:focus{outline:none;border-bottom-color:var(--steel)}
+  .count{font-size:12px;color:var(--sub);white-space:nowrap;font-family:ui-monospace,Menlo,monospace}
+  .count b{color:var(--steel-d);font-size:14px}
+
+  .chips{display:flex;gap:8px;flex-wrap:wrap;margin:11px 2px 16px}
+  .chip{font-size:12.5px;border:1px solid var(--edge);background:var(--card);color:#454b52;
+    padding:6px 13px;border-radius:999px;cursor:pointer;transition:transform .08s,box-shadow .12s,background .12s;
+    box-shadow:0 1.5px 0 var(--edge)}
+  .chip:hover{border-color:var(--steel);color:var(--steel-d)}
+  .chip:active{transform:translateY(1.5px);box-shadow:none}
+  .chip.on{background:var(--steel);color:#fff;border-color:var(--steel);box-shadow:0 1.5px 0 var(--steel-d)}
+
+  .legend{display:flex;gap:16px;flex-wrap:wrap;margin:2px 2px 4px;font-size:12.5px}
+  .lg{display:flex;align-items:center;gap:7px;color:#4c525a}
+  .dot{width:12px;height:12px;border-radius:3px;flex:none}
+  .dot.ok{background:var(--ok)} .dot.warn{background:var(--warn)}
+
+  .card{position:relative;background:var(--card);border:1px solid var(--edge);border-left:6px solid var(--ok);
+    border-radius:11px;margin-top:14px;overflow:hidden;box-shadow:0 1px 0 #fff inset,0 3px 10px rgba(80,70,45,.07);
+    transition:opacity .28s ease,transform .28s ease,max-height .38s ease,margin .38s ease,box-shadow .15s;max-height:560px}
+  .card:hover{transform:translateY(-2px);box-shadow:0 1px 0 #fff inset,0 8px 20px rgba(80,70,45,.13)}
+  .card.warn{border-left-color:var(--warn)}
+  .card.dim{opacity:0;max-height:0;margin-top:0;transform:translateY(-6px);box-shadow:none;pointer-events:none;border-width:0}
+  .hazard{height:7px;background:repeating-linear-gradient(45deg,var(--amber) 0 11px,var(--coal) 11px 22px);opacity:.88}
+  .card-top{display:flex;align-items:flex-start;gap:12px;padding:14px 16px 6px}
+  .sym{flex:1}
+  .sym .lab{font-size:11px;color:var(--gray);font-weight:700;letter-spacing:.06em}
+  .sym .txt{font-size:16px;font-weight:800;color:#1f2429;margin-top:2px;line-height:1.45}
+  .stamp{flex:none;margin-top:3px;font-size:11.5px;font-weight:900;letter-spacing:.06em;padding:5px 11px;
+    border:2.5px solid;border-radius:7px;transform:rotate(-4.5deg);background:rgba(255,255,255,.4);
+    white-space:nowrap;line-height:1.2;opacity:.94;box-shadow:0 0 0 1px rgba(255,255,255,.5) inset}
+  .stamp.warn{color:var(--warn);border-color:var(--warn)}
+  .stamp.ok{color:var(--ok);border-color:var(--ok)}
+  .route{padding:2px 16px 12px}
+  .route .line{display:flex;gap:10px;font-size:13.5px;padding:7px 0;border-top:1px dashed #eae6da}
+  .route .line .ic{flex:none;width:20px;text-align:center;font-weight:900;font-size:15px}
+  .route .line .ic.o{color:var(--ok)} .route .line .ic.x{color:var(--gray)}
+  .route .line b{color:#2a2f35}
+  .foothint{margin:0 16px 14px;font-size:12.5px;line-height:1.75;padding:9px 13px;border-radius:8px}
+  .foothint.warn{background:var(--warn-bg);border:1px solid #f0cebf;color:#7c3016}
+  .foothint.ok{background:var(--ok-bg);border:1px solid #cfe6d5;color:#24603c}
+  .foothint b{font-weight:800}
+  .foothint.warn b{color:var(--warn)} .foothint.ok b{color:var(--ok-ink)}
+  .foothint .tt{display:inline-block;font-weight:900;color:#fff;background:var(--warn);font-size:11px;
+    padding:2px 9px;border-radius:5px;margin-right:7px;letter-spacing:.04em}
+  code{background:#eef2f6;color:#33404f;padding:1px 6px;border-radius:5px;font-size:11.5px}
+
+  .nohit{display:none;margin-top:14px;font-size:13px;color:var(--sub);border:1.5px dashed var(--edge);
+    border-radius:10px;padding:15px 16px;background:var(--cream)}
+  .blank{margin-top:16px;border:1.5px dashed var(--edge);border-radius:12px;padding:15px 16px;background:var(--cream)}
+  .blank h3{margin:0 0 4px;font-size:14px;color:#5a6068;display:flex;align-items:center;gap:8px}
+  .blank p{margin:0 0 11px;font-size:12.5px;color:var(--sub)}
+  .blank ul{margin:0;padding-left:2px;list-style:none;display:flex;flex-direction:column;gap:8px}
+  .blank li{font-size:13.5px;color:#4c525a;display:flex;gap:10px;align-items:center}
+  .blank li .g{font-size:10.5px;color:#fff;background:var(--gray);border-radius:5px;padding:3px 9px;font-weight:800;white-space:nowrap;letter-spacing:.04em}
+
+  details.how{margin-top:26px;border:1px solid var(--edge);border-radius:12px;background:var(--cream);overflow:hidden}
+  details.how>summary{cursor:pointer;list-style:none;padding:14px 16px;font-weight:800;color:#3a4048;font-size:14px;display:flex;align-items:center;gap:9px}
+  details.how>summary::-webkit-details-marker{display:none}
+  details.how>summary .tw{color:var(--steel);font-size:12px;transition:transform .18s}
+  details.how[open]>summary .tw{transform:rotate(90deg)}
+  details.how>summary small{font-weight:600;color:var(--sub);font-size:12px}
+  .how-body{padding:2px 16px 18px;border-top:1px solid var(--line)}
+  .sstep{display:flex;align-items:center;gap:10px;margin:16px 0 9px;font-weight:800;color:#3a4048;font-size:13.5px}
+  .num{width:22px;height:22px;border-radius:50%;background:var(--steel);color:#fff;font-size:12px;display:flex;align-items:center;justify-content:center;flex:none}
+  textarea{width:100%;min-height:176px;resize:vertical;border:1px solid var(--edge);border-radius:9px;padding:12px 13px;font-size:13px;line-height:1.9;color:#2a2f35;font-family:inherit;background:#fff}
+  textarea:focus{outline:2px solid #2f6f8f33;border-color:var(--steel)}
+  .memo-cap{font-size:12px;color:var(--sub);margin:0 0 7px}
+  .ex{border:1px solid var(--edge);border-radius:10px;margin-top:11px;overflow:hidden;background:#fff}
+  .ex-h{background:#f6f2e9;border-bottom:1px solid var(--line);padding:8px 13px;font-size:12.5px;color:#4c5560}
+  .ex-h b{color:#2a3138}
+  .ex-body{display:grid;grid-template-columns:104px 1fr;gap:0}
+  .ex-body>div{padding:7px 13px;border-bottom:1px solid #f0ece2;font-size:12.5px}
+  .ex-body>div.k{background:#faf7ef;color:var(--sub);font-size:11.5px;font-weight:600;border-right:1px solid #f0ece2}
+  .ex-body>div:nth-last-child(-n+2){border-bottom:0}
+  .avoid{color:var(--warn)}
+
+  .foot{margin-top:28px;font-size:12px;color:var(--sub);border-top:1px solid var(--line);padding-top:15px}
+  .foot b{color:#43484e}
+  .foot ul{margin:8px 0 0;padding-left:19px}
+  .foot li{margin:4px 0;line-height:1.75}
+</style>
+
+<div style="position:sticky;top:0;z-index:99999;display:flex;gap:14px;align-items:center;justify-content:space-between;flex-wrap:wrap;padding:9px 14px;background:#12121F;color:#fff;font:600 13px/1.6 'Noto Sans JP','Hiragino Sans',sans-serif;">
+<a href="/#cases" style="display:inline-flex;align-items:center;gap:8px;padding:9px 18px;border-radius:999px;background:#fff;color:#12121F;text-decoration:none;font-weight:700;white-space:nowrap;">← アプリ一覧へ戻る</a>
+<span style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;"><span style="opacity:.7;font-weight:500;">架空の会社のデータで動きます。実際のデータは使っていません。</span><a href="https://zenn.dev/hiroshift/articles/e7d4e89ad41f02" target="_blank" rel="noopener" style="color:#fff;text-decoration:none;border-bottom:1px solid rgba(255,255,255,.4);white-space:nowrap;">設計の解説を読む</a></span>
+</div>
+<div class="wrap">
+
+  <div class="head">
+    <div class="badge">保</div>
+    <div>
+      <h1>設備保全 引き継ぎカード</h1>
+      <div class="meta">タキ食品工業（架空・飲料／液体調味料の製造）／坂上さん・保全歴30年・来月定年</div>
+    </div>
+    <div class="tag-live">OFFLINE ・ 架空DEMO</div>
+  </div>
+
+  <div class="purpose">
+    <div class="k">このアプリがすること</div>
+    <p>辞める坂上さんの「<b>どう直すか</b>」を、若手が“症状で引ける”一枚にして遺す。<br>そのまま真似ていい道か、坂上さんだから通った道かも、ひと目で分かる。</p>
+  </div>
+
+  <div class="note">
+    架空のシナリオです。会社・人物・連絡先はすべて架空で、<b>連絡先の実名はマスク</b>しています。下のカードは坂上さんの口述からAIが仕分けた<b>例</b>（作り方は末尾で開けます）。完全オフライン。
+  </div>
+
+  <div class="board-h">
+    <h2>症状で引く</h2>
+    <span class="sub">故障の症状を打つ／選ぶと、その「どう直すか」が出ます</span>
+  </div>
+
+  <div class="pick">
+    <span class="mag">🔎</span>
+    <input id="q" type="text" placeholder="例：ベアリング／温度／水漏れ" autocomplete="off" spellcheck="false">
+    <span class="count" id="count"></span>
+  </div>
+  <div class="chips" id="chips"></div>
+
+  <div class="legend">
+    <span class="lg"><span class="dot ok"></span>そのまま真似ていい（誰でも通る道）</span>
+    <span class="lg"><span class="dot warn"></span>坂上さんだから通った道（要引き継ぎ）</span>
+  </div>
+
+  <div id="cardWrap"></div>
+  <div class="nohit" id="nohit">その症状は、まだ坂上さんから聞けていません（＝未継承）。下の「まだ聞けていない症状」を参照してください。勝手には埋めません。</div>
+
+  <div class="blank">
+    <h3>📌 まだ聞けていない症状（＝未継承）</h3>
+    <p>坂上さんがまだ話していない故障です。空欄のまま残すことで「聞き取りが済んでいない穴」が見えます。AIは勝手に埋めません。</p>
+    <ul id="blankList"></ul>
+  </div>
+
+  <details class="how">
+    <summary><span class="tw">▶</span>この結果は、どう作られたか<small>坂上さんの口述メモ → AIが抜いた構造</small></summary>
+    <div class="how-body">
+      <div class="sstep"><span class="num">1</span>坂上さんの口述メモ<span style="font-weight:600;color:var(--sub);font-size:12px">（退職前の聞き取りの走り書き＝既にあるもの）</span></div>
+      <p class="memo-cap">「最近あった故障を1件ずつ、どう直したか話してください」——語った内容を、そのまま書き起こしたもの：</p>
+      <textarea id="memo" spellcheck="false">● 充填機のベアリングがキュルキュル鳴り出したとき。メーカーの正規窓口に電話すると受付は丁寧だけど部品が届くの一週間。ラインは止められない。だから旭精機の田中さんの携帯に直接「ベアリング異音、当日で欲しい」と言う。田中さんとは20年の付き合いで、これで当日便が来る。正規窓口には投げちゃダメ、間に合わない。
+
+● コンベアのモーターが急に止まったとき。これは中央電機（Bメーカー）。ここは必ず専用フォームの窓口を通すこと。俺の顔で電話しても、後で保証や責任の話で必ず揉める。急がば回れで窓口が正解。
+
+● 殺菌機の温度が上がらないとき。まず制御盤の右下のヒューズ2番を見る。だいたいこれが飛んでる。予備は保全庫の一番上。これは誰でもできる、業者を呼ぶ前に必ず見ること。
+
+● 冷却塔から水が漏れたとき。裏の設備屋の山さん（個人）に「ちょっと見て」で来てくれる。近所だから。ただ正式な発注書は切ってない、俺の口約束。</textarea>
+      <div class="sstep"><span class="num">2</span>AIが抜いた構造<span style="font-weight:600;color:var(--sub);font-size:12px">（連絡先でなく「症状・行動・効いた一言・避けたこと」を抽出）</span></div>
+      <div id="exWrap"></div>
+    </div>
+  </details>
+
+  <div class="foot">
+    <b>この道具の約束</b>
+    <ul>
+      <li>出すのは連絡先でなく「<b>どう直すか</b>」。症状で引けば、効く道と避ける道が一枚で出ます。</li>
+      <li><b>そのまま真似ていい道</b>と<b>坂上さんだから通った道</b>を分けるので、若手が真似て空振り・事故ることがない。</li>
+      <li>まだ聞けていない故障は「未継承」の空欄で残す。AIは勝手に埋めない。決めるのは人です。</li>
+    </ul>
+  </div>
+
+</div>
+
+<script>
+const EPISODES = [
+  {
+    sym:"充填機のベアリングから異音（キュルキュル）",
+    kw:["ベアリング","異音","充填","キュル","音"],
+    route:"warn",
+    ex:{
+      症状:"充填機のベアリングがキュルキュル鳴る",
+      "取った行動":"正規窓口を飛ばし、旭精機・T氏の携帯へ直接連絡",
+      "連絡相手":"旭精機 <code>T氏（実名マスク）</code>・私用携帯",
+      "効いた一言":"「ベアリング異音、当日で欲しい」",
+      "避けたこと":"メーカー正規窓口に投げること（部品到着まで一週間・ラインが止まる）"
+    },
+    lines:[
+      ["o","<b>効く道：</b>旭精機・担当者の携帯へ「ベアリング異音、当日便」で直接依頼 → 当日部品"],
+      ["x","<b>避ける道：</b>正規窓口（丁寧だが部品一週間・ライン停止）"]
+    ],
+    note:"<span class='tt'>要引き継ぎ</span>この道は、<b>坂上さん個人の20年の付き合いと私用携帯</b>で通っています。若手が同じ電話をしても、同じようには来ません。引き継ぐなら、後任を田中さんへ挨拶に連れて行くこと。"
+  },
+  {
+    sym:"コンベアのモーターが急停止",
+    kw:["コンベア","モーター","停止","止ま","急停止"],
+    route:"ok",
+    ex:{
+      症状:"コンベアのモーターが急に止まる",
+      "取った行動":"中央電機の専用フォーム窓口から正式に依頼",
+      "連絡相手":"中央電機（Bメーカー）・正規窓口",
+      "効いた一言":"（正規フォーム経由で症状を記載）",
+      "避けたこと":"顔見知り経由の電話依頼（後で保証・責任で揉める）"
+    },
+    lines:[
+      ["o","<b>効く道：</b>中央電機の専用フォーム窓口から正式依頼"],
+      ["x","<b>避ける道：</b>個人的な電話でのショートカット（後でトラブル）"]
+    ],
+    note:"これは坂上さん固有ではなく、<b>誰がやっても通る道</b>です。そのまま真似て大丈夫。「急がば回れで窓口が正解」という坂上さんの判断ごと、残せます。"
+  },
+  {
+    sym:"殺菌機の温度が上がらない",
+    kw:["殺菌","温度","上がらない","ヒューズ"],
+    route:"ok",
+    ex:{
+      症状:"殺菌機の温度が規定まで上がらない",
+      "取った行動":"業者を呼ぶ前に、制御盤右下のヒューズ2番を点検",
+      "連絡相手":"（自己対応・外部連絡なし）",
+      "効いた一言":"「まずヒューズ2番。予備は保全庫の最上段」",
+      "避けたこと":"いきなり業者を呼ぶこと（多くはヒューズ切れ）"
+    },
+    lines:[
+      ["o","<b>効く道：</b>制御盤右下・ヒューズ2番を確認（予備＝保全庫 最上段）"],
+      ["x","<b>避ける道：</b>点検前に業者手配（費用と時間の無駄）"]
+    ],
+    note:"外部に頼らず、<b>誰でもできる一次対応</b>です。坂上さんが「まずここを見る」と決めていた順番を、そのまま渡せます。"
+  },
+  {
+    sym:"冷却塔から水漏れ",
+    kw:["冷却塔","水漏れ","水","漏れ"],
+    route:"warn",
+    ex:{
+      症状:"冷却塔から水が漏れる",
+      "取った行動":"近所の個人設備屋・Y氏に口頭で来てもらう",
+      "連絡相手":"個人設備屋 <code>Y氏（実名マスク）</code>・近隣",
+      "効いた一言":"「ちょっと見て」",
+      "避けたこと":"（記載なし）"
+    },
+    lines:[
+      ["o","<b>効く道：</b>近所の設備屋・Y氏に「ちょっと見て」で当日対応"]
+    ],
+    note:"<span class='tt'>要引き継ぎ</span>この道は、<b>近所付き合いと坂上さんの口約束</b>で成り立っています。若手だけでは同じように頼めません。引き継ぐなら、坂上さんに紹介してもらうこと。"
+  }
+];
+
+const BLANKS = [
+  "制御盤にエラーコード E-04 が出たとき",
+  "充填機の充填量が少しずつズレるとき",
+  "冬場、朝イチでラインが起動しないとき"
+];
+
+function esc(s){return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
+
+function cardHTML(e,i){
+  const stamp = e.route==="ok"
+    ? `<span class="stamp ok">誰でも可</span>`
+    : `<span class="stamp warn">要引き継ぎ</span>`;
+  const hazard = e.route==="warn" ? `<div class="hazard"></div>` : "";
+  const lines = e.lines.map(l=>`<div class="line"><span class="ic ${l[0]}">${l[0]==='o'?'◎':'×'}</span><span>${l[1]}</span></div>`).join("");
+  const box = e.route==="ok"
+    ? `<div class="foothint ok">${e.note}</div>`
+    : `<div class="foothint warn">${e.note}</div>`;
+  return `<div class="card ${e.route==='warn'?'warn':''}" data-i="${i}">
+    ${hazard}
+    <div class="card-top">
+      <div class="sym"><div class="lab">症状</div><div class="txt">${esc(e.sym)}</div></div>
+      ${stamp}
+    </div>
+    <div class="route">${lines}</div>
+    ${box}
+  </div>`;
+}
+
+function exHTML(e,i){
+  const rows = Object.entries(e.ex).map(([k,v])=>
+    `<div class="k">${k}</div><div class="${k==='避けたこと'?'avoid':''}">${v}</div>`).join("");
+  return `<div class="ex"><div class="ex-h">エピソード ${i+1} ／ <b>${esc(e.sym)}</b></div><div class="ex-body">${rows}</div></div>`;
+}
+
+document.getElementById("cardWrap").innerHTML = EPISODES.map(cardHTML).join("");
+document.getElementById("exWrap").innerHTML   = EPISODES.map(exHTML).join("");
+document.getElementById("blankList").innerHTML =
+  BLANKS.map(b=>`<li><span class="g">未継承</span>${esc(b)}</li>`).join("");
+
+const chipDefs=[["ベアリング異音","ベアリング"],["モーター停止","モーター"],["温度が上がらない","温度"],["水漏れ","水漏れ"],["すべて",""]];
+document.getElementById("chips").innerHTML =
+  chipDefs.map((c,i)=>`<span class="chip${i===chipDefs.length-1?' on':''}" data-kw="${c[1]}">${c[0]}</span>`).join("");
+
+const q=document.getElementById("q"), nohit=document.getElementById("nohit"), countEl=document.getElementById("count");
+function applyFilter(term){
+  term=(term||"").trim();
+  let shown=0;
+  document.querySelectorAll("#cardWrap .card").forEach(el=>{
+    const e=EPISODES[+el.dataset.i];
+    const hit = !term || e.sym.includes(term) || e.kw.some(k=>k.includes(term)||term.includes(k));
+    el.classList.toggle("dim", !hit);
+    if(hit) shown++;
+  });
+  nohit.style.display = (term && shown===0) ? "block" : "none";
+  countEl.innerHTML = term ? `該当 <b>${shown}</b> 件` : `全 <b>${EPISODES.length}</b> 件`;
+}
+function setChip(kw){document.querySelectorAll(".chip").forEach(c=>c.classList.toggle("on", c.dataset.kw===kw));}
+q.addEventListener("input", ()=>{ setChip(" "); applyFilter(q.value); });
+document.getElementById("chips").addEventListener("click", ev=>{
+  const c=ev.target.closest(".chip"); if(!c) return;
+  const kw=c.dataset.kw; q.value=""; setChip(kw); applyFilter(kw);
+});
+applyFilter("");
+
+if(location.hash==="#open"){document.querySelector("details.how").open=true;}
+</script>

@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta name="robots" content="noindex">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI滝川さん──見積ヒアリング｜アオバ映像企画（社内ツール）</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family: "Hiragino Kaku Gothic ProN", "Yu Gothic", Meiryo, sans-serif;
+    background:#1c1e22; color:#d6d9de; font-size:13.5px; line-height:1.6;
+  }
+  .topbar {
+    background:#26292f; border-bottom:2px solid #3a3e46;
+    display:flex; align-items:center; gap:14px; padding:9px 16px; flex-wrap:wrap;
+  }
+  .topbar .logo { font-weight:700; font-size:14px; color:#f0f2f5; }
+  .topbar .logo small { color:#8b919c; font-weight:400; margin-left:8px; }
+  .badge-freee {
+    margin-left:auto; background:#20313a; border:1px solid #2e5a6e; color:#7ec8e3;
+    padding:3px 10px; border-radius:3px; font-size:11px;
+  }
+  .badge-freee b { color:#aadcf0; }
+
+  /* ステップバー */
+  .steps { display:flex; align-items:center; gap:0; padding:12px 16px 0; max-width:860px; margin:0 auto; }
+  .step { flex:1; text-align:center; position:relative; padding-bottom:10px; }
+  .step .num {
+    display:inline-flex; align-items:center; justify-content:center;
+    width:26px; height:26px; border-radius:50%; background:#31343b; color:#8b919c;
+    font-weight:700; font-size:12.5px; border:2px solid #43474f;
+  }
+  .step .lb { display:block; font-size:11px; color:#8b919c; margin-top:4px; }
+  .step.cur .num { background:#c07b34; color:#16130d; border-color:#e8a04c; }
+  .step.cur .lb { color:#e8a04c; font-weight:700; }
+  .step.done .num { background:#2e4a2e; color:#93c893; border-color:#4a6a4a; }
+  .step::after { content:""; position:absolute; top:13px; left:calc(50% + 20px); right:calc(-50% + 20px); height:2px; background:#43474f; }
+  .step:last-child::after { display:none; }
+
+  /* ダイヤル（コンパクト） */
+  .dialbar { display:flex; align-items:center; gap:8px; justify-content:center; padding:8px 16px 0; font-size:11.5px; color:#9aa0ab; flex-wrap:wrap; }
+  .dialbar .seg { display:flex; border:1px solid #43474f; border-radius:4px; overflow:hidden; }
+  .dialbar button {
+    background:#24272d; color:#9aa0ab; border:none; padding:5px 12px; font-size:11.5px; cursor:pointer;
+    border-right:1px solid #43474f; font-family:inherit;
+  }
+  .dialbar button:last-child { border-right:none; }
+  .dialbar button.on { background:#c07b34; color:#16130d; font-weight:700; }
+  .dialbar .rev { font-size:10.5px; }
+  .rev-ok { color:#7dbb7d; } .rev-mid { color:#e0c060; } .rev-ng { color:#e07a76; font-weight:700; }
+
+  .stage { max-width:860px; margin:14px auto 30px; padding:0 16px; }
+  .screen { display:none; }
+  .screen.show { display:block; }
+  .panel { background:#24272d; border:1px solid #383c44; border-radius:4px; }
+  .panel h2 {
+    font-size:12px; color:#9aa0ab; font-weight:700; letter-spacing:.06em;
+    padding:8px 12px; border-bottom:1px solid #383c44; background:#2a2d34;
+    border-radius:4px 4px 0 0;
+  }
+  .panel .bd { padding:14px; }
+
+  /* チャット */
+  .chat { display:flex; flex-direction:column; gap:9px; min-height:380px; }
+  .msg { max-width:86%; padding:8px 11px; border-radius:9px; font-size:13px; line-height:1.65; display:none; }
+  .msg.vis { display:block; }
+  .msg.ai { background:#26313b; border:1px solid #33465550; align-self:flex-start; border-bottom-left-radius:2px; }
+  .msg.ai .who { font-size:10.5px; color:#7ec8e3; font-weight:700; display:block; margin-bottom:2px; }
+  .msg.cl { background:#31343b; align-self:flex-end; border-bottom-right-radius:2px; }
+  .msg.cl .who { font-size:10.5px; color:#9aa0ab; font-weight:700; display:block; margin-bottom:2px; }
+  .chips { display:flex; gap:5px; flex-wrap:wrap; margin-top:5px; }
+  .chip { border:1px solid #4a6a7d; color:#a8cfe0; border-radius:10px; padding:1px 9px; font-size:11px; }
+  .chip.sel { background:#2e5a6e; color:#e6f4fa; }
+  .ctrl { display:flex; gap:10px; margin-top:14px; }
+  .btn {
+    flex:1; padding:11px; background:#c07b34; color:#16130d;
+    border:none; border-radius:3px; font-size:14px; font-weight:700; cursor:pointer; letter-spacing:.04em;
+    font-family:inherit;
+  }
+  .btn:hover { background:#d18c45; }
+  .btn.ghost { background:#31343b; color:#c6cad2; }
+  .btn:disabled { background:#31343b; color:#6f747e; cursor:not-allowed; }
+  .note-under { font-size:11px; color:#8b919c; margin-top:8px; }
+
+  /* 要件シート */
+  table.grid { width:100%; border-collapse:collapse; font-size:12.5px; }
+  table.grid th {
+    background:#2a2d34; color:#9aa0ab; font-size:11px; font-weight:700; text-align:left;
+    padding:6px 10px; border:1px solid #383c44;
+  }
+  table.grid td { padding:7px 10px; border:1px solid #383c44; vertical-align:top; }
+  .k { color:#8b919c; width:170px; }
+  .v { color:#e8e9ec; font-weight:700; }
+  .v.soft { font-weight:400; }
+  .fx { display:inline-block; border-radius:2px; padding:0 5px; font-size:10px; margin-left:6px; vertical-align:1px; }
+  .fx.m { background:#3d2f1e; color:#f0b26a; }
+  .fx.p { background:#2c333c; color:#9aa0ab; }
+
+  .zan { margin-top:14px; background:#2c2320; border:1px solid #6e4a2e; border-radius:3px; padding:11px 13px; }
+  .zan .h { font-size:12.5px; font-weight:700; color:#f0b26a; margin-bottom:5px; }
+  .zan ol { margin-left:20px; font-size:12.5px; color:#e3c9a8; }
+  .zan li { margin-bottom:3px; }
+  .zan .why { font-size:11px; color:#b9987e; }
+
+  .cost { font-variant-numeric:tabular-nums; white-space:nowrap; }
+  .konkyo { font-size:11.5px; color:#aab0ba; }
+  .konkyo .src { display:inline-block; background:#20313a; border:1px solid #2e5a6e; color:#7ec8e3; border-radius:2px; padding:0 5px; font-size:10.5px; margin-right:4px; }
+  .konkyo .none { color:#e0c060; font-weight:700; }
+  .total td { background:#2a2620; font-weight:700; color:#f0b26a; font-size:13.5px; }
+
+  .jun { margin-top:14px; }
+  .jun .box { background:#1f2126; border:1px solid #3a3e46; border-radius:3px; padding:10px 12px; }
+  .jun .h { font-size:11.5px; font-weight:700; color:#e8a04c; margin-bottom:5px; }
+  .jun .b { font-size:11.5px; color:#aab0ba; }
+  .jun .b b { color:#d6d9de; }
+
+  .freee-write { background:#172128; border:1px solid #2e5a6e; border-radius:3px; padding:13px 15px; }
+  .freee-write .ok { color:#7ec8e3; font-weight:700; font-size:14px; }
+  .freee-write .meta { font-size:12px; color:#9fb6c2; margin-top:6px; line-height:1.75; }
+  .freee-write code { background:#10181d; border:1px solid #24404e; border-radius:2px; padding:1px 6px; font-size:11px; color:#8fd0e8; }
+  .freee-write .warn { display:block; margin-top:9px; padding-top:8px; border-top:1px dashed #2e5a6e; font-size:11.5px; color:#e07a76; }
+
+  .scope { margin-top:12px; background:#1f242a; border:1px solid #2e5a6e55; border-radius:3px; padding:8px 10px; font-size:11px; color:#9fb6c2; }
+  .scope b { color:#7ec8e3; display:block; margin-bottom:2px; }
+  .scope .no { color:#8b919c; }
+  .llm-map { margin-top:12px; background:#22252b; border:1px dashed #4a4f58; border-radius:3px; padding:10px 12px; font-size:11.5px; color:#9aa0ab; }
+  .llm-map b { color:#c6cad2; }
+  .llm-map .row { margin-top:3px; }
+  .tag-llm { display:inline-block; background:#3a2c42; color:#c9a3dc; border-radius:2px; padding:0 5px; font-size:10.5px; margin-right:5px; }
+  .tag-rule { display:inline-block; background:#233541; color:#7ec8e3; border-radius:2px; padding:0 5px; font-size:10.5px; margin-right:5px; }
+  .tag-api { display:inline-block; background:#2c3a2c; color:#93c893; border-radius:2px; padding:0 5px; font-size:10.5px; margin-right:5px; }
+  .disclaimer { max-width:860px; margin:0 auto 20px; padding:8px 16px 0; font-size:11px; color:#8b919c; border-top:1px solid #383c44; }
+</style>
+</head>
+<body>
+<div style="position:sticky;top:0;z-index:99999;display:flex;gap:14px;align-items:center;justify-content:space-between;flex-wrap:wrap;padding:9px 14px;background:#12121F;color:#fff;font:600 13px/1.6 'Noto Sans JP','Hiragino Sans',sans-serif;">
+<a href="/#cases" style="display:inline-flex;align-items:center;gap:8px;padding:9px 18px;border-radius:999px;background:#fff;color:#12121F;text-decoration:none;font-weight:700;white-space:nowrap;">← アプリ一覧へ戻る</a>
+<span style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;"><span style="opacity:.7;font-weight:500;">架空の会社のデータで動きます。実際のデータは使っていません。</span><a href="https://zenn.dev/hiroshift/articles/bb66820f8ad337" target="_blank" rel="noopener" style="color:#fff;text-decoration:none;border-bottom:1px solid rgba(255,255,255,.4);white-space:nowrap;">設計の解説を読む</a></span>
+</div>
+
+<div class="topbar">
+  <div class="logo">AI滝川さん──見積ヒアリング <small>アオバ映像企画・制作部（社内ツール v0.3・社内モニタ表示）</small></div>
+  <div class="badge-freee">freee請求書から取込：<b>見積書 512件・請求書 487件</b>（API・毎朝6:00同期）※サンプルデータの表示例</div>
+</div>
+
+<div class="steps">
+  <div class="step" id="st1"><span class="num">1</span><span class="lb">問診チャット</span></div>
+  <div class="step" id="st2"><span class="num">2</span><span class="lb">要件シート</span></div>
+  <div class="step" id="st3"><span class="num">3</span><span class="lb">見積たたき台</span></div>
+  <div class="step" id="st4"><span class="num">4</span><span class="lb">freee書き込み</span></div>
+</div>
+
+<div class="dialbar">
+  自動化ダイヤル（どこまで任せるかは経営者が決める）：
+  <span class="seg">
+    <button data-d="1">1 台本まで</button>
+    <button data-d="2" class="on">2 たたき台まで</button>
+    <button data-d="3">3 freee書込みまで</button>
+  </span>
+  <span class="rev" id="revtxt">外した時：たたき台がズレる ＝ <span class="rev-mid">社内で直せる</span></span>
+</div>
+
+<div class="stage">
+
+  <!-- 画面1：問診チャット -->
+  <div class="screen" id="s1">
+    <div class="panel">
+      <h2>1／4　問診チャット ── B社ご担当・新規のご相談 ※応答は表示例（▲注記はお客様の画面には出ません）</h2>
+      <div class="bd">
+        <div class="chat" id="chat">
+          <div class="msg cl"><span class="who">B社ご担当</span>会社紹介の動画を作りたいと思っています。まず予算感が知りたいです。</div>
+          <div class="msg ai"><span class="who">AI滝川（問診）</span>ありがとうございます。最初に伺います——この動画は<b>どこで流す</b>予定ですか？
+            <span class="chips"><span class="chip">自社サイト</span><span class="chip sel">展示会ブース</span><span class="chip">TVCM</span><span class="chip sel">後日Webにも</span><span class="chip">SNS広告</span></span></div>
+          <div class="msg cl"><span class="who">B社ご担当</span>来月の展示会ブースで流して、その後は自社サイトにも載せたいです。</div>
+          <div class="msg ai"><span class="who">AI滝川（問診）</span>展示会は音声が届きにくいので<b>字幕前提の構成</b>をおすすめします。過去のご依頼で最も多い尺は90秒前後です。実写で撮影しますか？アニメーション中心ですか？
+            <span class="chips"><span class="chip sel">実写（撮影あり）</span><span class="chip">アニメーション</span><span class="chip sel">＋製品の3D断面を少し</span></span></div>
+          <div class="msg cl"><span class="who">B社ご担当</span>工場を実写で撮って、製品の中の構造は3Dで見せたいです。</div>
+          <div class="msg ai"><span class="who">AI滝川（問診）</span>撮影は<b>工場1箇所・1日</b>で収まりそうですか？　出演されるのは<b>社員の方</b>ですか、プロのキャストを起用しますか？</div>
+          <div class="msg cl"><span class="who">B社ご担当</span>工場1箇所・1日、出演は社員だけの予定です。ナレーションは付けたいです。</div>
+          <div class="msg ai"><span class="who">AI滝川（問診）</span>Webへの掲載は<b>期間限定ですか、無期限ですか</b>？（BGMのライセンス形態がここで変わります）　また、<b>製品のCADデータやロゴなど、お借りできる素材</b>はありますか？（3D断面はCAD支給の有無で費用が変わります）</div>
+          <div class="msg cl"><span class="who">B社ご担当</span>Webは無期限で。CADデータもロゴもお渡しできます。展示会が来月20日なので納品は15日まで、予算は150万円以内に収めたいです。</div>
+          <div class="msg ai"><span class="who">AI滝川（問診）</span>ありがとうございます。もう一つだけ——初稿のあとの<b>修正は2回まで見積に含めます</b>。3回目以降や構成の大きな変更は別途ご相談です。<br><br>ここまでで<b>概算のたたき台</b>をお出しできます。ただし<b>確定のお見積</b>は、①工場の下見（ロケハン）②3D断面の外注先見積③撮影日の調整——この3点を弊社の人間が確認してからになります。まずは概算からご覧ください。</div>
+        </div>
+        <div class="ctrl">
+          <button class="btn" id="nextMsg">▶ 会話を進める</button>
+          <button class="btn ghost" id="toS2" disabled>問診完了 → 要件シートへ</button>
+        </div>
+        <div class="note-under">※デモの会話は固定シナリオです（表示例）。本番はその場の答えに応じてAIが次の一問を組み立てます。</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 画面2：要件シート -->
+  <div class="screen" id="s2">
+    <div class="panel">
+      <h2>2／4　要件シート（問診から自動で埋まりました）── 橙タグ＝見積に効く／灰タグ＝企画に効く</h2>
+      <div class="bd">
+        <table class="grid">
+          <tr><td class="k">媒体・掲載場所</td><td class="v">展示会ブース＋自社サイト（無期限）<span class="fx m">権利・ライセンス</span></td></tr>
+          <tr><td class="k">尺・本数</td><td class="v">90秒 × 1本<span class="fx m">編集工数</span></td></tr>
+          <tr><td class="k">実写／アニメ</td><td class="v">実写＋3D断面2カット<span class="fx m">撮影費・3DCG</span></td></tr>
+          <tr><td class="k">撮影</td><td class="v">工場1箇所・1日<span class="fx m">撮影費一式</span></td></tr>
+          <tr><td class="k">出演</td><td class="v">社員のみ（プロキャスト無し）<span class="fx m">出演料=0・契約期間分岐なし</span></td></tr>
+          <tr><td class="k">支給素材</td><td class="v">製品CADデータ・ロゴ<span class="fx m">3DCG費を下げる</span></td></tr>
+          <tr><td class="k">ナレーション／BGM</td><td class="v">ナレあり／BGM無期限ライセンス<span class="fx m">MA・ライセンス</span></td></tr>
+          <tr><td class="k">納期</td><td class="v">来月15日（特急でない）<span class="fx m">特急係数=なし</span></td></tr>
+          <tr><td class="k">修正条項</td><td class="v">2回まで見積内で合意<span class="fx m">予備費</span></td></tr>
+          <tr><td class="k">目的・ターゲット</td><td class="v soft">展示会来場の設計担当者へ製品構造を伝える<span class="fx p">企画・構成用</span></td></tr>
+        </table>
+        <div class="zan">
+          <div class="h">⚠ 問診だけでは、見積は確定できません──人が詰める残り3点</div>
+          <ol>
+            <li><b>工場の下見（ロケハン）</b><span class="why">──電源・照明・騒音・撮影動線は行かないと分からない</span></li>
+            <li><b>3D断面の外注先見積</b><span class="why">──CAD支給ありでも、データの状態次第で工数が変わる</span></li>
+            <li><b>撮影日の調整</b><span class="why">──工場の稼働と技術スタッフの空きの突合</span></li>
+          </ol>
+        </div>
+        <div class="ctrl">
+          <button class="btn ghost" data-back="1">← 問診へ戻る</button>
+          <button class="btn" data-go="3">この内容で概算たたき台を作る →</button>
+        </div>
+      </div>
+    </div>
+    <div class="jun">
+      <div class="box"><div class="h">なぜこの順番で訊いたか（＝滝川さんの型）</div>
+        <div class="b">・<b>媒体と掲載期間は2問目まで</b>——後から媒体を広げられ、外注支払が見積を超えた案件が過去に3件（freeeの支出から検出）　・<b>出演者の分岐は撮影より先</b>——プロ起用なら金額と契約期間の話が全部変わる　・<b>予算は最後</b>——先に訊くと構成が予算に引っ張られる　・<b>修正条項は着工前</b>——「ついでにこれも」が積算で利益を食うのを入口で握る<br>
+        出所は二つ：<b>金額を動かす順と権利の分岐は記録から</b>（freeeの見積・請求・外注支払）。<b>「予算は最後」「修正条項は着工前」は滝川さんへの一度の聞き取り</b>で言葉にした流儀です。</div></div>
+    </div>
+  </div>
+
+  <!-- 画面3：たたき台 -->
+  <div class="screen" id="s3">
+    <div class="panel">
+      <h2>3／4　見積たたき台（概算）── freeeの過去見積が根拠。レンジ提示・確定は滝川さん</h2>
+      <div class="bd">
+        <table class="grid">
+          <tr><th>費目</th><th style="width:180px">レンジ（税抜）</th><th>根拠＝過去の似た案件</th></tr>
+          <tr><td>企画構成・台本</td><td class="cost">¥120,000〜150,000</td><td class="konkyo"><span class="src">類似11件</span>会社紹介・展示会向けの構成一式</td></tr>
+          <tr><td>撮影一式（工場ロケ1日・技術3名）</td><td class="cost">¥260,000〜320,000</td><td class="konkyo"><span class="src">類似9件</span>1日ロケ・機材込みの実績中央値 ¥285,000。<span class="none">下見（ロケハン）後に確定</span></td></tr>
+          <tr><td>編集・テロップ・字幕</td><td class="cost">¥180,000〜220,000</td><td class="konkyo"><span class="src">類似14件</span>90秒・字幕前提・修正2回分を織り込んだ実績</td></tr>
+          <tr><td>3DCG断面 2カット（CAD支給あり）</td><td class="cost">¥240,000〜400,000</td><td class="konkyo"><span class="src">類似3件</span><span class="none">実績が薄い費目＝幅を広く取っています。外注先の見積後に確定</span>（CAD支給ありの実績2件はレンジ下寄り）</td></tr>
+          <tr><td>ナレーション収録・MA</td><td class="cost">¥60,000〜90,000</td><td class="konkyo"><span class="src">類似12件</span>スタジオ半日・ナレーター1名</td></tr>
+          <tr><td>BGM（無期限利用ライセンス）</td><td class="cost">¥30,000〜50,000</td><td class="konkyo"><span class="src">類似7件</span>Web無期限掲載に対応する形態（利用範囲は規約による）</td></tr>
+          <tr class="total"><td>概算合計（修正2回分は編集費に織込み済み）</td><td class="cost">¥890,000〜1,230,000</td><td style="font-weight:400;color:#e3c9a8">ご予算150万円に対し収まる見込み。振れ幅の主因は3DCGとロケハン結果</td></tr>
+        </table>
+        <div class="note-under">※これは<b>概算</b>です。残確認3点（下見・3D外注見積・撮影日）の後に、滝川さんが確定します。実績のない組み合わせには「実績なし・滝川さんに確認」と出ます。</div>
+        <div class="ctrl">
+          <button class="btn ghost" data-back="2">← 要件シートへ戻る</button>
+          <button class="btn" id="toS4">概算見積としてfreeeに書き込む →</button>
+        </div>
+        <div class="note-under" id="dialGate" style="display:none;color:#e07a76">ダイヤル3（freee書込みまで）に合わせると、この先へ進めます。今の位置＝ここまで。</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 画面4：freee書き込み -->
+  <div class="screen" id="s4">
+    <div class="panel">
+      <h2>4／4　freee書き込み（ダイヤル3）</h2>
+      <div class="bd">
+        <div class="freee-write">
+          <span class="ok">✓ freee見積書 Q-2026-0187（下書き・概算）を作成しました</span>
+          <div class="meta">
+            <code>POST /quotations</code>　明細6行（quotation_lines：品目・数量・単価）／宛先：B社／有効期限：発行から30日<br>
+            単価はレンジの中央値で仮置きしています——freeeの画面で滝川さんが確定・確認し、送付ボタンを押すのは人です。見積番号はfreee側で採番。この時点では<b>下書き</b>です。
+          </div>
+          <span class="warn">⚠ ダイヤル3でも、送付までは自動化しません。下書きの金額を確認せず送る運用にするか——そこも含めて決めるのは経営者です。誤った金額の正式帳票が客に届いた場合、取り消せません。</span>
+        </div>
+        <div class="scope">
+          <b>この道具が読んでいるもの（参照範囲）</b>
+          freee見積書・請求書の品目/金額/日付（過去データはルールが集計・LLMには集計値のみ）／外注支払（freee支出・案件紐付け分＝持ち出しの検出用）／外注レート表（社内Excel）<br>
+          <span class="no">読んでいないもの：原価台帳・給与・過去のお客様の名前や所在地（読ませる範囲の変更は設定＝経営者の判断）・会話ログの保存（問診の内容は見積作成後に破棄）</span>
+        </div>
+        <div class="llm-map">
+          <b>この画面の中身（どこがAIで、どこがAIでないか）</b>
+          <div class="row"><span class="tag-llm">LLM</span>次の一問の組み立て（答えに応じた分岐・言い回し）／要件シートへの翻訳</div>
+          <div class="row"><span class="tag-rule">ルール</span>レンジの計算（類似実績の集計）・権利分岐の強制（媒体×期間→ライセンス形態）・修正条項の定型・特急係数＝毎回同じ基準で機械的に</div>
+          <div class="row"><span class="tag-api">freee API</span>過去見積・請求・外注支払の取り込み（品目/金額/日付のみ・毎朝同期）／見積書下書きの作成（POST /quotations）</div>
+        </div>
+        <div class="ctrl">
+          <button class="btn ghost" data-back="3">← たたき台へ戻る</button>
+          <button class="btn ghost" data-back="1">最初から見る</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="disclaimer">※掲載している画面は、架空の相談に対する<b>表示例</b>です（あらかじめ用意したもので、その場のライブ問診・生成ではありません）。本番はその場の答えに応じて次の質問を組み立てます。見逃しも誤りもあり得ます。金額の確定・見積書の送付は人（ダイヤルをどこに合わせるかも含めて）。</div>
+
+<script>
+  const msgs = [...document.querySelectorAll('#chat .msg')];
+  let shown = 0, dial = 2, cur = 1;
+
+  function showMsgs(n){
+    shown = Math.min(n, msgs.length);
+    msgs.forEach((m,i)=> m.classList.toggle('vis', i < shown));
+    document.getElementById('toS2').disabled = shown < msgs.length;
+    document.getElementById('nextMsg').disabled = shown >= msgs.length;
+  }
+  function goto(n){
+    cur = n;
+    for(let i=1;i<=4;i++){
+      document.getElementById('s'+i).classList.toggle('show', i===n);
+      const st = document.getElementById('st'+i);
+      st.classList.toggle('cur', i===n);
+      st.classList.toggle('done', i<n);
+    }
+    window.scrollTo(0,0);
+  }
+  function setDial(d){
+    dial = d;
+    document.querySelectorAll('.dialbar button').forEach(b=> b.classList.toggle('on', +b.dataset.d===d));
+    const rev = {1:'外した時：人が訊き方を言い換えるだけ ＝ <span class="rev-ok">戻せる</span>',
+                 2:'外した時：たたき台がズレる ＝ <span class="rev-mid">社内で直せる</span>',
+                 3:'外した時：誤った金額が正式帳票になる ＝ <span class="rev-ng">送付されたら戻せない</span>'};
+    document.getElementById('revtxt').innerHTML = rev[d];
+  }
+  document.querySelectorAll('.dialbar button').forEach(b=> b.addEventListener('click', ()=> setDial(+b.dataset.d)));
+  document.getElementById('nextMsg').addEventListener('click', ()=> showMsgs(shown+2));
+  document.getElementById('toS2').addEventListener('click', ()=> goto(2));
+  document.querySelectorAll('[data-go]').forEach(b=> b.addEventListener('click', ()=> goto(+b.dataset.go)));
+  document.querySelectorAll('[data-back]').forEach(b=> b.addEventListener('click', ()=> goto(+b.dataset.back)));
+  document.getElementById('toS4').addEventListener('click', ()=>{
+    if(dial===3){ goto(4); document.getElementById('dialGate').style.display='none'; }
+    else { document.getElementById('dialGate').style.display='block'; }
+  });
+
+  // ハッシュ制御（撮影用）：#s1t4 / #s2 / #s3 / #s4d3
+  const h = location.hash;
+  const m = h.match(/^#s(\d)(?:t(\d+))?(d3)?$/);
+  if(m){
+    if(m[3] || m[1]==='4') setDial(3);
+    goto(+m[1]);
+    showMsgs(m[2] ? +m[2] : (+m[1]===1 ? 2 : msgs.length));
+  } else {
+    goto(1); showMsgs(2);
+  }
+</script>
+</body>
+</html>

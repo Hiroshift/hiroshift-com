@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta name="robots" content="noindex">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>コトリ雑貨店 ストア管理 ── 商品編集（デモ）</title>
+<style>
+  :root{
+    --ink:#2a2620; --ink2:#4a4339; --sub:#6e675d; --soft:#9a8f7e;
+    --line:#e9e2d6; --line2:#f1ece2; --paper:#f6f1e8; --card:#ffffff; --field:#fcfaf4;
+    --accent:#d35438; --accent-d:#b8412a; --accent-soft:#fbeae5;
+    --warn:#c2832a; --warn-soft:#f8efdd; --yel:#a98f3e; --yel-soft:#f4efde;
+    --ok:#3f7d52; --ok-soft:#e9f1e9;
+    --nav:#211d18; --nav-line:#352f27; --nav-sub:#9c9384;
+    --shadow:0 1px 2px rgba(40,34,26,.05),0 10px 30px rgba(40,34,26,.07);
+    --shadow-sm:0 1px 2px rgba(40,34,26,.06);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Noto Sans JP",sans-serif;
+    color:var(--ink); background:var(--paper); line-height:1.7;
+    -webkit-font-smoothing:antialiased; font-size:14px; letter-spacing:.005em;
+  }
+  /* ===== app shell ===== */
+  .app{display:grid; grid-template-columns:226px 1fr; min-height:100vh}
+  /* sidebar */
+  .side{background:var(--nav); color:#e9e4da; padding:18px 14px; display:flex; flex-direction:column; gap:6px}
+  .brand{display:flex; align-items:baseline; gap:8px; padding:6px 8px 16px; border-bottom:1px solid var(--nav-line); margin-bottom:8px}
+  .brand .mk{width:26px;height:26px;border-radius:8px;background:var(--accent);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:14px;flex:none}
+  .brand b{font-size:15px;font-weight:800;letter-spacing:.01em}
+  .brand small{font-size:10px;color:var(--nav-sub);letter-spacing:.22em;text-transform:uppercase;display:block;margin-top:1px}
+  .nav{display:flex;flex-direction:column;gap:2px;margin-top:4px}
+  .nav a{display:flex;align-items:center;gap:11px;padding:9px 11px;border-radius:9px;color:var(--nav-sub);text-decoration:none;font-size:13.5px;font-weight:600}
+  .nav a svg{width:17px;height:17px;flex:none;stroke:currentColor;stroke-width:1.7;fill:none}
+  .nav a:hover{background:#2c271f;color:#e9e4da}
+  .nav a.on{background:#fff;color:var(--ink);box-shadow:var(--shadow-sm)}
+  .nav a.on svg{stroke:var(--accent)}
+  .side .sep{height:1px;background:var(--nav-line);margin:10px 6px}
+  .side .me{margin-top:auto;display:flex;align-items:center;gap:10px;padding:9px 8px;border-top:1px solid var(--nav-line)}
+  .side .me .av{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#e8a48f,#d35438);flex:none}
+  .side .me span{font-size:12px;line-height:1.4}
+  .side .me b{display:block;font-size:13px;font-weight:700;color:#efe9df}
+  .side .me small{color:var(--nav-sub);font-size:11px}
+  /* main */
+  .main{display:flex;flex-direction:column;min-width:0}
+  /* topbar */
+  .top{display:flex;align-items:center;gap:14px;padding:14px 26px;background:#fffdf8;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20}
+  .crumb{font-size:12.5px;color:var(--soft);display:flex;align-items:center;gap:7px;min-width:0;flex-wrap:wrap}
+  .crumb a{color:var(--soft);text-decoration:none}
+  .crumb .cur{color:var(--ink);font-weight:700}
+  .crumb .sl{color:#cfc6b6}
+  .badge{font-size:11px;font-weight:700;padding:3px 10px;border-radius:999px;background:#f0ece2;color:var(--sub);border:1px solid var(--line)}
+  .topact{margin-left:auto;display:flex;align-items:center;gap:9px}
+  .btn{border:none;border-radius:9px;padding:9px 16px;font-size:13px;font-weight:700;cursor:pointer;letter-spacing:.01em;font-family:inherit}
+  .btn.primary{background:var(--accent);color:#fff;box-shadow:0 2px 8px rgba(211,84,56,.25)}
+  .btn.primary:hover{background:var(--accent-d)}
+  .btn.ghost{background:#fff;color:var(--ink2);border:1px solid var(--line)}
+  .btn.ghost:hover{background:#fbf8f2}
+  /* honest banner */
+  .demo{margin:18px 26px 2px;background:#fffdf8;border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:11px;padding:13px 17px;font-size:12.5px;color:var(--sub);line-height:1.75}
+  .demo b{color:var(--ink)}
+  .demo .lab{display:inline-block;font-size:10.5px;font-weight:800;letter-spacing:.12em;color:var(--accent);background:var(--accent-soft);padding:2px 8px;border-radius:5px;margin-right:8px;vertical-align:1px}
+  /* content grid */
+  .content{padding:18px 26px 30px}
+  .grid{display:grid;grid-template-columns:minmax(0,1.08fr) minmax(0,.92fr);gap:20px;align-items:start}
+  @media(max-width:980px){.app{grid-template-columns:1fr}.side{flex-direction:row;flex-wrap:wrap;align-items:center;gap:4px}.brand{border:none;margin:0;padding:6px}.nav{flex-direction:row;flex-wrap:wrap;margin:0}.side .sep,.side .me{display:none}.grid{grid-template-columns:1fr}}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);overflow:hidden}
+  .chead{display:flex;align-items:center;gap:10px;padding:13px 18px;border-bottom:1px solid var(--line);background:#fffdf8}
+  .chead h2{margin:0;font-size:13px;font-weight:800;letter-spacing:.02em;color:var(--ink2)}
+  .chead .ico{width:22px;height:22px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex:none}
+  .chead .ico svg{width:13px;height:13px;stroke-width:1.8;fill:none}
+  .chead .note{margin-left:auto;font-size:11px;color:var(--soft)}
+  .cbody{padding:18px}
+  /* image area */
+  .imgrow{display:flex;gap:13px;margin-bottom:18px}
+  .imgmain{flex:none;width:128px;height:128px;border-radius:12px;background:linear-gradient(160deg,#f3eddf,#e7dfcd);border:1px solid var(--line);position:relative;overflow:hidden}
+  .imgthumbs{display:flex;flex-direction:column;gap:9px;justify-content:space-between}
+  .thumb{width:50px;height:50px;border-radius:9px;background:#f7f1e6;border:1px solid var(--line);position:relative;overflow:hidden}
+  .thumb.sel{border:2px solid var(--accent)}
+  /* CSS line-art bottle */
+  .bottle{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%)}
+  .bottle .body{border:2px solid #b9ad97;border-radius:7px 7px 11px 11px;background:rgba(255,255,255,.35)}
+  .bottle .cap{border:2px solid #c7917f;border-bottom:none;border-radius:6px 6px 0 0;margin:0 auto;background:rgba(211,84,56,.10)}
+  .imgmain .bottle .body{width:48px;height:74px}
+  .imgmain .bottle .cap{width:30px;height:16px;margin-bottom:-1px}
+  .imgmain .bottle{display:flex;flex-direction:column}
+  .thumb .bottle .body{width:20px;height:30px;border-width:1.6px}
+  .thumb .bottle .cap{width:13px;height:7px;border-width:1.6px;margin-bottom:-1px}
+  .thumb .bottle{display:flex;flex-direction:column}
+  .imgmain .tag{position:absolute;left:9px;bottom:8px;font-size:10px;color:#a89c85;background:rgba(255,255,255,.7);padding:2px 7px;border-radius:5px}
+  /* tabs */
+  .tabs{display:flex;gap:5px;margin-bottom:14px;border-bottom:1px solid var(--line2);padding-bottom:0}
+  .tab{font-size:12.5px;padding:8px 14px;background:none;border:none;border-bottom:2px solid transparent;color:var(--soft);cursor:pointer;font-weight:600;font-family:inherit;margin-bottom:-1px}
+  .tab.on{color:var(--accent);border-bottom-color:var(--accent);font-weight:800}
+  .pane{display:none}.pane.on{display:block}
+  /* fields */
+  .field{margin-bottom:14px}
+  .field>label{display:block;font-size:11px;font-weight:700;letter-spacing:.04em;color:var(--soft);margin-bottom:5px}
+  .inp{background:var(--field);border:1px solid var(--line);border-radius:9px;padding:10px 12px;font-size:14px;color:var(--ink);min-height:40px}
+  .inp.big{font-size:16px;font-weight:700}
+  .frow2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .frow3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+  @media(max-width:520px){.frow3{grid-template-columns:1fr}}
+  .price{color:var(--accent-d);font-weight:800}
+  .body-txt{line-height:2.05;font-size:13.5px;white-space:pre-wrap}
+  /* suspect underline marks */
+  mark{background:transparent;color:inherit;border-bottom:2px solid var(--accent);padding-bottom:1px;text-decoration:none}
+  mark.org{border-color:var(--warn)} mark.yel{border-color:#cdbf8e}
+  /* camera tab */
+  .camcard{display:flex;gap:14px;align-items:center;background:var(--field);border:1px dashed var(--line);border-radius:11px;padding:16px}
+  .camcard .lens{width:64px;height:64px;border-radius:11px;background:#f1ebdd;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;flex:none}
+  .camcard .lens svg{width:26px;height:26px;stroke:#b3a994;stroke-width:1.6;fill:none}
+  .camcard p{margin:0;font-size:12.5px;color:var(--sub)}
+  .camcard b{color:var(--ink2)}
+  /* ledger chip */
+  .ledger{margin:0 0 16px}
+  .ledger summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:9px;background:var(--ok-soft);border:1px solid #d3e3d4;border-radius:10px;padding:9px 13px;font-size:12px;color:#2f6340;font-weight:700}
+  .ledger summary::-webkit-details-marker{display:none}
+  .ledger summary .k{width:18px;height:18px;stroke:#3f7d52;stroke-width:1.8;fill:none;flex:none}
+  .ledger summary .arr{margin-left:auto;font-size:11px;color:#6c9a78;font-weight:600}
+  .ledger[open] summary{border-radius:10px 10px 0 0}
+  .ledger .lbody{border:1px solid #d3e3d4;border-top:none;border-radius:0 0 10px 10px;padding:11px 13px;background:#fbfdfb;display:flex;flex-wrap:wrap;gap:7px}
+  .lchip{font-size:11.5px;background:#fff;border:1px solid #dbe7db;border-radius:7px;padding:4px 9px;color:#3a5a42}
+  .lchip b{color:#2f6340}
+  .ledger .lnote{flex-basis:100%;font-size:11px;color:#6c9a78;margin-top:4px;line-height:1.6}
+  /* results panel */
+  .empty{padding:46px 22px;text-align:center;color:var(--soft);font-size:13px}
+  .empty .big{width:46px;height:46px;border-radius:12px;background:var(--accent-soft);display:flex;align-items:center;justify-content:center;margin:0 auto 14px}
+  .empty .big svg{width:22px;height:22px;stroke:var(--accent);stroke-width:1.7;fill:none}
+  .sumbar{display:flex;gap:8px;padding:14px 18px;border-bottom:1px solid var(--line);flex-wrap:wrap;background:#fffdf8}
+  .stat{flex:1;min-width:120px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:9px 12px}
+  .stat .n{font-size:21px;font-weight:800;line-height:1.1}
+  .stat .l{font-size:10.5px;color:var(--soft);margin-top:2px;letter-spacing:.02em}
+  .stat.red .n{color:var(--accent)} .stat.yel .n{color:var(--yel)}
+  .finding{padding:15px 18px;border-bottom:1px solid var(--line2)}
+  .finding:last-child{border-bottom:none}
+  .frow{display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap}
+  .pill{font-size:11px;font-weight:800;padding:3px 10px;border-radius:999px}
+  .pill.red{background:var(--accent-soft);color:var(--accent-d)}
+  .pill.org{background:var(--warn-soft);color:#9a6a1c}
+  .pill.yel{background:var(--yel-soft);color:#897234}
+  .conf{font-size:11px;color:var(--soft);border:1px solid var(--line);border-radius:999px;padding:2px 9px}
+  .conf.hi{color:var(--accent-d);border-color:#e9cabf;background:var(--accent-soft)}
+  .frow .sp{margin-left:auto}
+  .fix{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:14.5px;font-weight:700;margin-bottom:7px}
+  .fix .was{color:var(--accent);text-decoration:line-through;text-decoration-color:#e2a39d}
+  .fix .arrf{color:var(--soft);font-weight:600}
+  .fix .now{color:var(--ok);background:var(--ok-soft);padding:1px 8px;border-radius:6px}
+  .fix.plain{color:var(--ink)}
+  /* 台帳照合 badge */
+  .match{display:inline-flex;align-items:center;gap:8px;font-size:11px;background:#fbfcfa;border:1px solid #dde7dd;border-radius:8px;padding:5px 10px;margin-bottom:8px;color:#5a6a5c}
+  .match .mk{font-size:9.5px;font-weight:800;letter-spacing:.06em;color:#3f7d52;background:var(--ok-soft);padding:2px 6px;border-radius:5px}
+  .match .led{color:#3a5a42;font-weight:700}
+  .match .vs{color:#bdb6a6}
+  .match .doc{color:var(--accent-d);font-weight:700}
+  .why{font-size:12.5px;color:var(--sub);margin:0;line-height:1.8}
+  .why .lead{color:var(--ink);font-weight:700}
+  .human{font-size:11.5px;color:var(--soft);margin-top:8px;display:flex;align-items:center;gap:6px}
+  .human::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--accent);flex:none}
+  /* design notes */
+  .notes{margin-top:22px;display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:980px){.notes{grid-template-columns:1fr}}
+  .nte{background:#fffdf8;border:1px solid var(--line);border-radius:13px;padding:16px 18px}
+  .nte h3{margin:0 0 8px;font-size:13px;font-weight:800;letter-spacing:.01em;display:flex;align-items:center;gap:9px}
+  .nte h3 i{width:20px;height:20px;border-radius:6px;background:var(--accent-soft);color:var(--accent);display:inline-flex;align-items:center;justify-content:center;font-style:normal;font-size:11px;font-weight:800;flex:none}
+  .nte p{margin:0;font-size:12.5px;color:var(--sub);line-height:1.85}
+  .nte b{color:var(--ink2)}
+  .sig{margin:26px 0 8px;text-align:center;color:var(--soft);font-size:11.5px;letter-spacing:.04em}
+</style>
+</head>
+<body>
+<div style="position:sticky;top:0;z-index:99999;display:flex;gap:14px;align-items:center;justify-content:space-between;flex-wrap:wrap;padding:9px 14px;background:#12121F;color:#fff;font:600 13px/1.6 'Noto Sans JP','Hiragino Sans',sans-serif;">
+<a href="/#cases" style="display:inline-flex;align-items:center;gap:8px;padding:9px 18px;border-radius:999px;background:#fff;color:#12121F;text-decoration:none;font-weight:700;white-space:nowrap;">← アプリ一覧へ戻る</a>
+<span style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;"><span style="opacity:.7;font-weight:500;">架空の会社のデータで動きます。実際のデータは使っていません。</span><a href="https://zenn.dev/hiroshift/articles/5f7f690ae63dfd" target="_blank" rel="noopener" style="color:#fff;text-decoration:none;border-bottom:1px solid rgba(255,255,255,.4);white-space:nowrap;">設計の解説を読む</a></span>
+</div>
+<div class="app">
+
+  <!-- ===== sidebar ===== -->
+  <aside class="side">
+    <div class="brand">
+      <span class="mk">コ</span>
+      <span><b>コトリ雑貨店</b><small>kotori</small></span>
+    </div>
+    <nav class="nav">
+      <a href="#"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>ダッシュボード</a>
+      <a href="#" class="on"><svg viewBox="0 0 24 24"><path d="M21 8l-9-5-9 5 9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg>商品</a>
+      <a href="#"><svg viewBox="0 0 24 24"><path d="M6 2l1.5 3h9L18 2"/><rect x="4" y="5" width="16" height="17" rx="2"/><path d="M9 11h6M9 15h6"/></svg>注文</a>
+      <a href="#"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>お客様</a>
+      <a href="#"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>メルマガ</a>
+      <div class="sep"></div>
+      <a href="#"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 13a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-2.7 1.1V20a2 2 0 1 1-4 0v-.2a1.6 1.6 0 0 0-2.7-1.1l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1A1.6 1.6 0 0 0 4.6 13H4.4a2 2 0 1 1 0-4h.2A1.6 1.6 0 0 0 6 6.3l-.1-.1A2 2 0 1 1 8.7 3.4l.1.1A1.6 1.6 0 0 0 11.5 2.6V2.4a2 2 0 1 1 4 0v.2a1.6 1.6 0 0 0 2.7 1.1l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.6 1.6 0 0 0-.3 1.8z"/></svg>設定</a>
+    </nav>
+    <div class="me">
+      <span class="av"></span>
+      <span><b>篠田</b><small>店主・一人運営</small></span>
+    </div>
+  </aside>
+
+  <!-- ===== main ===== -->
+  <div class="main">
+
+    <!-- topbar -->
+    <div class="top">
+      <div class="crumb">
+        <a href="#">商品</a><span class="sl">›</span>
+        <span class="cur">コトリ ステンレスマグボトル 480ml</span>
+        <span class="badge">下書き</span>
+      </div>
+      <div class="topact">
+        <button class="btn ghost">下書き保存</button>
+        <button class="btn primary" id="run">公開前にチェック</button>
+      </div>
+    </div>
+
+    <!-- honest banner -->
+    <div class="demo">
+      <span class="lab">DEMO</span>
+      <b>これはデモ画面です。</b> 商品・会社・データはすべて架空。指摘は「こう出る」という<b>例</b>で、本番はAIが文脈で判定します（<b>見逃しも誤検出もあります・最終確認は人</b>）。公開予定の文章なのでクラウドで軽く動かせますが、<b>未公開のキャンペーン・個人情報・取引先名を含む文書は、伏せるかローカルで</b>扱います。
+    </div>
+
+    <div class="content">
+      <div class="grid">
+
+        <!-- ===== LEFT: product editor ===== -->
+        <section class="card">
+          <div class="chead">
+            <span class="ico" style="background:var(--accent-soft)"><svg viewBox="0 0 24 24" stroke="var(--accent)"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></span>
+            <h2>商品ページを編集</h2>
+            <span class="note">最終更新 たった今 ・ 自動保存オン</span>
+          </div>
+          <div class="cbody">
+
+            <div class="tabs">
+              <button class="tab on" data-tab="paste">貼り付け</button>
+              <button class="tab" data-tab="type">直接入力</button>
+              <button class="tab" data-tab="cam">画像（カメラ）</button>
+            </div>
+
+            <!-- paste pane -->
+            <div class="pane on" id="paste">
+
+              <div class="imgrow">
+                <div class="imgmain">
+                  <span class="bottle"><span class="cap"></span><span class="body"></span></span>
+                  <span class="tag">メイン画像</span>
+                </div>
+                <div class="imgthumbs">
+                  <div class="thumb sel"><span class="bottle"><span class="cap"></span><span class="body"></span></span></div>
+                  <div class="thumb"><span class="bottle"><span class="cap"></span><span class="body"></span></span></div>
+                  <div class="thumb"><span class="bottle"><span class="cap"></span><span class="body"></span></span></div>
+                </div>
+              </div>
+
+              <div class="field">
+                <label>商品名</label>
+                <div class="inp big">コトリ ステンレスマグボトル 480ml</div>
+              </div>
+
+              <div class="frow3">
+                <div class="field"><label>型番</label><div class="inp">KT-480</div></div>
+                <div class="field"><label>販売価格（税込）</label><div class="inp price">¥2,980</div></div>
+                <div class="field"><label>在庫数</label><div class="inp">24</div></div>
+              </div>
+
+              <div class="frow2">
+                <div class="field"><label>容量</label><div class="inp">480ml</div></div>
+                <div class="field"><label>素材</label><div class="inp"><mark>ステンレス銅</mark>（SUS304）</div></div>
+              </div>
+
+              <div class="field">
+                <label>キャッチコピー</label>
+                <div class="inp">あたたかさが、ながく、つづく。</div>
+              </div>
+
+              <div class="field">
+                <label>商品説明</label>
+                <div class="inp body-txt">毎日の鞄に、しのばせておきたい一本。<mark class="yel">コトソ</mark>雑貨店のロングセラーです。
+
+真空二重構造で、保温効力は6時間で約68℃<mark>いじょう</mark>。朝いれたお茶が、昼までほんのり温かいまま。
+
+容量は<mark class="org">48ml</mark>。すっきり持てて、デスクにも置きやすいサイズです。本体は<mark>ステンレス銅</mark>（SUS304）で、においや色うつりに強く、長くお使いいただけます。
+
+仕様欄の型番は <mark class="org">KT-408</mark>。お値段は <mark class="org">2,890円</mark>、毎日のお供に<mark class="yel">お買い求めやすい</mark>一本です。
+
+保温力を<mark class="yel">最大限まで最大化</mark>した、コトリ自慢のマグボトル。ぜひどうぞ。</div>
+              </div>
+
+            </div>
+
+            <!-- type pane -->
+            <div class="pane" id="type">
+              <div class="field">
+                <label>テキストを直接入力</label>
+                <div class="inp" style="min-height:170px;color:var(--soft);line-height:1.9">（ここに商品説明・LP・メルマガの本文を打ち込むと、公開前にチェックできます。デモでは「貼り付け」タブの下書きを使います。）</div>
+              </div>
+            </div>
+
+            <!-- camera pane -->
+            <div class="pane" id="cam">
+              <div class="camcard">
+                <div class="lens"><svg viewBox="0 0 24 24"><path d="M4 7h3l1.5-2h7L17 7h3a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1z"/><circle cx="12" cy="13" r="3.5"/></svg></div>
+                <p><b>撮った写真から文字を読み取って（OCR）チェックします。</b><br>※手書き・低画質・小さな文字は読み違えます。読み取った後に、上と同じ文脈チェックにかけます。</p>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- ===== RIGHT: proofreading panel ===== -->
+        <section class="card">
+          <div class="chead">
+            <span class="ico" style="background:#eef3ee"><svg viewBox="0 0 24 24" stroke="var(--ok)"><path d="M20 6L9 17l-5-5"/></svg></span>
+            <h2>公開前チェック</h2>
+            <span class="note">出る前の、もうひとつの目</span>
+          </div>
+
+          <div class="cbody" style="padding-bottom:8px">
+            <!-- 台帳 chip -->
+            <details class="ledger" open>
+              <summary>
+                <svg class="k" viewBox="0 0 24 24"><path d="M14 7a3 3 0 1 0-2.8 4H21v3h-2v3h-3v-3h-3.8A3 3 0 0 1 14 7z"/></svg>
+                この店の台帳（商品マスタ）と突き合わせています
+                <span class="arr">開閉</span>
+              </summary>
+              <div class="lbody">
+                <span class="lchip">型番 <b>KT-480</b></span>
+                <span class="lchip">価格 <b>¥2,980</b></span>
+                <span class="lchip">容量 <b>480ml</b></span>
+                <span class="lchip">素材 <b>ステンレス鋼（SUS304）</b></span>
+                <span class="lchip">正式表記 <b>コトリ雑貨店</b></span>
+                <span class="lnote">台帳を渡すほど、指摘に「台帳との差分」が添えられます（最終判断は人）。</span>
+              </div>
+            </details>
+          </div>
+
+          <!-- empty state -->
+          <div id="before" class="empty">
+            <div class="big"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg></div>
+            左の下書きを確認したら、上の<b style="color:var(--accent-d)">「公開前にチェック」</b>を押してください。<br>怪しい箇所と、直し方の候補が、ここに並びます。
+          </div>
+
+          <!-- results -->
+          <div id="after" style="display:none">
+            <div class="sumbar">
+              <div class="stat"><div class="n">8</div><div class="l">怪しい箇所</div></div>
+              <div class="stat red"><div class="n">4</div><div class="l">そのまま出すと事故りそう</div></div>
+              <div class="stat yel"><div class="n">2</div><div class="l">表現の見直し</div></div>
+            </div>
+
+            <!-- 1 素材 -->
+            <div class="finding">
+              <div class="frow"><span class="pill red">素材の誤り</span><span class="sp"></span><span class="conf hi">確信：高</span></div>
+              <div class="fix"><span class="was">ステンレス銅</span><span class="arrf">→</span><span class="now">ステンレス鋼</span></div>
+              <div class="match"><span class="mk">台帳照合</span><span class="led">ステンレス鋼（SUS304）</span><span class="vs">↔</span><span class="doc">記載：ステンレス銅</span></div>
+              <p class="why"><span class="lead">「銅（どう）」と「鋼（こう）」の変換ミスでは。</span>SUS304は<b>鋼</b>。「銅」は別の金属で、素材違いはそのまま返品に直結します。辞書では「銅」も正しい字なので見つかりません。</p>
+              <p class="human">直すのは人が決めます。AIは「ここ、ほんとに銅で合ってますか」と聞くところまで。</p>
+            </div>
+
+            <!-- 2 価格 -->
+            <div class="finding">
+              <div class="frow"><span class="pill red">価格の不一致</span><span class="sp"></span><span class="conf">要確認</span></div>
+              <div class="fix plain">表示「¥2,980」／本文「2,890円」</div>
+              <div class="match"><span class="mk">台帳照合</span><span class="led">¥2,980</span><span class="vs">↔</span><span class="doc">記載：2,890円</span></div>
+              <p class="why"><span class="lead">同じページの中で、価格が食い違っています。</span>数字はどれも正しい字なので辞書では拾えません。「文中の2つの値が違う」という文脈で気づきます。</p>
+              <p class="human">正しいのがどちらかは、人にしか分かりません。AIは「2つ食い違っています」とだけ。</p>
+            </div>
+
+            <!-- 3 容量 -->
+            <div class="finding">
+              <div class="frow"><span class="pill red">単位・桁の疑い</span><span class="sp"></span><span class="conf hi">確信：高</span></div>
+              <div class="fix">容量「<span class="was">48ml</span>」<span class="arrf">（商品名は 480ml）</span></div>
+              <div class="match"><span class="mk">台帳照合</span><span class="led">480ml</span><span class="vs">↔</span><span class="doc">記載：48ml</span></div>
+              <p class="why"><span class="lead">桁が一つ落ちた可能性。</span>48mlのマグボトルはまず無い、という常識とも合いません。</p>
+              <p class="human">AIは矛盾を指摘するだけ。実物が何mlかは、人が確かめます。</p>
+            </div>
+
+            <!-- 4 型番 -->
+            <div class="finding">
+              <div class="frow"><span class="pill org">型番の不一致</span><span class="sp"></span><span class="conf">要確認</span></div>
+              <div class="fix plain">商品名「KT-480」／仕様欄「KT-408」</div>
+              <div class="match"><span class="mk">台帳照合</span><span class="led">KT-480</span><span class="vs">↔</span><span class="doc">記載：KT-408</span></div>
+              <p class="why"><span class="lead">「480」と「408」の打ち間違いの可能性。</span>型番違いは、別商品の発送事故になりやすい一点です。</p>
+              <p class="human">台帳上の型番はKT-480。AIは「2か所が違う」と気づくところまで。</p>
+            </div>
+
+            <!-- 5 変換漏れ -->
+            <div class="finding">
+              <div class="frow"><span class="pill org">変換漏れ</span><span class="sp"></span><span class="conf">確信：中</span></div>
+              <div class="fix">「68℃<span class="was">いじょう</span>」<span class="arrf">→</span><span class="now">68℃以上</span></div>
+              <p class="why"><span class="lead">「以上」がひらがなのまま残っています。</span>意味は通りますが、商品説明としては整えたい箇所です。</p>
+            </div>
+
+            <!-- 6 固有名詞 -->
+            <div class="finding">
+              <div class="frow"><span class="pill org">固有名詞の疑い</span><span class="sp"></span><span class="conf">要確認</span></div>
+              <div class="fix">「<span class="was">コトソ</span>雑貨店」<span class="arrf">→</span><span class="now">コトリ雑貨店</span>？</div>
+              <div class="match"><span class="mk">台帳照合</span><span class="led">コトリ雑貨店</span><span class="vs">↔</span><span class="doc">記載：コトソ雑貨店</span></div>
+              <p class="why"><span class="lead">自社の店名が、いつもと違う表記になっています。</span>固有名詞は辞書に無く、普通の校正は素通りします。「他では"コトリ"なのに、ここだけ違う」という文脈で気づきます。</p>
+              <p class="human">正しい店名はもちろん人が知っています。AIは「ここだけ違いますよ」と。</p>
+            </div>
+
+            <!-- 7 表現の重複 -->
+            <div class="finding">
+              <div class="frow"><span class="pill yel">表現の重複</span><span class="sp"></span><span class="conf">任意</span></div>
+              <div class="fix">「最大限まで<span class="was">最大化</span>した」</div>
+              <p class="why"><span class="lead">「最大限」と「最大化」が重なっています。</span>直さなくても通じますが、気になる方は「保温力を高めた」などに。好みの範囲なので、弱めの指摘にしています。</p>
+            </div>
+
+            <!-- 8 言い回し -->
+            <div class="finding">
+              <div class="frow"><span class="pill yel">言い回し</span><span class="sp"></span><span class="conf">任意</span></div>
+              <div class="fix">「お買い求めやすい」<span class="arrf">→</span><span class="now">お求めやすい</span>？</div>
+              <p class="why"><span class="lead">慣用としては「お求めやすい」が一般的です。</span>これは間違いとまでは言えません。あくまで参考として挙げています。</p>
+            </div>
+          </div>
+        </section>
+
+      </div>
+
+      <!-- design notes -->
+      <div class="notes">
+        <div class="nte">
+          <h3><i>1</i>AIがやっているのは「文脈で疑う」一点</h3>
+          <p>ふつうの誤字（送りがな・変換漏れ）は、辞書を引くソフトでも拾えます。この道具の値打ちは、<b>辞書に載っていない・文脈に依存するもの</b>を疑えること——固有名詞の揺れ、同音の誤変換（銅／鋼）、価格や容量や型番が<b>文中で食い違う</b>といった、人が一番見落とすところです。完璧な検出は狙いません。</p>
+        </div>
+        <div class="nte">
+          <h3><i>2</i>なぜ、自分では見つけられないのか</h3>
+          <p>書いた本人は、自分の文章を<b>「正しい」前提で読んでしまいます</b>。頭が勝手に整えて読むので、誤字がそこにあっても素通りする。注意力の問題ではありません。だから必要なのは、責めることではなく、出る前に<b>「疲れない別の目」を一度通す</b>ことです。</p>
+        </div>
+        <div class="nte">
+          <h3><i>3</i>これは「人を減らす」話ではありません</h3>
+          <p>中小のECは、校正の担当を一人雇う余裕がないまま、書く人が一人で全部書いています。次の一席は採れない。その穴を、無理な採用ではなく、<b>出る前のひと目を機械が一度通す</b>ことで埋める。雇えない一席を、雇わずに回せるように、という話です。</p>
+        </div>
+        <div class="nte">
+          <h3><i>4</i>正直な限界</h3>
+          <p>AIは見逃すこともあれば、誤って指摘することもあります。<b>直すかどうかの最終判断は、必ず人</b>。写真からの読み取り（OCR）は、手書きや低画質では読み違えます。「絶対に誤字ゼロ」は約束できません。約束できるのは、<b>出る前にもう一度、別の目を通せる</b>ことだけです。</p>
+        </div>
+      </div>
+
+      <div class="sig">『あの人しかできない』を、ほどく。 ── Day11 ／ 架空のEC「コトリ雑貨店」</div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+  // tabs
+  document.querySelectorAll('.tab').forEach(function(t){
+    t.addEventListener('click', function(){
+      document.querySelectorAll('.tab').forEach(function(x){x.classList.remove('on')});
+      document.querySelectorAll('.pane').forEach(function(x){x.classList.remove('on')});
+      t.classList.add('on');
+      document.getElementById(t.dataset.tab).classList.add('on');
+    });
+  });
+  // check button -> reveal pre-built results (demo: not real-time AI)
+  document.getElementById('run').addEventListener('click', function(){
+    document.getElementById('before').style.display='none';
+    document.getElementById('after').style.display='block';
+    this.textContent='チェック済み（例を表示中）';
+    document.getElementById('after').scrollIntoView({behavior:'smooth',block:'nearest'});
+  });
+</script>
+</body>
+</html>

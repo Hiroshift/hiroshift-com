@@ -1,0 +1,285 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>配車の指差し盤 ── くじら運輸（表示例）</title>
+<style>
+  :root{
+    --bg:#eef1f4; --panel:#ffffff; --ink:#1f2933; --sub:#6b7684; --line:#d4dae1;
+    --head:#1e2a38; --headink:#e8edf2; --stripe:#e8940c;
+    --accent:#17627a; --accentln:#0f4658;
+    --lift:#b26a00; --liftbg:#fbf0dc; --liftln:#e6cd9b;
+    --time:#5b4a9e; --timebg:#ece9f7; --timeln:#c9c0e6;
+    --warn:#c0392b; --warnbg:#fbe6e0; --warnln:#e3b3ac;
+    --free:#3a7d4f; --freebg:#e7f3ec; --freeln:#bcdcc7;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{font-family:-apple-system,"Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,sans-serif;
+    background:var(--bg); color:var(--ink); line-height:1.7}
+  .wrap{max-width:1000px; margin:0 auto; padding:0 0 60px}
+
+  .topbar{background:var(--head); color:var(--headink); padding:14px 22px; border-top:5px solid var(--stripe)}
+  .topbar .app{font-size:12.5px; font-weight:800; letter-spacing:.04em}
+  .topbar .sub{font-size:11px; color:#9fb0c0; margin-top:2px}
+
+  .lead{padding:24px 22px 4px}
+  .lead h1{font-size:20px; margin:0 0 10px; line-height:1.5}
+  .lead .story{font-size:13.5px; color:var(--sub); background:var(--panel); border:1px solid var(--line);
+    border-left:4px solid var(--stripe); border-radius:6px; padding:12px 15px; margin:0 0 18px}
+
+  .panel{background:var(--panel); border:1px solid var(--line); border-radius:6px; margin:0 22px 18px; overflow:hidden}
+  .panel h2{font-size:12.5px; margin:0; padding:10px 15px; background:#f4f6f8; border-bottom:1px solid var(--line);
+    letter-spacing:.02em; color:#3a4552; display:flex; justify-content:space-between; align-items:center}
+  .panel h2 .hint{font-size:10.5px; font-weight:600; color:var(--sub)}
+
+  .warnbar{display:none; margin:0 22px 18px; padding:10px 15px; border-radius:6px; font-size:12.5px; font-weight:700;
+    background:var(--warnbg); border:1px solid var(--warnln); color:var(--warn)}
+  .warnbar.show{display:block}
+  .warnbar.ok{background:var(--freebg); border-color:var(--freeln); color:var(--free)}
+
+  .pool{display:flex; flex-wrap:wrap; gap:9px; padding:13px 15px; min-height:64px}
+  .pool.drop-hi{background:#eaf3f6}
+
+  .card{border:1px solid var(--line); border-radius:6px; background:#fff; padding:8px 10px; width:186px;
+    cursor:grab; box-shadow:0 1px 0 rgba(0,0,0,.03); touch-action:none; user-select:none; -webkit-user-select:none}
+  .card:active{cursor:grabbing}
+  .card .cust{font-weight:800; font-size:12.8px}
+  .card .item{font-size:11.6px; color:var(--sub); margin:1px 0 6px}
+  .card .badges{display:flex; flex-wrap:wrap; gap:4px}
+  .badge{display:inline-block; font-size:10.5px; font-weight:800; padding:1px 7px; border-radius:20px; border:1px solid}
+  .badge.wt{color:#41505e; background:#eef1f4; border-color:#d4dae1}
+  .badge.tebiki{color:var(--lift); background:var(--liftbg); border-color:var(--liftln)}
+  .badge.lift{color:var(--lift); background:var(--liftbg); border-color:var(--liftln)}
+  .badge.time{color:var(--time); background:var(--timebg); border-color:var(--timeln)}
+  .card.bad{border-color:var(--warnln); background:var(--warnbg)}
+  .card .why{display:none; font-size:11px; font-weight:700; color:var(--warn); margin-top:6px; line-height:1.5}
+  .card.bad .why{display:block}
+
+  table.board{width:100%; border-collapse:collapse}
+  table.board th{background:#f9fafb; color:var(--sub); font-weight:700; font-size:10.5px; text-align:left;
+    padding:7px 12px; border-bottom:1px solid var(--line)}
+  table.board td{border-bottom:1px solid #eef1f4; vertical-align:top; padding:0}
+  table.board tr:last-child td{border-bottom:none}
+  .truckcell{padding:11px 12px; width:190px; border-right:1px solid var(--line); background:#fbfcfd}
+  .truckcell .tname{font-weight:800; font-size:13px}
+  .truckcell .tspec{font-size:11px; color:var(--sub); margin-top:3px; line-height:1.6}
+  .truckcell .load{font-size:11px; font-weight:700; margin-top:6px}
+  .truckcell .load.over{color:var(--warn)}
+  .binhead{font-size:10px; color:var(--sub); font-weight:700; padding:5px 10px 0}
+  .bin{min-height:58px; padding:8px 10px; display:flex; flex-wrap:wrap; gap:8px; align-content:flex-start}
+  .bin.drop-hi{background:#eaf3f6}
+  .binwrap{border-right:1px solid #eef1f4}
+  .binwrap:last-child{border-right:none}
+  .empty{font-size:11px; color:var(--free); font-weight:700; align-self:center; border:1px dashed var(--freeln);
+    background:var(--freebg); border-radius:5px; padding:3px 9px}
+
+  .actions{padding:12px 15px; display:flex; gap:10px; border-top:1px solid var(--line)}
+  .btn{appearance:none; cursor:pointer; font:inherit; font-size:12.5px; font-weight:700; padding:8px 16px;
+    border-radius:6px; border:1px solid var(--line); background:#fff; color:var(--sub)}
+  .btn:hover{border-color:var(--accentln); color:var(--accent)}
+
+  .note{background:#fff3de; border:1px solid #ecd6a4; border-radius:6px; padding:12px 15px; margin:0 22px 18px;
+    font-size:12px; color:#5b4212; line-height:1.85}
+  .note b{color:#8a4c00}
+  .foot{font-size:11px; color:var(--sub); padding:0 22px; line-height:1.9}
+  .foot .cap{display:inline-block; background:#fff; border:1px solid var(--line); border-radius:5px; padding:1px 7px; margin:0 5px 5px 0}
+</style>
+
+<div style="position:sticky;top:0;z-index:99999;display:flex;gap:14px;align-items:center;justify-content:space-between;flex-wrap:wrap;padding:9px 14px;background:#12121F;color:#fff;font:600 13px/1.6 'Noto Sans JP','Hiragino Sans',sans-serif;">
+<a href="/#cases" style="display:inline-flex;align-items:center;gap:8px;padding:9px 18px;border-radius:999px;background:#fff;color:#12121F;text-decoration:none;font-weight:700;white-space:nowrap;">← アプリ一覧へ戻る</a>
+<span style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;"><span style="opacity:.7;font-weight:500;">架空の会社のデータで動きます。実際のデータは使っていません。</span><a href="https://zenn.dev/hiroshift/articles/cc3ff44b1fa99e" target="_blank" rel="noopener" style="color:#fff;text-decoration:none;border-bottom:1px solid rgba(255,255,255,.4);white-space:nowrap;">設計の解説を読む</a></span>
+</div>
+<div class="wrap">
+
+  <div class="topbar">
+    <div class="app">くじら運輸　配車ボード ／ 明日ぶんの割り当て（表示例）</div>
+    <div class="sub">対象データ：受注リスト（毎日届く）＋車両台帳から抽出（架空）／OFFLINE・架空DEMO・端末内で完結</div>
+  </div>
+
+  <div class="lead">
+    <h1>壁のホワイトボードを、少しだけ便利にする。</h1>
+    <div class="story">配車係の岸本さん（架空・元ドライバー・配車15年）が休むと、所長が3時間かけて紙で組み直し、それでも朝から電話が鳴ります。やることは、<b>空いている車を一目で見せる</b>ことと、<b>物理的に無理な組み合わせ（時間指定ズレ・積載オーバー）だけを赤で止める</b>こと。積み合わせも、手下ろし現場に誰を当てるかも、決めるのは人です。</div>
+  </div>
+
+  <div class="warnbar" id="warnbar"></div>
+
+  <div class="panel">
+    <h2>未割り当ての受注<span class="hint">← カードを下の車へドラッグして割り当て</span></h2>
+    <div class="pool" id="pool" data-zone="pool"></div>
+  </div>
+
+  <div class="panel">
+    <h2>配車盤（車 × 午前便 / 午後便）<span class="hint">赤いカード＝物理的に無理な組み合わせ・要確認</span></h2>
+    <table class="board">
+      <thead><tr><th>車両</th><th>午前便</th><th>午後便</th></tr></thead>
+      <tbody id="board"></tbody>
+    </table>
+    <div class="actions">
+      <button class="btn" id="resetBtn">最初に戻す（全部、未割り当てへ）</button>
+    </div>
+  </div>
+
+  <div class="note">
+    ※この画面は、架空の受注・車両データに対する<b>表示例</b>です（あらかじめ用意したもので、その場のライブ判定ではありません）。この道具は<b>配車を組みません・最適化しません・台数を減らす提案もしません</b>。組むのは人です。<b>赤で止める</b>のは、時間指定と便が食い違う・積載オーバー、という<b>物理的に無理な組み合わせ</b>だけ。<b>「手下ろし」の印</b>は、フォークリフトの無い納品先です。止めはしません——手下ろしがきついドライバーを避けるかどうかは、人が決めます。どの荷を積み合わせるか、混む道をどう避けるかも、人の頭に残します。
+  </div>
+
+  <div class="foot">
+    <span class="cap">架空の会社・データです</span><span class="cap">配車は組みません（人が動かす盤です）</span><span class="cap">端末内で完結します</span>
+  </div>
+
+</div>
+
+<script>
+  var trucks = [
+    {id:"T1", name:"1号車", cap:2.0, spec:"2t車"},
+    {id:"T2", name:"2号車", cap:2.0, spec:"2t車"},
+    {id:"T3", name:"3号車", cap:4.0, spec:"4t車"},
+    {id:"T4", name:"軽4号", cap:1.0, spec:"軽トラ"}
+  ];
+  var orders = [
+    {id:"O1", cust:"みなと青果",   item:"段ボール野菜 6口", wt:1.2, tebiki:false, time:"am"},
+    {id:"O2", cust:"さくら食堂",   item:"業務用食材 8箱",   wt:1.0, tebiki:true,  time:null},
+    {id:"O3", cust:"大東建材",     item:"タイル 6パレット",  wt:2.5, tebiki:true,  time:null},
+    {id:"O4", cust:"ひかり商店",   item:"雑貨 3口",          wt:0.9, tebiki:false, time:"pm"},
+    {id:"O5", cust:"三河物流",     item:"飲料ケース 多数",   wt:1.4, tebiki:false, time:null},
+    {id:"O6", cust:"あおい薬局",   item:"日用品 まとめ",     wt:1.5, tebiki:false, time:"am"},
+    {id:"O7", cust:"まるや酒店",   item:"ビール 10ケース",   wt:1.3, tebiki:true,  time:null},
+    {id:"O8", cust:"のぞみ商事",   item:"封筒 5口",          wt:1.1, tebiki:false, time:null}
+  ];
+
+  // 初期配置（#go 表示例。赤で止める＝時間指定ズレ・積載超過の2件／手下ろしは印だけ）
+  var INITIAL = {
+    O1:{t:"T1",bin:"am"},
+    O2:{t:"T2",bin:"am"},
+    O3:{t:"T3",bin:"am"}, O6:{t:"T3",bin:"pm"},
+    O5:{t:"T4",bin:"am"}
+  };
+  var assign = {};
+
+  var orderById = {}; orders.forEach(function(o){ orderById[o.id]=o; });
+  var truckById = {}; trucks.forEach(function(t){ truckById[t.id]=t; });
+
+  function violationOf(o, t, bin){
+    if(!t) return null;
+    if(o.time && o.time !== bin) return (o.time==="am"?"午前":"午後")+"指定なのに"+(bin==="am"?"午前":"午後")+"便ではありません";
+    return null;
+  }
+  function binLoad(tId, bin){
+    var sum=0;
+    for(var id in assign){ if(assign[id] && assign[id].t===tId && assign[id].bin===bin) sum+=orderById[id].wt; }
+    return Math.round(sum*10)/10;
+  }
+
+  function cardHTML(o, why){
+    var b='<div class="badges"><span class="badge wt">'+o.wt.toFixed(1)+'t</span>';
+    if(o.time) b+='<span class="badge time">'+(o.time==="am"?"午前指定":"午後指定")+'</span>';
+    if(o.tebiki) b+='<span class="badge tebiki">手下ろし</span>';
+    b+='</div>';
+    return '<div class="card'+(why?' bad':'')+'" data-oid="'+o.id+'">'+
+      '<div class="cust">'+o.cust+'</div><div class="item">'+o.item+'</div>'+b+
+      '<div class="why">⚠ '+(why||'')+'</div></div>';
+  }
+
+  function render(){
+    var warnCount=0;
+    // pool
+    var pool=document.getElementById("pool"); pool.innerHTML="";
+    orders.forEach(function(o){ if(!assign[o.id]) pool.insertAdjacentHTML("beforeend", cardHTML(o,null)); });
+    if(!pool.querySelector(".card")) pool.innerHTML='<span class="empty">未割り当ては、ありません</span>';
+
+    // board
+    var body=document.getElementById("board"); body.innerHTML="";
+    trucks.forEach(function(t){
+      var tr=document.createElement("tr");
+      var amLoad=binLoad(t.id,"am"), pmLoad=binLoad(t.id,"pm");
+      var amOver=amLoad>t.cap, pmOver=pmLoad>t.cap;
+      if(amOver) warnCount++; if(pmOver) warnCount++;
+      var tc='<td class="truckcell"><div class="tname">'+t.name+'</div><div class="tspec">'+t.spec+'<br>最大 '+t.cap.toFixed(1)+'t</div>'+
+        '<div class="load'+(amOver?' over':'')+'">午前 '+amLoad.toFixed(1)+'t'+(amOver?' ⚠超過':'')+'</div>'+
+        '<div class="load'+(pmOver?' over':'')+'">午後 '+pmLoad.toFixed(1)+'t'+(pmOver?' ⚠超過':'')+'</div></td>';
+      tr.innerHTML=tc+binCell(t,"am")+binCell(t,"pm");
+      body.appendChild(tr);
+    });
+
+    // per-card violations already counted inside binCell via data; recount cleanly:
+    warnCount=0;
+    trucks.forEach(function(t){
+      ["am","pm"].forEach(function(bin){
+        if(binLoad(t.id,bin)>t.cap) warnCount++;
+        for(var id in assign){ if(assign[id]&&assign[id].t===t.id&&assign[id].bin===bin){
+          if(violationOf(orderById[id],t,bin)) warnCount++;
+        }}
+      });
+    });
+
+    var wb=document.getElementById("warnbar");
+    if(warnCount>0){ wb.className="warnbar show"; wb.textContent="⚠ "+warnCount+"件、物理的に無理な組み合わせがあります。赤いカードと超過便を確認してください（止めるかどうかは人が決めます）。"; }
+    else { wb.className="warnbar show ok"; wb.textContent="✓ 物理的に無理な組み合わせは、ありません。積み合わせと道の判断は、このまま人が。"; }
+  }
+
+  function binCell(t, bin){
+    var inner='<div class="binhead">'+(bin==="am"?"午前便":"午後便")+'</div><div class="bin" data-zone="'+t.id+':'+bin+'">';
+    var any=false;
+    for(var id in assign){ if(assign[id]&&assign[id].t===t.id&&assign[id].bin===bin){
+      var o=orderById[id]; inner+=cardHTML(o, violationOf(o,t,bin)); any=true;
+    }}
+    if(!any) inner+='<span class="empty">空き</span>';
+    inner+='</div>';
+    return '<td class="binwrap">'+inner+'</td>';
+  }
+
+  // ポインタ操作でカードを掴んで動かす（マウス／タブレットのタッチ両対応）
+  var dragId=null, ghost=null, offX=0, offY=0;
+  function zoneUnder(x,y){
+    var els=document.elementsFromPoint(x,y);
+    for(var i=0;i<els.length;i++){ var e=els[i]; var z=e.closest?e.closest("[data-zone]"):null; if(z) return z; }
+    return null;
+  }
+  function onMove(e){
+    if(!ghost) return;
+    ghost.style.left=(e.clientX-offX)+"px"; ghost.style.top=(e.clientY-offY)+"px";
+    var z=zoneUnder(e.clientX,e.clientY);
+    document.querySelectorAll("[data-zone]").forEach(function(x){ x.classList.toggle("drop-hi", x===z); });
+  }
+  function onUp(e){
+    document.removeEventListener("pointermove",onMove);
+    document.removeEventListener("pointerup",onUp);
+    document.querySelectorAll("[data-zone]").forEach(function(x){ x.classList.remove("drop-hi"); });
+    if(ghost){ ghost.remove(); ghost=null; }
+    var z=zoneUnder(e.clientX,e.clientY);
+    if(z && dragId){
+      var zone=z.getAttribute("data-zone");
+      if(zone==="pool"){ assign[dragId]=null; }
+      else { var p=zone.split(":"); assign[dragId]={t:p[0], bin:p[1]}; }
+    }
+    dragId=null; render();
+  }
+  function bindDrag(){
+    document.addEventListener("pointerdown", function(e){
+      var c=e.target.closest && e.target.closest(".card"); if(!c) return;
+      dragId=c.getAttribute("data-oid");
+      e.preventDefault();
+      var r=c.getBoundingClientRect(); offX=e.clientX-r.left; offY=e.clientY-r.top;
+      ghost=c.cloneNode(true);
+      ghost.style.position="fixed"; ghost.style.pointerEvents="none"; ghost.style.margin="0";
+      ghost.style.width=r.width+"px"; ghost.style.left=(e.clientX-offX)+"px"; ghost.style.top=(e.clientY-offY)+"px";
+      ghost.style.opacity="0.9"; ghost.style.zIndex="9999"; ghost.style.boxShadow="0 8px 20px rgba(0,0,0,.22)";
+      document.body.appendChild(ghost);
+      c.style.opacity="0.3";
+      document.addEventListener("pointermove",onMove);
+      document.addEventListener("pointerup",onUp);
+    });
+  }
+  bindDrag();
+
+  document.getElementById("resetBtn").addEventListener("click", function(){
+    for(var id in assign) assign[id]=null;
+    render();
+  });
+
+  function boot(fill){
+    assign={};
+    if(fill){ for(var id in INITIAL) assign[id]={t:INITIAL[id].t, bin:INITIAL[id].bin}; }
+    render();
+  }
+  boot(location.hash==="#go");
+</script>

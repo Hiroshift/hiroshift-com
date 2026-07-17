@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta name="robots" content="noindex">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ひばり電材 受注対訳ボード（基幹の手前の一枚）</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,sans-serif; background:#e8eaed; color:#1f2937; font-size:13px; }
+  .mono { font-family:"SF Mono",Menlo,Consolas,monospace; }
+
+  /* ===== ヘッダー（業務ソフト調） ===== */
+  header { background:#25384d; color:#e6edf5; padding:7px 14px; display:flex; align-items:center; gap:14px; }
+  header .app { font-size:15px; font-weight:700; }
+  header .app small { font-weight:400; color:#9db4cc; margin-left:8px; font-size:11px; }
+  header .right { margin-left:auto; display:flex; gap:14px; font-size:11px; color:#b8c9db; }
+  header .right b { color:#fff; }
+
+  .statbar { background:#31465e; color:#cfdcec; padding:4px 14px; font-size:11px; display:flex; gap:18px; }
+  .statbar b { color:#ffd76b; }
+
+  nav { background:#f4f5f7; border-bottom:2px solid #c3cad4; display:flex; padding:0 8px; }
+  nav button { border:none; background:none; padding:9px 16px; font-size:13px; cursor:pointer; color:#4b5563; border-bottom:3px solid transparent; position:relative; }
+  nav button.on { color:#173d63; font-weight:700; border-bottom-color:#2563a8; background:#fff; }
+  nav .badge { background:#d9480f; color:#fff; border-radius:9px; padding:0 6px; font-size:10px; margin-left:5px; }
+
+  main { padding:12px 14px 40px; max-width:1092px; margin:0 auto; }
+
+  /* ===== 流れの帯（分かりやすさの一段） ===== */
+  .flowstrip { display:flex; gap:0; margin-bottom:12px; border:1px solid #b9c4d0; border-radius:4px; overflow:hidden; }
+  .flowstrip div { flex:1; padding:7px 12px; background:#f8fafc; font-size:12px; color:#374151; position:relative; }
+  .flowstrip div + div { border-left:1px solid #d4dbe3; }
+  .flowstrip b { color:#173d63; display:block; font-size:12.5px; }
+  .flowstrip .num { display:inline-block; width:17px; height:17px; line-height:17px; text-align:center; background:#2563a8; color:#fff; border-radius:50%; font-size:10.5px; margin-right:5px; }
+
+  .panel { background:#fff; border:1px solid #c3cad4; border-radius:4px; margin-bottom:12px; }
+  .panel h2 { font-size:12.5px; background:#eef2f6; border-bottom:1px solid #d4dbe3; padding:6px 12px; color:#25384d; display:flex; align-items:center; gap:8px; }
+  .panel h2 .tag { font-size:10px; font-weight:400; background:#dbe7f3; color:#2b5a8c; padding:1px 7px; border-radius:2px; }
+  .panel .bd { padding:12px; }
+
+  label.fl { font-size:11px; color:#6b7280; display:block; margin-bottom:3px; }
+  select, input[type=text] { border:1px solid #9aa7b5; border-radius:3px; padding:7px 9px; font-size:13.5px; background:#fff; }
+  select:focus, input:focus { outline:2px solid #7fb0e0; }
+
+  .qrow { display:flex; gap:10px; align-items:flex-end; }
+  .qrow .grow { flex:1; }
+  .qrow input#q { width:100%; font-size:16px; padding:9px 11px; }
+  .hint { font-size:11px; color:#8a94a3; margin-top:4px; }
+
+  /* 結果テーブル */
+  table { width:100%; border-collapse:collapse; font-size:12.5px; }
+  th { background:#f1f4f8; border:1px solid #d4dbe3; padding:5px 8px; text-align:left; color:#40506b; font-size:11px; white-space:nowrap; }
+  td { border:1px solid #dfe4ea; padding:6px 8px; vertical-align:top; }
+  tr.hitrow:hover { background:#f2f8ff; cursor:pointer; }
+  .code { font-family:Menlo,Consolas,monospace; font-weight:700; color:#173d63; font-size:12.5px; white-space:nowrap; }
+  .chip { display:inline-block; font-size:10px; border-radius:2px; padding:1px 6px; margin-right:4px; white-space:nowrap; }
+  .c-fax { background:#e7f0e4; color:#33691e; border:1px solid #b6ccae; }
+  .c-win { background:#e4ecf7; color:#1d4e89; border:1px solid #b3c6e0; }
+  .c-freq { background:#f4ecdf; color:#8a5a12; border:1px solid #ddc9a5; }
+  .c-this { background:#fff3cd; color:#7a5b00; border:1px solid #e2cf8a; }
+  .hits { color:#374151; }
+  .hits b { color:#173d63; }
+
+  .status-ok { color:#1e7d32; font-weight:700; }
+  .status-none { color:#a35b00; font-weight:700; }
+
+  .nores { border:1px solid #e2cf8a; background:#fff9e8; border-radius:4px; padding:12px 14px; }
+  .nores b { color:#7a5b00; }
+  .nores .say { font-size:14px; margin:4px 0 8px; }
+
+  button.act { background:#2563a8; color:#fff; border:none; border-radius:3px; padding:8px 16px; font-size:13px; cursor:pointer; }
+  button.act:hover { background:#1d4e89; }
+  button.sub { background:#fff; color:#2563a8; border:1px solid #2563a8; border-radius:3px; padding:7px 14px; font-size:12.5px; cursor:pointer; }
+  button.warn { background:#b45309; color:#fff; border:none; border-radius:3px; padding:8px 16px; font-size:13px; cursor:pointer; }
+  button.mini { font-size:11px; padding:3px 9px; }
+
+  /* 転記メモ */
+  .memo { border:2px solid #2f6b3a; border-radius:4px; }
+  .memo h2 { background:#eaf3ec; border-bottom-color:#cadfce; color:#245c2f; }
+  .memo td input.qty { width:76px; text-align:right; font-size:13px; padding:4px 6px; }
+  .memo .copybox { background:#f6f8f7; border-top:1px dashed #b9ccbd; padding:8px 12px; font-size:11px; color:#4b5563; display:flex; align-items:center; gap:12px; }
+  .memo textarea { width:100%; font-family:Menlo,monospace; font-size:11.5px; border:1px solid #cbd5df; border-radius:3px; padding:6px; background:#fff; color:#374151; }
+
+  /* トレイ */
+  .tray-item { border:1px solid #e2cf8a; background:#fffbef; border-radius:4px; margin-bottom:10px; }
+  .tray-item .head { padding:9px 12px; display:flex; gap:14px; align-items:center; }
+  .tray-item .term { font-size:15px; font-weight:700; color:#7a5b00; }
+  .tray-item .meta { font-size:11px; color:#8a7a4a; }
+  .tray-item .head button { margin-left:auto; }
+  .confirmbox { border-top:1px solid #ecd9a0; background:#fff; padding:12px; }
+  .done-item { border:1px solid #b6ccae; background:#f4faf1; border-radius:4px; margin-bottom:10px; padding:9px 12px; font-size:12.5px; color:#33691e; }
+
+  /* カルテ */
+  .kstats { display:flex; gap:10px; margin-bottom:12px; }
+  .kstats .box { flex:1; border:1px solid #c3cad4; background:#fff; border-radius:4px; padding:9px 12px; }
+  .kstats .box .n { font-size:21px; font-weight:700; color:#173d63; }
+  .kstats .box .l { font-size:11px; color:#6b7280; }
+
+  /* A4マニュアル */
+  .a4wrap { display:flex; justify-content:center; padding:8px 0 20px; }
+  .a4 { background:#fff; width:740px; min-height:1000px; border:1px solid #b9c4d0; box-shadow:0 2px 8px rgba(30,40,60,.14); padding:48px 54px; }
+  .a4 h1 { font-size:23px; color:#173d63; border-bottom:3px solid #173d63; padding-bottom:10px; margin-bottom:6px; }
+  .a4 .sub { color:#6b7280; font-size:12.5px; margin-bottom:22px; }
+  .a4 .step { display:flex; gap:16px; margin-bottom:20px; align-items:flex-start; }
+  .a4 .step .n { flex:none; width:44px; height:44px; border-radius:50%; background:#2563a8; color:#fff; font-size:22px; font-weight:700; display:flex; align-items:center; justify-content:center; }
+  .a4 .step h3 { font-size:16.5px; margin-bottom:4px; }
+  .a4 .step p { font-size:13.5px; color:#374151; line-height:1.75; }
+  .a4 .rule { border:2px solid #b45309; border-radius:5px; padding:13px 16px; margin:24px 0 14px; }
+  .a4 .rule h4 { color:#b45309; font-size:14px; margin-bottom:6px; }
+  .a4 .rule li { margin-left:18px; font-size:13.5px; line-height:1.8; }
+  .a4 .foot { margin-top:26px; border-top:1px dashed #9aa7b5; padding-top:12px; font-size:12px; color:#6b7280; line-height:1.7; }
+
+  /* 参照範囲（データ最小化の実体表示） */
+  .scope { border:1px dashed #9aa7b5; background:#f4f6f8; border-radius:4px; padding:8px 12px; font-size:11px; color:#4b5563; margin-bottom:12px; line-height:1.7; }
+  .scope b { color:#25384d; }
+  .scope .no { color:#8a3b12; }
+
+  footer { text-align:center; font-size:11px; color:#8a94a3; padding:14px; }
+
+  #toast { position:fixed; left:50%; bottom:26px; transform:translateX(-50%); background:#245c2f; color:#fff; padding:9px 22px; border-radius:4px; font-size:13px; opacity:0; transition:opacity .25s; pointer-events:none; }
+  #toast.show { opacity:1; }
+  .hide { display:none !important; }
+</style>
+</head>
+<body>
+<div style="position:sticky;top:0;z-index:99999;display:flex;gap:14px;align-items:center;justify-content:space-between;flex-wrap:wrap;padding:9px 14px;background:#12121F;color:#fff;font:600 13px/1.6 'Noto Sans JP','Hiragino Sans',sans-serif;">
+<a href="/#cases" style="display:inline-flex;align-items:center;gap:8px;padding:9px 18px;border-radius:999px;background:#fff;color:#12121F;text-decoration:none;font-weight:700;white-space:nowrap;">← アプリ一覧へ戻る</a>
+<span style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;"><span style="opacity:.7;font-weight:500;">架空の会社のデータで動きます。実際のデータは使っていません。</span><a href="https://zenn.dev/hiroshift/articles/f7c091b57c0881" target="_blank" rel="noopener" style="color:#fff;text-decoration:none;border-bottom:1px solid rgba(255,255,255,.4);white-space:nowrap;">設計の解説を読む</a></span>
+</div>
+
+<header>
+  <div class="app">ひばり電材　受注対訳ボード<small>基幹（販売管理）の手前の一枚 ── 受注・在庫・請求はすべて基幹のまま</small></div>
+  <div class="right"><span>担当：<b>堀口</b>／窓口</span><span>2026-07-13（月）</span></div>
+</header>
+<div class="statbar" id="statbar"></div>
+
+<nav>
+  <button data-v="shokai" id="nav-shokai">① 対訳照会（電話を受けながら）</button>
+  <button data-v="tray" id="nav-tray">② 要確認トレイ<span class="badge" id="traybadge">0</span></button>
+  <button data-v="karte" id="nav-karte">③ 客別カルテ（対訳台帳）</button>
+  <button data-v="manual" id="nav-manual">④ A4マニュアル</button>
+</nav>
+
+<main>
+
+<!-- ================= ① 対訳照会 ================= -->
+<section id="v-shokai">
+  <div class="flowstrip">
+    <div><span class="num">1</span><b>職人さんの言葉のまま打つ</b>「エフツーサン 100」——言い換え不要</div>
+    <div><span class="num">2</span><b>台帳にあれば品番が立つ</b>根拠（過去何回・いつ）つき。無ければ正直に止まる</div>
+    <div><span class="num">3</span><b>基幹にそのまま打てる形で出る</b>下の転記メモを見ながら、いつもの基幹に入力</div>
+  </div>
+
+  <div class="scope">
+    <b>このアプリが読むもの：</b>対訳台帳（この画面で育てたもの）／売上明細の品番・数量・日付（基幹から月1でCSV）／商品マスタの品番・商品名・単位（基幹からCSV）
+    <span class="no"><b>読まないもの：</b>単価・与信・請求情報・担当者評価（判断に要らないものは、最初から読ませない）</span>
+  </div>
+
+  <div class="panel">
+    <h2>電話受付 ── 言葉のまま検索</h2>
+    <div class="bd">
+      <div class="qrow">
+        <div>
+          <label class="fl">得意先（電話の相手）</label>
+          <select id="cust"></select>
+        </div>
+        <div class="grow">
+          <label class="fl">職人さんの言葉（聞こえたまま）</label>
+          <input type="text" id="q" placeholder="例：エフツーサン 100メーター ／ あのグレーのボックス">
+        </div>
+        <div><button class="act" id="btn-search">照会</button></div>
+      </div>
+      <div class="hint">全角/半角・カナ/かな・スペースの揺れは自動で吸収します。<b>数字は数量として拾います</b>（メーター指定は巻数に換算して「確認を」と出します）。</div>
+      <div id="result" style="margin-top:12px;"></div>
+    </div>
+  </div>
+
+  <div class="panel memo">
+    <h2>基幹転記メモ（この電話で受けた分）<span class="tag">受注はここで確定しません ── 確定は基幹で</span></h2>
+    <div class="bd" id="memo-body"></div>
+    <div class="copybox">
+      <span>↓ 基幹の受注入力画面に、この順で打つだけ（品番タブ区切り）。<b>納期・届け先はこれまでどおり電話メモで</b>——このアプリが引き受けるのは品番の翻訳だけです。</span>
+      <button class="sub mini" id="btn-copy">転記用にコピー</button>
+    </div>
+    <div style="padding:0 12px 12px;"><textarea id="copyarea" rows="3" readonly></textarea></div>
+  </div>
+</section>
+
+<!-- ================= ② 要確認トレイ ================= -->
+<section id="v-tray" class="hide">
+  <div class="flowstrip">
+    <div><span class="num">1</span><b>電話中は聞き直さない</b>分からない言葉はトレイに置いて、通話を続ける</div>
+    <div><span class="num">2</span><b>手が空いた時に、人が確定する</b>品番を選ぶのは堀口さん——アプリは推測しません</div>
+    <div><span class="num">3</span><b>確定のたび、対訳が1行育つ</b>同じ言葉は次回から①で自動で通ります</div>
+  </div>
+  <div class="panel">
+    <h2>要確認（対訳台帳に無かった言葉）</h2>
+    <div class="bd" id="tray-body"></div>
+  </div>
+</section>
+
+<!-- ================= ③ 客別カルテ ================= -->
+<section id="v-karte" class="hide">
+  <div class="flowstrip">
+    <div><span class="num">1</span><b>客ごとに「言い方の癖」は違う</b>同じ言葉でも、客が違えば品が違うことがある</div>
+    <div><span class="num">2</span><b>1行ごとに出どころが残る</b>FAX突合か、窓口で人が確定したか——全部たどれる</div>
+    <div><span class="num">3</span><b>頻出品番は実績から</b>基幹の売上明細CSVで機械的に集計（言葉はここに無い＝正直な欠け）</div>
+  </div>
+  <div class="panel">
+    <h2>客別カルテ　<span style="margin-left:6px;"><select id="karte-cust"></select></span></h2>
+    <div class="bd" id="karte-body"></div>
+  </div>
+</section>
+
+<!-- ================= ④ A4マニュアル ================= -->
+<section id="v-manual" class="hide">
+  <div class="a4wrap"><div class="a4">
+    <h1>受注対訳ボード　つかいかた</h1>
+    <div class="sub">ひばり電材　受注窓口用（A4・1枚だけ。これ以上のマニュアルはありません）</div>
+    <div class="step"><div class="n">1</div><div>
+      <h3>電話を受けたら、聞こえたまま打つ</h3>
+      <p>「エフツーサン 100メーター」——職人さんの言葉を、言い換えずにそのまま。<br>品番を思い出す必要はありません。数字は数量として自動で拾います。</p>
+    </div></div>
+    <div class="step"><div class="n">2</div><div>
+      <h3>品番が立ったら、下の転記メモへ</h3>
+      <p>行をクリックすると転記メモに載ります。電話が終わったら、メモを見ながら<b>いつもの基幹に、いつもどおり入力</b>してください。このアプリは受注を確定しません。</p>
+    </div></div>
+    <div class="step"><div class="n">3</div><div>
+      <h3>分からない言葉は「要確認」へ置いて、通話を続ける</h3>
+      <p>アプリは推測しません。手が空いた時に②のトレイを開き、品番を選んで確定してください。<b>あなたが1回確定すると、その言葉は次から自動で通ります。</b></p>
+    </div></div>
+    <div class="rule">
+      <h4>このアプリがやらないこと（困った時はここを読む）</h4>
+      <ul>
+        <li>推測しない ── 台帳に無い言葉は、正直に「無い」と言って止まります。</li>
+        <li>受注を確定しない ── 確定・在庫・請求は、すべて今までどおり基幹で。</li>
+        <li>勝手に育たない ── 対訳が増えるのは、人が「確定」を押した時だけです。</li>
+      </ul>
+    </div>
+    <div class="foot">
+      納期・届け先：これまでどおり電話メモで（このアプリは品番の翻訳だけを引き受けます）。<br>
+      動かない・おかしい時：この画面を閉じて、今までどおり電話メモで受けてください（それで仕事は止まりません）。翌朝直します。<br>
+      ※台帳の元データ：過去のFAX注文書と売上明細の突合（導入時に一度だけ・人手）＋窓口での確定の積み重ね。台帳の実体＝共有フォルダのCSV一枚。
+    </div>
+  </div></div>
+</section>
+
+</main>
+
+<footer>本画面のデータ（社名・人名・数値）はすべて架空のデモです。ひばり電材＝架空の電設資材卸（社員34名）。／育てた対訳はこのブラウザ内に保存されます（実物の台帳＝共有フォルダのCSV一枚）。<a href="javascript:void(0)" id="btn-reset" style="color:#8a94a3;">デモを初期化</a>／受注対訳ボード v0.1 ── 基幹の手前の一枚</footer>
+<div id="toast"></div>
+
+<script>
+'use strict';
+const TODAY = '2026-07-13';
+
+/* ================= データ（すべて架空） ================= */
+const CUSTOMERS = [
+  { id:'C01', name:'みなみ電気工事（株）', code:'M-0113' },
+  { id:'C02', name:'オザキ電設', code:'O-0027' },
+  { id:'C03', name:'（有）くわばら電気', code:'K-0088' },
+  { id:'C04', name:'タカハタ電工', code:'T-0164' },
+  { id:'C05', name:'青葉電気工事', code:'A-0031' },
+];
+
+const MASTER = [
+  { code:'VVF20-3C100', name:'VVFケーブル 2.0mm×3心 100m巻', unit:'巻' },
+  { code:'VVF20-2C100', name:'VVFケーブル 2.0mm×2心 100m巻', unit:'巻' },
+  { code:'VVF16-2C100', name:'VVFケーブル 1.6mm×2心 100m巻', unit:'巻' },
+  { code:'VVF16-3C100', name:'VVFケーブル 1.6mm×3心 100m巻', unit:'巻' },
+  { code:'PF16-50',     name:'PF管 16mm 50m巻（ベージュ）', unit:'巻' },
+  { code:'PF22-50',     name:'PF管 22mm 50m巻（ベージュ）', unit:'巻' },
+  { code:'CNCT-2P50',   name:'差込形電線コネクタ 2本用（50個入）', unit:'箱' },
+  { code:'CNCT-3P50',   name:'差込形電線コネクタ 3本用（50個入）', unit:'箱' },
+  { code:'JB-M-GY',     name:'ジョイントボックス 中形 グレー', unit:'個' },
+  { code:'JB-M-IV',     name:'ジョイントボックス 中形 アイボリー', unit:'個' },
+  { code:'BRK-2P1E20',  name:'安全ブレーカ 2P1E 20A', unit:'個' },
+  { code:'BRK-2P2E20',  name:'安全ブレーカ 2P2E 20A', unit:'個' },
+  { code:'SW-3RO',      name:'埋込スイッチ 3路', unit:'個' },
+  { code:'CNS-2K15',    name:'露出コンセント 2口 15A', unit:'個' },
+  { code:'SUS-BND-S',   name:'ステンレスバンド 小（100本袋）', unit:'袋' },
+  { code:'SUS-BND-M',   name:'ステンレスバンド 中（100本袋）', unit:'袋' },
+];
+const M = Object.fromEntries(MASTER.map(m=>[m.code,m]));
+
+/* 対訳台帳：言葉→品番。出どころは2種類だけ（FAX突合＝導入時に一度だけ人手／窓口で確定＝運用で育った分）。
+   ※売上明細からは「言葉」は取れない（基幹に残るのは翻訳後の品番だけ）——種まきは頻出品番リスト（下のFREQ）として別に持つ。 */
+let ALIASES = [
+  { cust:'C01', term:'エフツーサン',        code:'VVF20-3C100', hits:41, last:'2026-07-06', src:'FAX突合' },
+  { cust:'C01', term:'エフツーニ',          code:'VVF20-2C100', hits:9,  last:'2026-05-30', src:'FAX突合' },
+  { cust:'C01', term:'エフイチロクニ',      code:'VVF16-2C100', hits:26, last:'2026-07-02', src:'FAX突合' },
+  { cust:'C01', term:'ワゴ2',               code:'CNCT-2P50',   hits:18, last:'2026-06-27', src:'窓口で確定' },
+  { cust:'C01', term:'ワゴ3',               code:'CNCT-3P50',   hits:11, last:'2026-06-20', src:'窓口で確定' },
+  { cust:'C01', term:'サンロ',              code:'SW-3RO',      hits:7,  last:'2026-06-13', src:'窓口で確定' },
+  { cust:'C01', term:'ブレーカ20',          code:'BRK-2P1E20',  hits:38, last:'2026-07-04', src:'FAX突合' },
+  { cust:'C01', term:'ブレーカ20',          code:'BRK-2P2E20',  hits:2,  last:'2026-03-18', src:'窓口で確定' },
+  { cust:'C02', term:'エフツーサン',        code:'VVF20-3C100', hits:15, last:'2026-06-24', src:'FAX突合' },
+  { cust:'C02', term:'ピーエフ16',          code:'PF16-50',     hits:22, last:'2026-07-01', src:'FAX突合' },
+  { cust:'C02', term:'ピーエフ22',          code:'PF22-50',     hits:6,  last:'2026-05-11', src:'FAX突合' },
+  { cust:'C02', term:'露出ダブル',          code:'CNS-2K15',    hits:13, last:'2026-06-30', src:'窓口で確定' },
+  { cust:'C03', term:'エフセン',            code:'VVF16-2C100', hits:31, last:'2026-07-03', src:'FAX突合' },
+  { cust:'C03', term:'コネクタの2',         code:'CNCT-2P50',   hits:8,  last:'2026-06-06', src:'窓口で確定' },
+  { cust:'C04', term:'ブレーカ20',          code:'BRK-2P2E20',  hits:12, last:'2026-06-28', src:'FAX突合' },
+  { cust:'C04', term:'ボックス アイボリー', code:'JB-M-IV',     hits:9,  last:'2026-06-17', src:'窓口で確定' },
+  { cust:'C05', term:'エフツーサン',        code:'VVF20-3C100', hits:19, last:'2026-06-29', src:'FAX突合' },
+  { cust:'C05', term:'バンド 小',           code:'SUS-BND-S',   hits:5,  last:'2026-04-22', src:'窓口で確定' },
+];
+
+/* 頻出品番（基幹の売上明細CSVから機械集計・直近6ヶ月）——「言葉」はここには無い */
+const FREQ = {
+  C01:[['VVF20-3C100',41],['BRK-2P1E20',38],['VVF16-2C100',26],['CNCT-2P50',18]],
+  C02:[['PF16-50',22],['VVF20-3C100',15],['CNS-2K15',13],['PF22-50',6]],
+  C03:[['VVF16-2C100',31],['CNCT-2P50',8],['SUS-BND-S',3]],
+  C04:[['BRK-2P2E20',12],['JB-M-IV',9],['VVF20-2C100',7]],
+  C05:[['VVF20-3C100',19],['SUS-BND-S',5],['SW-3RO',4]],
+};
+
+/* 要確認トレイ（デモ初期状態：電話中に「分からないまま置いた」3件） */
+let TRAY = [
+  { id:1, cust:'C02', term:'あのグレーのボックス', when:'7/13 9:12', memo:'北町の現場・月曜入り。急ぎではない', done:false, pick:null },
+  { id:2, cust:'C04', term:'いつもの留め金',       when:'7/12 16:40', memo:'サイズ言わず。前回と同じでいいとのこと', done:false, pick:null },
+  { id:3, cust:'C01', term:'カワグチのバンド',     when:'7/11 11:05', memo:'メーカー名？ 太さ不明', done:false, pick:null },
+];
+
+let MEMO = [];  // 転記メモ {code, qty}
+let currentView = 'shokai';
+
+/* ================= 正規化（決定論・全部ここ） ================= */
+function norm(s){
+  if(!s) return '';
+  s = s.normalize('NFKC').toLowerCase();
+  s = s.replace(/[ぁ-ん]/g, ch => String.fromCharCode(ch.charCodeAt(0)+0x60)); // ひらがな→カタカナ
+  s = s.replace(/[\s　・、。,\.\-ー―]/g, '');
+  return s;
+}
+/* 数量として拾うのは「単独の数字」か「単位つきの数字」だけ（「ブレーカ20」の20は品名の一部として残す） */
+const QTY_RE = /(?:^|[\s　])(\d+)\s*(m|メーター|メートル|巻|個|箱|袋|本|コ|ケ)?(?=[\s　]|$)/i;
+function parseQty(s){
+  const m = s.match(QTY_RE);
+  return m ? { n: parseInt(m[1],10), unit: (m[2]||'').toLowerCase() } : null;
+}
+function stripQty(s){
+  return s.replace(new RegExp(QTY_RE.source,'gi'),' ').trim();
+}
+const METER_UNITS = ['m','メーター','メートル'];
+/* メーター指定 × 巻売り品 → 巻数に換算して確認を出す（決定論。「100メーター」を100巻にしない） */
+function qtyForItem(qty, master){
+  if(!qty) return null;
+  const roll = master.name.match(/(\d+)m巻/);
+  if(roll && METER_UNITS.includes(qty.unit)){
+    const rollLen = parseInt(roll[1],10);
+    const rolls = Math.max(1, Math.ceil(qty.n / rollLen));
+    return { n: rolls, note: `${qty.n}m → ${rolls}巻（${rollLen}m巻）に換算` };
+  }
+  return { n: qty.n, note: null };
+}
+/* 複数語（スペース区切り）は「全部含む」で照合する */
+function tokens(s){ return s.split(/[\s　]+/).map(norm).filter(t=>t.length>0); }
+function matchText(target, rawQuery){
+  const tg = norm(target), tks = tokens(rawQuery);
+  if(tks.length===0) return false;
+  return tks.every(t => tg.includes(t)) || tg.length>0 && norm(rawQuery).includes(tg);
+}
+
+/* ================= 照会 ================= */
+function search(){
+  const cust = document.getElementById('cust').value;
+  const raw  = document.getElementById('q').value.trim();
+  const out  = document.getElementById('result');
+  if(!raw){ out.innerHTML=''; return; }
+  let qty  = parseQty(raw);
+  let bare = stripQty(raw);
+  // 「ブレーカ 20」型の救済：数字まで含めた全文が対訳と完全一致するなら、20は数量でなく品名の一部
+  if(qty && ALIASES.some(a => norm(a.term) === norm(raw))){ qty = null; bare = raw; }
+  if(!norm(bare)){ out.innerHTML=''; return; }
+
+  // この客の対訳 → 他客の対訳（参考） の順で照合
+  const mine   = ALIASES.filter(a => a.cust===cust && matchText(a.term, bare));
+  const others = ALIASES.filter(a => a.cust!==cust && matchText(a.term, bare));
+
+  if(mine.length===0 && others.length===0){ renderNoHit(raw, cust, out); return; }
+
+  let html = '';
+  if(mine.length){
+    html += `<div style="margin-bottom:6px;" class="status-ok">✔ この客の対訳台帳にあります（${mine.length}件）${mine.length>1?' ── 複数あります。選ぶのは人です':''}</div>`;
+    html += hitTable(mine, qty, true);
+  }
+  if(others.length && mine.length===0){
+    html += `<div style="margin:6px 0;" class="status-none">△ この客の実績はありません ── 他の客での対訳だけ、参考に出します（そのまま使わず、一言確認を）</div>`;
+    html += hitTable(others, qty, false);
+  }
+  out.innerHTML = html;
+  document.querySelectorAll('tr.hitrow').forEach(tr=>{
+    tr.addEventListener('click', ()=>{
+      addMemo(tr.dataset.code, parseInt(tr.dataset.qty||'1',10), parseInt(tr.dataset.ai,10));
+    });
+  });
+}
+function hitTable(rows, qty, isMine){
+  const r = rows.slice().sort((a,b)=>b.hits-a.hits).map(a=>{
+    const m = M[a.code];
+    const cname = CUSTOMERS.find(c=>c.id===a.cust).name;
+    const q = qtyForItem(qty, m);
+    const qcell = q ? `<b>${q.n}</b> ${m.unit}${q.note?`<br><span class="chip c-this">${q.note}——確認を</span>`:''}` : '-';
+    return `<tr class="hitrow" data-code="${a.code}" data-qty="${q?q.n:1}" data-ai="${ALIASES.indexOf(a)}">
+      <td class="code">${a.code}</td>
+      <td>${m.name}</td>
+      <td><span class="chip ${a.src==='FAX突合'?'c-fax':'c-win'}">${a.src}</span></td>
+      <td class="hits">${isMine?'この客で':cname+'で'} <b>${a.hits}回</b>／最終 ${a.last}</td>
+      <td>${qcell}</td>
+      <td><button class="sub mini">転記メモへ ＋</button></td>
+    </tr>`;
+  }).join('');
+  return `<table><tr><th>品番</th><th>商品名</th><th>出どころ</th><th>根拠（通った回数）</th><th>数量</th><th></th></tr>${r}</table>`;
+}
+function renderNoHit(raw, cust, out){
+  out.innerHTML = `<div class="nores">
+    <b>対訳台帳にありません。</b>
+    <div class="say">「${raw}」—— このアプリは<b>推測しません</b>。聞き直せるなら聞き直す。電話中なら、トレイに置いて通話を続けてください。</div>
+    <button class="warn" id="btn-totray">② 要確認トレイへ置く（あとで人が確定）</button>
+  </div>`;
+  document.getElementById('btn-totray').addEventListener('click', ()=>{
+    TRAY.push({ id:Date.now(), cust, term:raw, when:'7/13 '+new Date().toTimeString().slice(0,5), memo:'（電話中に置いた）', done:false, pick:null });
+    toast('要確認トレイに置きました。通話を続けてください。');
+    document.getElementById('q').value='';
+    out.innerHTML='';
+    renderAll();
+  });
+}
+
+/* ================= 転記メモ ================= */
+function addMemo(code, qty, aliasIdx){
+  const ex = MEMO.find(r=>r.code===code);
+  if(ex){ ex.qty += (qty||1); toast(`数量を加算しました（合計 ${ex.qty}）`); }
+  else { MEMO.push({code, qty: qty||1}); toast('転記メモに載せました'); }
+  // 「通った回数」を積む＝台帳の根拠が使うたび育つ
+  if(!isNaN(aliasIdx) && ALIASES[aliasIdx]){ ALIASES[aliasIdx].hits++; ALIASES[aliasIdx].last = TODAY; persist(); renderStatbar(); renderKarte(); }
+  renderMemo();
+}
+function renderMemo(){
+  const bd = document.getElementById('memo-body');
+  if(MEMO.length===0){ bd.innerHTML = '<div style="color:#8a94a3;">（まだありません。上でヒットした行をクリックすると、ここに載ります）</div>'; }
+  else{
+    bd.innerHTML = `<table><tr><th>#</th><th>品番</th><th>商品名</th><th>数量</th><th>単位</th><th></th></tr>` +
+      MEMO.map((r,i)=>{
+        const m=M[r.code];
+        return `<tr><td>${i+1}</td><td class="code">${r.code}</td><td>${m.name}</td>
+          <td><input class="qty" data-i="${i}" type="text" value="${r.qty}"></td><td>${m.unit}</td>
+          <td><button class="sub mini" data-del="${i}">外す</button></td></tr>`;
+      }).join('') + '</table>';
+    bd.querySelectorAll('input.qty').forEach(inp=>inp.addEventListener('change',e=>{
+      MEMO[+e.target.dataset.i].qty = parseInt(e.target.value,10)||1; renderMemo();
+    }));
+    bd.querySelectorAll('[data-del]').forEach(b=>b.addEventListener('click',e=>{
+      MEMO.splice(+e.target.dataset.del,1); renderMemo();
+    }));
+  }
+  document.getElementById('copyarea').value = MEMO.map(r=>`${r.code}\t${r.qty}\t${M[r.code].unit}\t${M[r.code].name}`).join('\n');
+}
+
+/* ================= トレイ ================= */
+function renderTray(){
+  const bd = document.getElementById('tray-body');
+  const open = TRAY.filter(t=>!t.done), done = TRAY.filter(t=>t.done);
+  document.getElementById('traybadge').textContent = open.length;
+  let html = '';
+  if(open.length===0) html += '<div style="color:#1e7d32;margin-bottom:10px;">要確認は0件です。</div>';
+  open.forEach(t=>{
+    const c = CUSTOMERS.find(c=>c.id===t.cust);
+    html += `<div class="tray-item" id="tray-${t.id}">
+      <div class="head">
+        <span class="term">「${t.term}」</span>
+        <span class="meta">${c.name}／${t.when} 受<br>メモ：${t.memo}</span>
+        <button class="act mini" data-open="${t.id}">品番を探して確定する</button>
+      </div>
+      <div class="confirmbox hide" id="cf-${t.id}">
+        <label class="fl">品番マスタを検索（商品名・品番の一部で）</label>
+        <div class="qrow"><div class="grow"><input type="text" id="ms-${t.id}" placeholder="例：ボックス グレー"></div>
+        <div><button class="sub" data-ms="${t.id}">マスタ検索</button></div></div>
+        <div id="mr-${t.id}" style="margin-top:8px;"></div>
+      </div>
+    </div>`;
+  });
+  done.forEach(t=>{
+    const c = CUSTOMERS.find(c=>c.id===t.cust);
+    html += `<div class="done-item">✔ 「${t.term}」＝ <span class="code">${t.pick}</span>（${M[t.pick].name}）として確定 ── ${c.name}の対訳台帳が1行育ちました。次回から①で自動で通ります。<br><span style="color:#4b5563;">※注文そのものは、折り返しの電話で数量を確かめてから①で転記へ（トレイが引き受けるのは対訳だけです）。</span></div>`;
+  });
+  bd.innerHTML = html;
+  bd.querySelectorAll('[data-open]').forEach(b=>b.addEventListener('click',e=>{
+    document.getElementById('cf-'+e.target.dataset.open).classList.toggle('hide');
+  }));
+  bd.querySelectorAll('[data-ms]').forEach(b=>b.addEventListener('click',e=>{ masterSearch(+e.target.dataset.ms); }));
+}
+function masterSearch(id){
+  const t = TRAY.find(x=>x.id===id);
+  const qraw = document.getElementById('ms-'+id).value;
+  const box = document.getElementById('mr-'+id);
+  if(!norm(qraw)){ box.innerHTML='<span class="hint">検索語を入れてください。</span>'; return; }
+  const freq = Object.fromEntries((FREQ[t.cust]||[]).map(([c,n])=>[c,n]));
+  const hits = MASTER.filter(m=> matchText(m.name, qraw) || matchText(m.code, qraw))
+                     .sort((a,b)=>(freq[b.code]||0)-(freq[a.code]||0));
+  if(hits.length===0){ box.innerHTML='<span class="status-none">マスタにも見当たりません。仕入先カタログの確認へ。</span>'; return; }
+  box.innerHTML = `<table><tr><th>品番</th><th>商品名</th><th>この客の実績（売上明細より）</th><th></th></tr>` +
+    hits.map(m=>`<tr><td class="code">${m.code}</td><td>${m.name}</td>
+      <td>${freq[m.code]?`<span class="chip c-freq">頻出</span> ${freq[m.code]}回／6ヶ月`:'実績なし'}</td>
+      <td><button class="act mini" data-fix="${m.code}" data-id="${id}">この品番で確定</button></td></tr>`).join('') + '</table>' +
+    '<div class="hint" style="margin-top:6px;">並び順＝この客の売上実績順（多い順）。<b>選ぶのは人です。</b></div>';
+  box.querySelectorAll('[data-fix]').forEach(b=>b.addEventListener('click',e=>{
+    confirmAlias(+e.target.dataset.id, e.target.dataset.fix);
+  }));
+}
+function confirmAlias(id, code){
+  const t = TRAY.find(x=>x.id===id);
+  t.done = true; t.pick = code;
+  ALIASES.push({ cust:t.cust, term:t.term, code, hits:1, last:TODAY, src:'窓口で確定' });
+  persist();
+  toast('対訳が1行育ちました。同じ言葉は次回から自動で通ります。');
+  renderAll();
+}
+
+/* ================= デモの保存（実物は共有フォルダのCSV一枚） ================= */
+const STORE_KEY = 'taiyaku_demo_v1';
+function persist(){
+  try{ localStorage.setItem(STORE_KEY, JSON.stringify({ aliases: ALIASES, tray: TRAY })); }catch(e){}
+}
+function restore(){
+  try{
+    const s = JSON.parse(localStorage.getItem(STORE_KEY));
+    if(s && Array.isArray(s.aliases) && Array.isArray(s.tray)){ ALIASES = s.aliases; TRAY = s.tray; }
+  }catch(e){}
+}
+function resetDemo(){
+  try{ localStorage.removeItem(STORE_KEY); }catch(e){}
+  location.hash=''; location.reload();
+}
+
+/* ================= カルテ ================= */
+function renderKarte(){
+  const cid = document.getElementById('karte-cust').value;
+  const c = CUSTOMERS.find(x=>x.id===cid);
+  const rows = ALIASES.filter(a=>a.cust===cid).sort((a,b)=>b.hits-a.hits);
+  const nFax = rows.filter(r=>r.src==='FAX突合').length;
+  const nWin = rows.filter(r=>r.src==='窓口で確定').length;
+  let html = `<div class="kstats">
+    <div class="box"><div class="n">${rows.length}</div><div class="l">対訳（言い方→品番）の行数</div></div>
+    <div class="box"><div class="n">${nFax}</div><div class="l">うちFAX原本との突合から（導入時・人手で一度だけ）</div></div>
+    <div class="box"><div class="n">${nWin}</div><div class="l">うち窓口で人が確定して育った分</div></div>
+  </div>`;
+  html += `<h3 style="font-size:12.5px;color:#25384d;margin:4px 0 6px;">対訳台帳 ── ${c.name}（得意先コード ${c.code}）</h3>`;
+  html += `<table><tr><th>この客の言い方</th><th>品番</th><th>商品名</th><th>出どころ</th><th>実績</th></tr>` +
+    rows.map(a=>`<tr><td><b>「${a.term}」</b></td><td class="code">${a.code}</td><td>${M[a.code].name}</td>
+      <td><span class="chip ${a.src==='FAX突合'?'c-fax':'c-win'}">${a.src}</span></td>
+      <td class="hits"><b>${a.hits}回</b>／最終 ${a.last}</td></tr>`).join('') + `</table>`;
+  const fr = FREQ[cid]||[];
+  html += `<h3 style="font-size:12.5px;color:#25384d;margin:14px 0 6px;">頻出品番（基幹の売上明細CSVより・直近6ヶ月の機械集計）</h3>
+    <table><tr><th>品番</th><th>商品名</th><th>回数</th><th>対訳の有無</th></tr>` +
+    fr.map(([code,n])=>{
+      const has = rows.some(r=>r.code===code);
+      return `<tr><td class="code">${code}</td><td>${M[code].name}</td><td>${n}回</td>
+        <td>${has?'<span class="status-ok">あり</span>':'<span class="status-none">まだ無い ── よく出るのに言い方が台帳に無い＝次に育てる候補</span>'}</td></tr>`;
+    }).join('') + `</table>
+    <div class="hint" style="margin-top:6px;">※売上明細には「品番」しか残っていません。職人さんが電話でどう言ったか——<b>言葉のほうは、どの記録にも残っていない</b>のがこの台帳を育てる理由です。</div>`;
+  document.getElementById('karte-body').innerHTML = html;
+}
+
+/* ================= 共通 ================= */
+function renderStatbar(){
+  const nA = ALIASES.length;
+  const nFax = ALIASES.filter(a=>a.src==='FAX突合').length;
+  const nWin = ALIASES.filter(a=>a.src==='窓口で確定').length;
+  const open = TRAY.filter(t=>!t.done).length;
+  document.getElementById('statbar').innerHTML =
+    `<span>対訳台帳 <b>${nA}行</b>（FAX突合 ${nFax}／窓口で確定 ${nWin}）</span>
+     <span>要確認 <b>${open}件</b></span>
+     <span>得意先 ${CUSTOMERS.length}社（デモ）</span>
+     <span style="margin-left:auto;">育て方＝人が確定した時だけ増える（勝手に増えない）</span>`;
+}
+function show(view){
+  currentView = view;
+  ['shokai','tray','karte','manual'].forEach(v=>{
+    document.getElementById('v-'+v).classList.toggle('hide', v!==view);
+    document.getElementById('nav-'+v).classList.toggle('on', v===view);
+  });
+}
+function renderAll(){ renderStatbar(); renderMemo(); renderTray(); renderKarte(); }
+function toast(msg){
+  const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2200);
+}
+
+/* ================= 初期化＋撮影用ハッシュ ================= */
+function init(){
+  const cs = document.getElementById('cust'), ks = document.getElementById('karte-cust');
+  CUSTOMERS.forEach(c=>{ cs.add(new Option(c.name,c.id)); ks.add(new Option(c.name,c.id)); });
+  document.getElementById('btn-search').addEventListener('click', search);
+  document.getElementById('q').addEventListener('input', search);
+  document.getElementById('cust').addEventListener('change', search);
+  ks.addEventListener('change', renderKarte);
+  document.getElementById('btn-copy').addEventListener('click', ()=>{
+    document.getElementById('copyarea').select();
+    try{ document.execCommand('copy'); }catch(e){}
+    toast('転記用テキストをコピーしました');
+  });
+  document.querySelectorAll('nav button').forEach(b=>b.addEventListener('click',()=>show(b.dataset.v)));
+  document.getElementById('btn-reset').addEventListener('click', resetDemo);
+
+  // 撮影用の状態（実エンジンで生成——静的な貼り絵ではない）。撮影ハッシュ時はデモ保存を読まない（決定論維持）
+  const h = location.hash;
+  if(!['#shokai','#tray','#karte','#manual'].includes(h)) restore();
+  renderAll();
+  if(h==='#shokai'){
+    show('shokai');
+    document.getElementById('cust').value='C01';
+    document.getElementById('q').value='エフツーサン 100メーター';
+    MEMO = [{code:'VVF20-3C100', qty:1},{code:'CNCT-2P50', qty:2}];
+    search(); renderMemo();
+  } else if(h==='#tray'){
+    show('tray');
+    setTimeout(()=>{
+      document.getElementById('cf-1').classList.remove('hide');
+      document.getElementById('ms-1').value='ボックス グレー';
+      masterSearch(1);
+    },50);
+  } else if(h==='#karte'){
+    show('karte');
+    document.getElementById('karte-cust').value='C01';
+    renderKarte();
+  } else if(h==='#manual'){
+    show('manual');
+  } else {
+    show('shokai');
+  }
+}
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>

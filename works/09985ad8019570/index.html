@@ -1,0 +1,151 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>効率化されていないことに、良さがあった</title>
+<style>
+  :root{
+    --ink:#23262c; --sub:#5a5f67; --paper:#f5f2ea; --card:#ece8dd;
+    --line:#d8d2c3; --line2:#e6e1d3; --accent:#c8352b;
+    --cool:#eceef1; --coolln:#c9cfd6; --coolink:#4a525c;
+    --warm:#f7efe1; --warmln:#e2c48c; --warmink:#8a5a1a; --gold:#e7b53c;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{font-family:-apple-system,"Hiragino Mincho ProN","Yu Mincho",serif;
+    color:var(--ink); background:var(--paper); line-height:1.98; -webkit-font-smoothing:antialiased;}
+  .sans{font-family:-apple-system,"Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,sans-serif}
+  .wrap{max-width:700px; margin:0 auto; padding:42px 20px 80px}
+
+  .kicker{font-family:-apple-system,"Hiragino Kaku Gothic ProN",sans-serif; font-size:12px; font-weight:800;
+    letter-spacing:.14em; color:var(--accent); margin:0 0 14px}
+  h1{font-size:29px; line-height:1.45; margin:0 0 12px; letter-spacing:.01em}
+  @media(max-width:560px){h1{font-size:23px}}
+  .dek{font-family:-apple-system,"Hiragino Kaku Gothic ProN",sans-serif; font-size:14px; color:var(--sub); margin:0}
+  .rule{height:2px; background:var(--ink); width:52px; margin:24px 0 32px}
+
+  h2{font-size:19px; margin:40px 0 14px; letter-spacing:.01em}
+  p{font-size:16.5px; margin:0 0 18px}
+  .em{color:var(--accent); font-weight:700}
+  strong{font-weight:800}
+  .aside{font-size:15px; color:var(--sub); border-left:3px solid var(--line); padding-left:15px; margin:22px 0}
+  .pull{font-size:20px; line-height:1.75; font-weight:800; border-left:5px solid var(--accent); padding:4px 0 4px 18px; margin:28px 0}
+
+  /* 同じ結果、違う気持ち */
+  .ab{font-family:-apple-system,"Hiragino Kaku Gothic ProN",sans-serif;
+    background:var(--card); border:1.5px solid var(--line); border-radius:11px; padding:18px; margin:24px 0}
+  .ablead{font-size:13px; color:var(--sub); margin:0 0 14px; text-align:center; line-height:1.7}
+  .abgrid{display:grid; grid-template-columns:1fr 1fr; gap:12px}
+  @media(max-width:560px){.abgrid{grid-template-columns:1fr}}
+  .panel{border:1.5px solid; border-radius:9px; padding:13px 14px; transition:all .35s}
+  .panel.ai{background:var(--cool); border-color:var(--coolln)}
+  .panel.human{background:var(--warm); border-color:var(--warmln)}
+  .panel .ph{font-size:12px; font-weight:800; letter-spacing:.03em; margin-bottom:6px}
+  .panel.ai .ph{color:var(--coolink)} .panel.human .ph{color:var(--warmink)}
+  .panel .pbody{font-size:12.5px; color:#4c5058; min-height:52px}
+  .panel .presult{margin-top:9px; padding-top:8px; border-top:1px dashed var(--line);
+    font-size:12.5px; font-weight:800; color:var(--ink)}
+  .panel.dim{opacity:.42; filter:grayscale(.5)}
+  .panel.glow{box-shadow:0 0 0 3px rgba(231,181,60,.55); border-color:var(--gold)}
+  .same{text-align:center; font-size:12px; color:var(--sub); margin:11px 0 2px; letter-spacing:.04em}
+  .q{text-align:center; font-size:15px; font-weight:800; margin:14px 0 12px}
+  .qbtns{display:flex; gap:12px; justify-content:center}
+  .qbtn{appearance:none; cursor:pointer; font:inherit; font-size:14px; font-weight:800; padding:10px 26px;
+    border-radius:10px; border:1.5px solid var(--line); background:#fbfaf6; color:var(--ink); transition:transform .05s}
+  .qbtn:active{transform:translateY(2px)}
+  .qbtn:disabled{opacity:.5; cursor:default}
+  .reveal{margin-top:15px; background:#fff6df; border:1.5px solid var(--gold); border-radius:8px;
+    padding:13px 15px; font-size:13.5px; color:#5a4310; line-height:1.85; display:none}
+  .reveal.show{display:block; animation:pop .35s ease}
+  .reveal b{color:#8a5a00}
+  @keyframes pop{from{transform:translateY(5px);opacity:0}to{transform:translateY(0);opacity:1}}
+
+  .foot{font-family:-apple-system,"Hiragino Kaku Gothic ProN",sans-serif; margin-top:44px; padding-top:18px;
+    border-top:1px solid var(--line); font-size:11.5px; color:var(--sub); line-height:1.9}
+  .foot .cap{display:inline-block; background:var(--card); border:1px solid var(--line); border-radius:5px; padding:1px 7px; margin:0 3px 4px 0}
+</style>
+
+<div style="position:sticky;top:0;z-index:99999;display:flex;gap:14px;align-items:center;justify-content:space-between;flex-wrap:wrap;padding:9px 14px;background:#12121F;color:#fff;font:600 13px/1.6 'Noto Sans JP','Hiragino Sans',sans-serif;">
+<a href="/#cases" style="display:inline-flex;align-items:center;gap:8px;padding:9px 18px;border-radius:999px;background:#fff;color:#12121F;text-decoration:none;font-weight:700;white-space:nowrap;">← アプリ一覧へ戻る</a>
+<span style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;"><span style="opacity:.7;font-weight:500;">架空の会社のデータで動きます。実際のデータは使っていません。</span><a href="https://zenn.dev/hiroshift/articles/09985ad8019570" target="_blank" rel="noopener" style="color:#fff;text-decoration:none;border-bottom:1px solid rgba(255,255,255,.4);white-space:nowrap;">設計の解説を読む</a></span>
+</div>
+<div class="wrap">
+
+  <p class="kicker">BUILD30 ／ DAY17 ・ 効率化についての、ひとり言</p>
+  <h1>効率化されていないことに、<br>良さがあった。</h1>
+  <p class="dek sans">地元に帰って、感じたこと。</p>
+  <div class="rule"></div>
+
+  <p>週末、地元のホテルに泊まりました。二部屋を予約していて、事前は「階が離れます」と聞いていた。ところが当日、隣同士になっていた。尋ねると、「調整が効きましたので」と。ベッドの部屋と畳の部屋、プランも違う。簡単ではなかったはずです。</p>
+
+  <p>正直に書きます。<strong>これは、AIで自動化できるはず。</strong>もっと速く、同じ答えを出せたかもしれない。それでも——相手が人だったから、私は「ありがとう」を伝えたくなった。</p>
+
+  <p class="pull">機械が同じ結果を出せても、"人がやってくれた"という関係——お礼を言いたくなる気持ちは、自動化がそっと消してしまう。</p>
+
+  <h2>同じ結果を、AIと人で。</h2>
+  <p>さっきの部屋の話を、二つの世界に並べてみます。どちらも結果は「隣同士の二部屋」。<strong>寸分違わず、同じ</strong>です（AI側は"もし機械がやったら"という架空の比較です）。</p>
+
+  <div class="ab">
+    <div class="abgrid">
+      <div class="panel ai" id="pAi">
+        <div class="ph">AI が調整した世界</div>
+        <div class="pbody">条件を計算し、0.2秒で最適解。「隣同士の二部屋、確保しました」。速い。正確。文句なし。</div>
+        <div class="presult">🛏 202 ／ 🛏 203（隣同士）</div>
+      </div>
+      <div class="panel human" id="pHuman">
+        <div class="ph">人 が調整した世界</div>
+        <div class="pbody">難しい組み合わせを、なんとかやりくりして。「調整が効きましたので」と、ひと言。</div>
+        <div class="presult">🛏 202 ／ 🛏 203（隣同士）</div>
+      </div>
+    </div>
+    <p class="same">── 結果は、まったく同じ ──</p>
+    <p class="q">では、どちらに「ありがとう」と言いたいですか？</p>
+    <div class="qbtns">
+      <button class="qbtn" data-c="ai">AI に</button>
+      <button class="qbtn" data-c="human">人 に</button>
+    </div>
+    <div class="reveal" id="rv"></div>
+  </div>
+
+  <p>人の仕事の値打ちは、"機械にできないこと"だけではありません。無人化がすさんで見えるのは、たぶん、そこ——結果は同じでも、<span class="em">"ありがとう"の向かう先が、消えてしまう</span>ことです。</p>
+
+  <p class="aside">──もちろん、これはたまに帰るだけの、よそ者の感傷かもしれません。暮らす人は分かりやすい利便性を望むかもしれないし、人手や予算の事情もあるはずです。だから私は「人の手を残せ」と言いたいわけではありません。<strong>効率化は、多くの場面で正しい。</strong></p>
+
+  <p>問題は、一つだけ。無人化は、<span class="em">"誰も惜しまない手間"（待ち時間・単純作業）と、"お礼を言いたくなる触れ合い"を、区別せずに一緒に消す</span>。だから、その選別を——日々の業務に追われるとお座なりになりがちな選別を——先にやる。自動化できることは自動化し、浮いた時間を"良さ"の方へ回す。これは効率化の否定ではなく、使い道です。</p>
+
+  <p>どの手間が誰にも惜しまれず、どの接点が"ありがとう"を生むのか。この線は、正解が一つではありません。人によって、場所によって、違う。だからこそ、<strong>最後に線を引くのは、人の仕事</strong>。私が客として感じた"ありがとう"も、ひとつの手がかりにすぎません。それを"残す接点"だと選ぶのは、そこで働く人自身です。</p>
+
+  <h2>残すと決めたら、手入れして続ける。</h2>
+  <p>良さは、置いておくだけでは古びます。古い宿を、丁寧に直しながら続けるように、手入れして、はじめて残る。機械は最適化はしますが、手入れはしません──古くなれば、置き換える。<strong>完璧でないことが、生きている証拠</strong>です。ミスもある。だからこそ、面白い。それを続けるのは、いつも人の仕事でした。</p>
+
+  <h2>だから、残すべきものは残す。</h2>
+  <p>自動化していいのは、誰も惜しまない手間だけ。そこで浮いた時間を"良さ"の方へ回し、<strong>"ありがとう"の生まれる触れ合いには、手をつけない。</strong>それが、私の目指したい"心ある効率化"です。そして、その選別を肩代わりしようとする機械には──<span class="em">「そこは、私が決める」</span>と言える人でありたいと思います。</p>
+
+  <div class="foot">
+    <span class="cap">個人的な気づきの記録です</span><span class="cap">特定の施設・個人を名指しするものではありません</span><span class="cap">このページは端末内で完結します</span>
+  </div>
+
+</div>
+
+<script>
+  var HUMAN_MSG = 'そうですよね。結果は寸分違わず同じなのに、"ありがとう"は、<b>人にだけ</b>向きました。その気持ちの正体が、"人がやってくれた"という関係です。──自動化は、結果はそのまま残して、<b>この気持ちだけを、そっと消していく</b>。それが、無人化で本当に失われるものです。';
+  var AI_MSG = '正直な方ですね。でも、もし少しでも迷ったなら、<b>その迷いが答え</b>です。結果がまったく同じでも、人に対してだけ、芽生える何かがある。自動化が消すのは結果ではなく、<b>そこ</b>なのです。';
+
+  var rv = document.getElementById("rv");
+  var pAi = document.getElementById("pAi");
+  var pHuman = document.getElementById("pHuman");
+  var btns = document.querySelectorAll(".qbtn");
+
+  btns.forEach(function(b){
+    b.addEventListener("click", function(){
+      var c = b.getAttribute("data-c");
+      btns.forEach(function(x){ x.disabled = true; });
+      if(c === "human"){
+        pHuman.classList.add("glow");
+        pAi.classList.add("dim");
+        rv.innerHTML = HUMAN_MSG;
+      } else {
+        rv.innerHTML = AI_MSG;
+      }
+      rv.className = "reveal show";
+    });
+  });
+</script>

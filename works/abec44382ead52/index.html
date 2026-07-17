@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta name="robots" content="noindex">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>出荷前 抜けボード ／ サンワ精工</title>
+<style>
+  :root{
+    --bg:#E7E7E1; --panel:#FBFBF7; --ink:#1E2226; --sub:#66625A;
+    --slate:#333F49; --slate2:#26303A; --steel:#2E5E7E; --steel-tint:#E2ECF1;
+    --red:#BE3626; --red-tint:#F7E2DD; --amber:#B27C22; --amber-tint:#F5EBD3;
+    --green:#3B7549; --green-tint:#E3EEE4; --line:#D4D3C8; --line2:#AEAC9E;
+    --mono:"SF Mono","Consolas","Menlo",monospace;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--bg); color:var(--ink);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",system-ui,sans-serif; line-height:1.6;
+    -webkit-font-smoothing:antialiased;}
+  .wrap{max-width:1000px; margin:0 auto; padding:16px 14px 60px;}
+
+  .topbar{display:flex; align-items:center; gap:12px; background:var(--slate); color:#EDEDE4; padding:11px 15px; border-radius:4px;}
+  .topbar .badge{font-size:11px; font-weight:700; letter-spacing:.14em; background:#EDEDE4; color:var(--slate2); padding:3px 8px; border-radius:3px;}
+  .topbar h1{font-size:16px; margin:0; font-weight:700; letter-spacing:.04em;}
+  .topbar .meta{margin-left:auto; font-size:12px; opacity:.85; letter-spacing:.05em;}
+  .topbar .co{border-left:1px solid rgba(255,255,255,.28); padding-left:12px; margin-left:12px;}
+
+  .lead{font-size:13.5px; color:var(--sub); margin:14px 2px 12px; line-height:1.8;}
+  .lead b{color:var(--ink);}
+  .lead .hi{color:var(--red); font-weight:700;}
+
+  .honest{font-size:11.5px; color:var(--sub); background:var(--steel-tint); border:1px solid #c5d8e1;
+    border-radius:5px; padding:9px 12px; margin-bottom:16px; line-height:1.7;}
+  .honest b{color:var(--slate2);}
+
+  .stage{margin-bottom:16px;}
+  .stage-h{display:flex; align-items:center; gap:9px; font-size:12px; font-weight:700; letter-spacing:.04em; color:var(--slate2); margin-bottom:8px;}
+  .stage-h .n{display:inline-flex; width:20px; height:20px; align-items:center; justify-content:center; background:var(--steel); color:#fff; border-radius:3px; font-size:11px;}
+  .stage-h .arw{color:var(--line2); font-size:12px;}
+
+  .memo{background:var(--panel); border:1px solid var(--line); border-radius:6px; padding:0;}
+  .memo .cap{font-size:11px; color:#EDEDE4; background:var(--slate); padding:5px 12px; letter-spacing:.05em; border-radius:5px 5px 0 0;}
+  textarea{width:100%; min-height:118px; resize:vertical; border:none; border-radius:0 0 5px 5px; padding:12px 13px;
+    font-size:13.5px; line-height:1.9; background:var(--panel); color:var(--ink); font-family:var(--mono);}
+  textarea:focus{outline:2px solid var(--steel); outline-offset:-2px;}
+  .actrow{display:flex; align-items:center; gap:12px; margin-top:11px; flex-wrap:wrap;}
+  button.go{background:var(--steel); color:#fff; border:none; border-radius:4px; padding:10px 22px; font-size:14px; font-weight:700;
+    letter-spacing:.06em; cursor:pointer; border-bottom:3px solid #1f4560;}
+  button.go:active{transform:translateY(1px); border-bottom-width:1px;}
+  .hint{font-size:11.5px; color:var(--sub);}
+
+  #out{display:none;}
+  .json{background:#20272D; color:#D6E2E0; border-radius:6px; padding:12px 14px; font-family:var(--mono); font-size:12.5px; line-height:1.75; overflow-x:auto;}
+  .json .k{color:#8FBBD9;} .json .s{color:#C9D98F;} .json .n{color:#E0A56A;} .json .r{color:#E88B7B; font-weight:700;} .json .p{color:#7f8a91;}
+  .json-note{font-size:11.5px; color:var(--sub); margin-top:6px;}
+
+  .sumbar{display:flex; align-items:baseline; gap:16px; flex-wrap:wrap; background:var(--slate2); color:#EDEDE4; padding:9px 14px; border-radius:5px 5px 0 0;}
+  .sumbar .b{font-size:14.5px; font-weight:700;}
+  .sumbar .a{font-size:14.5px; font-weight:700; color:#FFD3C9;}
+  .sumbar .a .num{font-size:20px; margin:0 3px;}
+
+  .board-wrap{overflow-x:auto; border:1.5px solid var(--slate2); border-top:none; background:var(--panel);}
+  table.board{width:100%; border-collapse:collapse; font-size:12.5px; min-width:860px;}
+  table.board th{background:var(--slate); color:#EDEDE4; font-size:11px; font-weight:700; padding:7px 9px; text-align:left; border-right:1px solid #46525c; white-space:nowrap;}
+  table.board th:last-child{border-right:none;}
+  table.board td{border-bottom:1px solid var(--line); padding:9px 9px; vertical-align:top; line-height:1.55;}
+  tr.ok td{background:#fff;}
+  tr.risk td{background:var(--red-tint);}
+  tr.risk td.c1{box-shadow:inset 4px 0 0 var(--red);}
+  td.c1{white-space:nowrap;} td.c1 .no{font-family:var(--mono); color:var(--sub); font-size:11px;} td.c1 .it{font-weight:700; font-size:13px; display:block; margin-top:1px;}
+  td.official{color:var(--sub);}
+  td.official .badge{display:inline-block; font-size:10.5px; font-weight:700; color:var(--green); background:var(--green-tint); padding:1px 7px; border-radius:3px; margin-top:3px;}
+  td.real .warn{color:var(--red); font-weight:700;}
+  td.nuke ul{margin:0; padding-left:1.05em;} td.nuke li{margin-bottom:2px;} td.nuke li.key{color:var(--red); font-weight:700;}
+  td.act ul{margin:0; padding-left:1.05em;} td.act li{margin-bottom:2px;}
+  td.rk{white-space:nowrap; font-weight:700;}
+  td.rk .hi{color:var(--red);} td.rk .mid{color:var(--amber);} td.rk .ok{color:var(--green);}
+  tr.ok td.real{color:var(--green);}
+
+  .foot{margin-top:16px; font-size:12px; color:var(--sub); background:#EEEDE3; border:1px solid var(--line); border-radius:6px; padding:11px 13px; line-height:1.8;}
+  .foot b{color:var(--ink);}
+  .note-off{text-align:center; font-size:11px; color:var(--sub); opacity:.8; margin-top:12px;}
+  @media(max-width:680px){ table.board{min-width:760px;} }
+</style>
+</head>
+<body>
+<div style="position:sticky;top:0;z-index:99999;display:flex;gap:14px;align-items:center;justify-content:space-between;flex-wrap:wrap;padding:9px 14px;background:#12121F;color:#fff;font:600 13px/1.6 'Noto Sans JP','Hiragino Sans',sans-serif;">
+<a href="/#cases" style="display:inline-flex;align-items:center;gap:8px;padding:9px 18px;border-radius:999px;background:#fff;color:#12121F;text-decoration:none;font-weight:700;white-space:nowrap;">← アプリ一覧へ戻る</a>
+<span style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;"><span style="opacity:.7;font-weight:500;">架空の会社のデータで動きます。実際のデータは使っていません。</span><a href="https://zenn.dev/hiroshift/articles/abec44382ead52" target="_blank" rel="noopener" style="color:#fff;text-decoration:none;border-bottom:1px solid rgba(255,255,255,.4);white-space:nowrap;">設計の解説を読む</a></span>
+</div>
+<div class="wrap">
+
+  <div class="topbar">
+    <span class="badge">Day15</span>
+    <h1>出荷前 抜けボード</h1>
+    <span class="meta">翌朝 8:30 版</span>
+    <span class="co">サンワ精工（架空・金属部品加工＋自社便）</span>
+  </div>
+
+  <p class="lead">
+    受注表を見るかぎり、明日の出荷は<b>すべて「出荷予定」で問題なし</b>。——でも本当は、<span class="hi">今日は出せない・約束が危ない案件</span>が混ざっている。それを知っているのは、ベテラン受注担当<b>山本さんの頭の中だけ</b>。山本さんが休んだ翌朝、その抜けは<b>出荷したあとに発覚</b>します。<br>
+    この道具は、山本さんが毎日残している<b>終業前30秒のメモ（現場ログ）</b>を、翌朝の<b>"出荷前・抜け一覧"</b>に変えます。
+  </p>
+
+  <div class="honest">
+    <b>この道具の中身（正直に）：</b>
+    入力＝現場が既に書いている終業前メモ（既存の副産物）／ AIの仕事＝その"ゴミログ"を構造データに整え、受注表と突き合わせる（＝写経でない・非自明）／ 出力＝受注表には出ない「抜け」。
+    <b>判断構造は実務ログを匿名化・抽象化した例</b>です。これはチャットボットではなく、<b>現場ログを作ってから動く道具</b>。完全オフライン（外部送信なし）。
+  </div>
+
+  <div class="stage">
+    <div class="stage-h"><span class="n">1</span>現場ログ（終業前30秒メモ）<span class="arw">— そのままの走り書き</span></div>
+    <div class="memo">
+      <div class="cap">memo / 終業前入力</div>
+      <textarea id="src">[山本 17:42] 東海のA-204、240個のうちメッキ屋からの戻りが20個まだ。うちの通常便だと午前着はムリ。田中がメッキ屋に電話、返事待ち。
+[山本 17:45] 名北の板金カバー、数は揃ったけど検査で不良3枚。使えるのは77個。先方には80個で伝えてある。
+[配車 17:50] 中京への工場間の運搬、朝イチ積込。4tトラックだと12パレットは乗り切らん、前回もここで積み残し。</textarea>
+    </div>
+    <div class="actrow">
+      <button class="go" id="run">翌朝の抜けボードを起こす</button>
+      <span class="hint">メモを構造化 → 受注表と突合 → 受注表に出ない抜けを浮かす。</span>
+    </div>
+  </div>
+
+  <div id="out">
+    <div class="stage">
+      <div class="stage-h"><span class="n">2</span>AIが整えた構造データ<span class="arw">— ゴミログ → 生きたデータ（例：東海精機）</span></div>
+      <div class="json" id="json"></div>
+      <div class="json-note">※残りの案件も同様に構造化。この画面の"整える"は代表的なメモに対する例です（本番はAIが任意の言い回しを読み取ります）。</div>
+    </div>
+
+    <div class="stage">
+      <div class="stage-h"><span class="n">3</span>出荷前 抜けボード<span class="arw">— 受注表（公式）と、現場の実態の差分</span></div>
+      <div class="sumbar">
+        <span class="b">本日出荷 <span id="total">0</span>件</span>
+        <span class="a">🔴 抜けあり <span class="num" id="riskn">0</span>件</span>
+      </div>
+      <div class="board-wrap">
+        <table class="board">
+          <thead><tr>
+            <th style="width:150px">受注No／品名</th>
+            <th style="width:150px">受注表（公式）</th>
+            <th style="width:170px">現場の実態</th>
+            <th>受注表に出ない抜け</th>
+            <th style="width:200px">推奨アクション</th>
+            <th style="width:56px">危険度</th>
+          </tr></thead>
+          <tbody id="rows"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="foot">
+      <b>受注表では「問題なし」に見える。だから、山本さんが休むと出荷後に発覚する。</b>
+      この道具は判断を決めません——受注表と現場ログの<b>差分</b>を出し、危ない案件を朝いちに浮かすところまで。どう潰すか（先行出荷か、分納連絡か、チャーターか）は人が決める。＝賢さより、抜けを出さないこと。
+    </div>
+    <p class="note-off">※登場する会社・受注はすべて架空です。</p>
+  </div>
+
+</div>
+
+<script>
+(function(){
+  var ORDERS=[
+    { no:'2418', cust:'東海精機', item:'取付金具 A-204',
+      sheet:{qty:'240個', due:'明日 午前', ship:'出荷予定'},
+      keys:['東海','A-204','メッキ'],
+      truth:{ real:'出せるのは 220個（20個不足）', blocker:'メッキ屋からの戻り待ち', carrier:'通常便では午前着に間に合わない', owner:'田中（メッキ屋へ確認中・返事待ち）', status:'未確認', risk:'高',
+        json:{order_no:'2418',customer:'東海精機',item:'取付金具A-204',qty_ordered:240,qty_ready:220,shortage:20,blocker:'メッキ屋の戻り待ち',carrier_risk:'通常便では午前着不可',owner:'田中',status:'未確認',risk:'高',sheet_says:'240個 / 明日午前 / 出荷予定（問題なし）'},
+        nuke:['受注240個に対し、出せるのは220個（20個不足）','午前着が、通常便では間に合わない','メッキ屋の返事・田中さんの確認が、まだ済んでいない','受注表は「240個・明日午前・出荷予定」のまま＝正常に見える'],
+        actions:['朝いちにメッキ屋へ再確認','9時までに戻らなければ、先に220個だけ出荷＋東海へ「残りは分けて納品」の連絡','臨時便（チャーター・約18,000円）で午前着を確保するか判断'] } },
+    { no:'2421', cust:'名北工業', item:'板金カバー（金属）',
+      sheet:{qty:'80個', due:'明日 午後', ship:'出荷予定'},
+      keys:['名北','板金','不良'],
+      truth:{ real:'使えるのは 77個（3個不足）', blocker:'検査で不良3枚', carrier:'—', owner:'先方には「80個」で連絡済み', status:'未対応', risk:'中',
+        nuke:['使えるのは77個、でも先方には「80個」と伝えてある（3個不足）','不足分を「後から追送」か「分けて納品」する連絡が、まだ済んでいない','受注表は「80個・出荷予定」のまま'],
+        actions:['あと3個を今日中に作れるか、製造に確認','無理なら77個で分けて納品し、名北へ一報'] } },
+    { no:'2423', cust:'中京（工場間の運搬）', item:'完成品 12パレット',
+      sheet:{qty:'12パレット', due:'明日 午前 積込', ship:'手配済'},
+      keys:['中京','運搬','積み残','4t'],
+      truth:{ real:'4tトラックに 12パレット積み切れない', blocker:'トラックのサイズ不足', carrier:'前回も同じ積み残しが起きている', owner:'配車', status:'要手配', risk:'中',
+        nuke:['4tトラックでは12パレット積み切れない＝積み残しリスク','前回も同じ積み残しが起きている','受注・配車は「手配済」で正常に見える'],
+        actions:['便を増やすか、大きいトラックを手配（4t→大型／2台）','積めるか事前に実際に確認'] } },
+    { no:'2419', cust:'豊田部品', item:'特寸ボルト M8',
+      sheet:{qty:'500個', due:'明後日 午前', ship:'出荷予定'},
+      keys:[], truth:null }
+  ];
+
+  var srcEl=document.getElementById('src'), out=document.getElementById('out'), rowsEl=document.getElementById('rows');
+
+  function hit(o, memo){ return o.keys.length>0 && o.keys.some(function(k){return memo.indexOf(k)>=0;}); }
+
+  function jsonHTML(obj){
+    var lines=['{'];
+    var ent=Object.keys(obj);
+    ent.forEach(function(k,i){
+      var v=obj[k], comma=i<ent.length-1?',':'';
+      var vs;
+      if(typeof v==='number') vs='<span class="'+(k==='shortage'?'r':'n')+'">'+v+'</span>';
+      else vs='<span class="'+((k==='risk'||k==='status')?'r':'s')+'">"'+v+'"</span>';
+      lines.push('  <span class="k">"'+k+'"</span><span class="p">:</span> '+vs+comma);
+    });
+    lines.push('}');
+    return lines.join('\n');
+  }
+
+  function build(){
+    var memo=srcEl.value;
+    var risk=0;
+    rowsEl.innerHTML='';
+    var firstRiskJson=null;
+
+    ORDERS.forEach(function(o){
+      var r = hit(o, memo) && o.truth;
+      if(r){ risk++; if(!firstRiskJson && o.truth.json) firstRiskJson=o.truth.json; }
+      var tr=document.createElement('tr'); tr.className=r?'risk':'ok';
+      var official='<div>'+o.sheet.qty+' ／ '+o.sheet.due+'</div><span class="badge">'+o.sheet.ship+'（問題なし）</span>';
+      var real, nuke, act, rk;
+      if(r){
+        var t=o.truth;
+        real='<span class="warn">'+t.real+'</span><div style="margin-top:4px;color:var(--sub)">'+t.blocker+(t.carrier!=='—'?' ／ '+t.carrier:'')+'<br>担当：'+t.owner+'</div>';
+        nuke='<ul>'+t.nuke.map(function(x,i){return '<li'+(i===0?' class="key"':'')+'>'+x+'</li>';}).join('')+'</ul>';
+        act='<ul>'+t.actions.map(function(x){return '<li>'+x+'</li>';}).join('')+'</ul>';
+        rk='<span class="'+(t.risk==='高'?'hi':'mid')+'">🔴 '+t.risk+'</span>';
+      } else {
+        real='現場ログに懸念なし';
+        nuke='<span style="color:var(--green)">受注表どおり</span>';
+        act='—'; rk='<span class="ok">✓ 正常</span>';
+      }
+      tr.innerHTML='<td class="c1"><span class="no">No.'+o.no+'</span><span class="it">'+o.cust+'<br>'+o.item+'</span></td>'
+        +'<td class="official">'+official+'</td>'
+        +'<td class="real">'+real+'</td>'
+        +'<td class="nuke">'+nuke+'</td>'
+        +'<td class="act">'+act+'</td>'
+        +'<td class="rk">'+rk+'</td>';
+      rowsEl.appendChild(tr);
+    });
+
+    document.getElementById('json').innerHTML = firstRiskJson ? jsonHTML(firstRiskJson) : '<span class="p">// メモに該当案件が見つかりませんでした</span>';
+    document.getElementById('total').textContent=ORDERS.length;
+    document.getElementById('riskn').textContent=risk;
+    out.style.display='block';
+  }
+
+  document.getElementById('run').addEventListener('click', build);
+  if(location.hash.indexOf('go')>=0) build();
+})();
+</script>
+</body>
+</html>

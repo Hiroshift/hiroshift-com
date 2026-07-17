@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta name="robots" content="noindex">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>みなと行政書士事務所｜お客様の話 → 許認可・必要書類ジェネレータ（デモ）</title>
+<style>
+  :root{
+    --ink:#22272e; --ink2:#333b45; --sub:#5c6675; --soft:#8b94a2;
+    --bg:#e4ded0; --panel:#efe9da; --card:#fffdf6; --cream:#f6f1e3;
+    --line:#cfc6b2; --line2:#e3dccb; --hl:#faf6ec;
+    --head:#1f3a5f; --head2:#16294a; --head-line:#33548a;
+    --navy:#1f4e79; --navy-d:#173c5e; --navy-soft:#e2eaf3; --navy-line:#bcccdf;
+    --red:#b3372b; --red-d:#8c2a20; --red-soft:#f6e2de; --red-line:#e3b5ad;
+    --amb:#9a7a1c; --amb-d:#7a6014; --amb-soft:#f4ecd2; --amb-line:#ddcd98;
+    --grn:#2f6b46; --grn-soft:#e2eee5; --grn-line:#bcd7c4;
+    --teal:#2a5f86; --teal-soft:#e4edf4; --teal-line:#c2d2e0;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Hiragino Sans","Noto Sans JP",Meiryo,sans-serif;color:var(--ink);background:var(--bg);line-height:1.55;-webkit-font-smoothing:antialiased;font-size:13px}
+  .titlebar{background:linear-gradient(180deg,var(--head),var(--head2));color:#eaf1fb;display:flex;align-items:center;gap:12px;padding:0 16px;height:46px;border-bottom:2px solid var(--head-line)}
+  .titlebar .logo{display:flex;align-items:center;gap:9px}
+  .titlebar .logo .mk{width:27px;height:27px;border-radius:6px;background:#fdf8e9;display:flex;align-items:center;justify-content:center;flex:none}
+  .titlebar .logo .mk svg{width:16px;height:16px;stroke:var(--head);stroke-width:1.8;fill:none}
+  .titlebar .logo b{font-size:14.5px;font-weight:800;letter-spacing:.02em}
+  .titlebar .logo span{font-size:10px;color:#a8c2e3;letter-spacing:.16em;margin-left:2px}
+  .titlebar .sys{font-size:11px;color:#9fb8da;border-left:1px solid #335787;padding-left:12px}
+  .titlebar .rt{margin-left:auto;display:flex;align-items:center;gap:16px;font-size:12px}
+  .titlebar .rt .who{display:flex;align-items:center;gap:7px}
+  .titlebar .rt .who .av{width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,#8fb0d6,#1f4e79);border:1px solid #335787;flex:none}
+  .titlebar .rt .who small{color:#9fb8da;font-size:10.5px}
+  .tabs{display:flex;align-items:flex-end;gap:1px;background:var(--head2);padding:0 12px;height:36px}
+  .tab{display:flex;align-items:center;gap:7px;padding:0 15px;height:30px;font-size:12.5px;font-weight:700;color:#bfd3ee;background:#173053;border-radius:6px 6px 0 0;cursor:pointer}
+  .tab svg{width:14px;height:14px;stroke:currentColor;stroke-width:1.8;fill:none}
+  .tab.on{color:var(--ink);background:var(--bg);height:34px}
+  .tab.on svg{stroke:var(--navy-d)}
+  /* ===== value band（価値が先・主役） ===== */
+  .vband{margin:12px 16px 0;background:linear-gradient(180deg,#fffdf6,#f4eedf);border:1px solid var(--line);border-top:3px solid var(--head);border-radius:9px;box-shadow:0 1px 3px rgba(40,34,20,.07);padding:14px 18px 13px}
+  .vbhead{font-size:17px;font-weight:800;color:var(--head2);letter-spacing:.01em;line-height:1.42;margin-bottom:12px}
+  .vbcmp{display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:stretch}
+  .vbcol{border:1px solid var(--line);border-radius:8px;padding:11px 13px 12px;background:#fbf8ef}
+  .vbcol.before{opacity:.94}
+  .vbcol.after{border:1.6px solid var(--navy);background:linear-gradient(180deg,#f3f7fc,#e7eff8);box-shadow:0 1px 4px rgba(31,78,121,.14)}
+  .vbk{display:inline-block;font-size:10.5px;font-weight:800;letter-spacing:.05em;padding:2px 9px;border-radius:5px;margin-bottom:8px}
+  .vbcol.before .vbk{color:var(--sub);background:var(--panel);border:1px solid var(--line)}
+  .vbcol.after .vbk{color:#fff;background:var(--navy)}
+  .vbcol p{margin:0;font-size:12px;line-height:1.72;color:var(--ink2)}
+  .vbcol.after p{color:var(--ink)}
+  .vbcol.after p strong{color:var(--red-d);font-weight:800}
+  .vbarrow{display:flex;align-items:center;justify-content:center;color:var(--navy)}
+  .vbarrow svg{width:20px;height:20px;stroke:var(--navy);stroke-width:2.2;fill:none}
+  .vbpayoff{margin-top:12px;padding-top:11px;border-top:1px dashed var(--line);font-size:13.5px;font-weight:800;color:var(--head2);text-align:center;letter-spacing:.01em;line-height:1.5}
+  .vbpayoff b{color:var(--red-d)}
+  @media(max-width:680px){.vbcmp{grid-template-columns:1fr}.vbarrow svg{transform:rotate(90deg)}}
+  /* DEMO note：価値の下・仕組みの注釈として一段控えめに格下げ */
+  .demo{display:flex;gap:10px;align-items:flex-start;margin:9px 16px 0;background:#faf4e6;border:1px solid #e6d5a6;border-left:3px solid var(--amb-line);border-radius:6px;padding:8px 12px;font-size:10.5px;color:#7c6f4a;line-height:1.6}
+  .demo .lab{flex:none;font-size:9px;font-weight:800;letter-spacing:.1em;color:#fff;background:var(--amb-line);padding:2px 6px;border-radius:4px;margin-top:1px}
+  .demo b{color:#5e5230;font-weight:700}
+  /* case selector */
+  .cases{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:12px 16px 0}
+  .cases .cl{font-size:11px;font-weight:800;color:var(--sub);margin-right:2px}
+  .cases .cbtn{font-size:12px;font-weight:700;color:var(--sub);background:#fff;border:1px solid var(--line);border-radius:999px;padding:7px 14px;cursor:pointer;font-family:inherit}
+  .cases .cbtn.on{background:var(--navy);color:#fff;border-color:var(--navy);box-shadow:0 1px 4px rgba(31,78,121,.3)}
+  .cases .cbtn .st{font-size:11px;font-weight:800;margin-right:5px;opacity:.85}
+  .work{display:grid;grid-template-columns:392px 1fr;gap:16px;padding:14px 16px 8px;max-width:1340px;margin:0 auto;align-items:start}
+  @media(max-width:980px){.work{grid-template-columns:1fr}}
+  /* ===== LEFT : hearing form ===== */
+  .formcard{background:var(--card);border:1px solid var(--line);border-radius:11px;box-shadow:0 1px 3px rgba(40,34,20,.08);overflow:hidden;position:sticky;top:12px}
+  @media(max-width:980px){.formcard{position:static}}
+  .formhead{display:flex;align-items:center;gap:10px;padding:12px 15px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,#f4efe1,#ece5d4)}
+  .formhead .n{width:24px;height:24px;border-radius:6px;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:center;flex:none}
+  .formhead .n svg{width:14px;height:14px;stroke:#fff;stroke-width:1.9;fill:none}
+  .formhead h2{margin:0;font-size:13.5px;font-weight:800;color:var(--ink)}
+  .formhead .sub{font-size:10px;color:var(--soft);margin-left:auto;text-align:right;line-height:1.4}
+  .formbody{padding:14px 15px}
+  /* ----- AI intake box (TOP) ----- */
+  .aibox{border:1px solid var(--navy-line);background:linear-gradient(180deg,#f3f7fc,#e9f0f8);border-radius:10px;padding:12px;margin-bottom:14px}
+  .aihead{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:800;color:var(--navy-d);margin-bottom:9px}
+  .aihead svg{width:15px;height:15px;stroke:var(--navy-d);stroke-width:1.9;fill:none;flex:none}
+  .aihead .src{margin-left:auto;font-size:9.5px;font-weight:700;color:var(--soft);letter-spacing:.04em}
+  .aita{width:100%;border:1px solid var(--navy-line);border-radius:8px;background:#fffdf6;padding:10px 12px;font-family:inherit;font-size:12px;color:var(--ink2);line-height:1.75;min-height:96px;resize:vertical}
+  .aita:focus{outline:none;border-color:var(--navy);box-shadow:0 0 0 2px var(--navy-soft)}
+  .aibtn{margin-top:9px;width:100%;display:flex;align-items:center;justify-content:center;gap:8px;background:linear-gradient(180deg,var(--navy),var(--navy-d));color:#fff;border:none;border-radius:8px;padding:11px;font-family:inherit;font-size:13px;font-weight:800;cursor:pointer;letter-spacing:.03em}
+  .aibtn svg{width:16px;height:16px;stroke:#fff;stroke-width:2;fill:none}
+  .aibtn:active{transform:translateY(1px)}
+  .aibtn.busy{opacity:.72;pointer-events:none}
+  .aibtn .sp{width:14px;height:14px;border:2px solid rgba(255,255,255,.45);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:none}
+  .aibtn.busy .sp{display:inline-block} .aibtn.busy svg{display:none}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .ainote{font-size:10.5px;color:var(--navy-d);line-height:1.7;margin:9px 0 0} .ainote b{color:#123a68}
+  /* ----- extracted conditions ----- */
+  .condhead{display:flex;align-items:center;gap:7px;font-size:10.5px;font-weight:800;color:var(--amb-d);letter-spacing:.02em;margin:2px 0 11px}
+  .condhead svg{width:13px;height:13px;stroke:var(--amb-d);stroke-width:2;fill:none;flex:none}
+  .condhead .tag{margin-left:auto;font-size:9px;font-weight:800;color:#fff;background:var(--navy);border-radius:4px;padding:2px 7px;letter-spacing:.04em}
+  .condhead .tag.wait{background:var(--soft)}
+  .frow{display:flex;gap:10px}
+  .frow .field{flex:1;min-width:0}
+  .field{margin-bottom:12px}
+  .field>label{display:block;font-size:11px;font-weight:800;color:var(--sub);margin-bottom:5px;letter-spacing:.02em}
+  .field>label .rq{color:var(--red);font-weight:800;margin-left:3px}
+  .field>label .op{color:var(--soft);font-weight:600}
+  .field>label .pii{color:var(--navy-d);font-weight:700;font-size:9.5px;margin-left:4px}
+  .inp{border:1px solid var(--line);border-radius:7px;background:#fff;padding:9px 11px;font-size:12px;color:var(--ink2);display:flex;align-items:center;gap:8px;min-height:40px}
+  .inp.sel{justify-content:space-between;cursor:default}
+  .inp .cv{width:16px;height:16px;stroke:var(--soft);stroke-width:2.4;fill:none;flex:none}
+  .inp.ta{display:block;min-height:42px;line-height:1.7;color:var(--ink2)}
+  .inp.pii{background:#f5f9fe;border-color:var(--navy-line);color:var(--navy-d);font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:.02em}
+  .inp .ph{color:var(--soft);font-weight:600}
+  .piinote{font-size:10.5px;color:var(--navy-d);background:var(--navy-soft);border:1px solid var(--navy-line);border-radius:6px;padding:6px 9px;margin:-4px 0 12px;display:flex;align-items:center;gap:6px;line-height:1.5}
+  .piinote svg{width:12px;height:12px;stroke:var(--navy-d);stroke-width:1.9;fill:none;flex:none}
+  .seg{display:flex;border:1px solid var(--line);border-radius:7px;overflow:hidden;background:#fff}
+  .seg.wait{opacity:.45;pointer-events:none}
+  .seg .o{flex:1;text-align:center;padding:9px 6px;font-size:11px;font-weight:700;color:var(--sub);border-right:1px solid var(--line2);cursor:pointer;user-select:none}
+  .seg .o:last-child{border-right:none}
+  .seg .o.on{background:var(--navy-soft);color:var(--navy-d)}
+  .segwait{font-size:10.5px;color:var(--soft);text-align:center;padding:9px;border:1px dashed var(--line);border-radius:7px}
+  .hint{font-size:10.5px;color:var(--soft);margin:9px 0 0;line-height:1.6} .hint b{color:var(--sub)}
+  @keyframes aifill{0%{background:#fff6c9;box-shadow:0 0 0 2px #ecd486 inset}100%{background:#fff;box-shadow:none}}
+  .aifill{animation:aifill 1s ease both}
+  @keyframes aifillp{0%{background:#fff6c9}100%{background:#f5f9fe}}
+  .aifillp{animation:aifillp 1s ease both}
+  /* ===== RIGHT : growing ledger ===== */
+  .ldg{display:flex;flex-direction:column;gap:13px;min-width:0}
+  .lhead{display:flex;align-items:center;gap:9px;font-size:12px;font-weight:800;color:var(--ink2)}
+  .lhead svg{width:15px;height:15px;stroke:var(--navy-d);stroke-width:1.9;fill:none}
+  .lhead .gw{margin-left:auto;font-size:10.5px;font-weight:700;color:var(--soft)}
+  .sumbar{background:linear-gradient(0deg,#fff,#fbf8ef);border:1px solid var(--line);border-radius:11px;overflow:hidden}
+  .sumtop{display:flex;align-items:center;gap:10px;padding:11px 15px;border-bottom:1px solid var(--line);background:var(--panel)}
+  .sumtop .ttl{font-size:13px;font-weight:800;color:var(--ink)}
+  .sumtop .ttl span{font-weight:600;color:var(--sub);font-size:11px;margin-left:6px}
+  .sumtop .tg{margin-left:auto;font-size:10px;font-weight:800;color:#7a5212;background:var(--amb-soft);border:1px solid var(--amb-line);border-radius:5px;padding:3px 8px}
+  .sumstat{display:flex;flex-wrap:wrap;gap:0;padding:0}
+  .sumstat .cell{flex:1;min-width:74px;padding:11px 10px;border-right:1px solid var(--line2);text-align:center}
+  .sumstat .cell:last-child{border-right:none}
+  .sumstat .cell .v{font-size:21px;font-weight:800;color:var(--navy-d);font-variant-numeric:tabular-nums;line-height:1.1}
+  .sumstat .cell.r .v{color:var(--red-d)} .sumstat .cell.a .v{color:var(--amb-d)} .sumstat .cell.g .v{color:var(--grn)}
+  .sumstat .cell .k{font-size:10px;font-weight:700;color:var(--sub);margin-top:3px}
+  .doctrine{display:flex;gap:8px;align-items:center;padding:8px 14px;border-top:1px solid var(--line2);background:var(--cream);font-size:10.5px;color:var(--ink2);line-height:1.55}
+  .doctrine svg{width:14px;height:14px;stroke:var(--navy-d);stroke-width:1.9;fill:none;flex:none}
+  .doctrine b{color:var(--navy-d)}
+  .sec{background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden;box-shadow:0 1px 2px rgba(40,34,20,.05)}
+  .sec.acc-red{border-color:var(--red-line)} .sec.acc-amb{border-color:var(--amb-line)}
+  .sechead{display:flex;align-items:center;gap:9px;padding:10px 14px;border-bottom:1px solid var(--line);background:var(--panel)}
+  .sec.acc-red .sechead{background:var(--red-soft);border-bottom-color:var(--red-line)}
+  .sec.acc-amb .sechead{background:var(--amb-soft);border-bottom-color:var(--amb-line)}
+  .sechead .bi{width:23px;height:23px;border-radius:6px;background:var(--navy-soft);display:flex;align-items:center;justify-content:center;flex:none;font-size:12px;font-weight:800;color:var(--navy-d)}
+  .sec.acc-red .sechead .bi{background:#f1cdc7;color:var(--red-d)}
+  .sec.acc-amb .sechead .bi{background:#ecdcab;color:var(--amb-d)}
+  .sechead h3{margin:0;font-size:12.5px;font-weight:800;color:var(--ink)}
+  .sechead .cnt{font-size:10.5px;color:var(--soft);font-weight:700}
+  .sechead .st{margin-left:auto;font-size:10px;font-weight:800;color:var(--sub);background:#fff;border:1px solid var(--line);border-radius:5px;padding:3px 9px}
+  .sec.acc-red .sechead .st{color:#fff;background:var(--red);border-color:var(--red)}
+  /* legend for who-can-do */
+  .wlegend{display:flex;flex-wrap:wrap;gap:7px;padding:9px 14px 4px;font-size:10px;color:var(--sub)}
+  .wlegend .wi{display:inline-flex;align-items:center;gap:5px}
+  .wlegend .d{font-size:10px;font-weight:800;padding:2px 7px;border-radius:5px}
+  .wlegend .d.go{background:var(--grn-soft);color:var(--grn);border:1px solid var(--grn-line)}
+  .wlegend .d.ng{background:var(--red-soft);color:var(--red-d);border:1px solid var(--red-line)}
+  .wlegend .d.nt{background:var(--panel);color:var(--sub);border:1px solid var(--line)}
+  /* table for kyo */
+  .ktbl{width:100%;border-collapse:collapse;font-size:12px;table-layout:fixed}
+  .ktbl th{background:#f6f2e7;font-size:10px;font-weight:800;color:var(--sub);text-align:left;padding:7px 13px;border-bottom:1px solid var(--line2);letter-spacing:.02em}
+  .ktbl td{padding:9px 13px;border-bottom:1px solid var(--line2);vertical-align:top;color:var(--ink2)}
+  .ktbl tr:last-child td{border-bottom:none}
+  .ktbl .knm{font-weight:700;color:var(--ink)}
+  .ktbl .ksub{margin-top:5px;display:flex;flex-wrap:wrap;gap:6px;align-items:baseline}
+  .ktbl .klaw{width:104px;font-size:10.5px;color:var(--sub)}
+  .ktbl .kmd{width:150px;font-size:11px;color:var(--ink2)}
+  .ktbl .kmd .mi{display:inline-flex;align-items:flex-start;gap:5px}
+  .ktbl .kmd .mi svg{width:12px;height:12px;stroke:var(--navy);stroke-width:1.9;fill:none;flex:none;margin-top:2px}
+  .ktbl .kwho{width:108px}
+  @media(max-width:1220px){.ktbl .klaw{display:none}}
+  @media(max-width:1080px){.ktbl .kmd{width:120px}}
+  .knote{font-size:10px;color:var(--sub);line-height:1.5}
+  .knote.warn{color:var(--red-d);font-weight:700}
+  .rqb{font-size:9.5px;font-weight:800;padding:2px 7px;border-radius:5px;display:inline-block;white-space:nowrap}
+  .rqb.must{background:var(--navy);color:#fff}
+  .rqb.cond{background:#fff;color:var(--teal);border:1px solid var(--teal-line)}
+  .whob{font-size:10px;font-weight:800;padding:3px 8px;border-radius:5px;display:inline-block;white-space:normal;line-height:1.3}
+  .whob.go{background:var(--grn-soft);color:var(--grn);border:1px solid var(--grn-line)}
+  .whob.ng{background:var(--red-soft);color:var(--red-d);border:1px solid var(--red-line)}
+  .whob.nt{background:var(--panel);color:var(--sub);border:1px solid var(--line)}
+  /* checklist for docs */
+  .clist{padding:5px 13px 8px}
+  .ck{display:flex;align-items:flex-start;gap:9px;padding:7px 2px;border-bottom:1px solid var(--line2);cursor:pointer}
+  .ck:last-child{border-bottom:none}
+  .ck .box{width:15px;height:15px;border:1.7px solid var(--soft);border-radius:3.5px;flex:none;margin-top:2px;background:#fff;display:flex;align-items:center;justify-content:center}
+  .ck .box svg{width:11px;height:11px;stroke:#fff;stroke-width:2.6;fill:none;opacity:0}
+  .ck.done .box{background:var(--grn);border-color:var(--grn)} .ck.done .box svg{opacity:1}
+  .ck .ct{font-size:12px;color:var(--ink2);line-height:1.5} .ck.done .ct{color:var(--soft);text-decoration:line-through}
+  .ck .ct em{font-style:normal;font-size:10.5px;color:var(--soft);margin-left:6px;background:var(--panel);border:1px solid var(--line2);border-radius:4px;padding:1px 6px}
+  /* notes list (chk / miss) */
+  .nlist{padding:8px 14px 11px}
+  .ni{display:flex;align-items:flex-start;gap:9px;font-size:12px;line-height:1.6;padding:5px 0;color:var(--ink2)}
+  .ni .mk{flex:none;width:18px;text-align:center;font-weight:800;margin-top:1px}
+  .ni.amb .mk{color:var(--amb-d)} .ni.red .mk{color:var(--red-d)}
+  .ni.red b{color:var(--red-d)}
+  .ni.ok{color:var(--grn);font-weight:600}
+  .ni.ok .mk{color:var(--grn)}
+  /* schedule */
+  .sch{padding:11px 15px 13px;counter-reset:sx}
+  .sx{display:flex;align-items:flex-start;gap:11px;position:relative;padding-bottom:11px}
+  .sx:last-child{padding-bottom:0}
+  .sx::before{counter-increment:sx;content:counter(sx);flex:none;width:22px;height:22px;border-radius:50%;background:var(--navy);color:#fff;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;z-index:1}
+  .sx::after{content:"";position:absolute;left:10.5px;top:22px;bottom:-1px;width:1.5px;background:var(--navy-line)}
+  .sx:last-child::after{display:none}
+  .sx .sxt{font-size:12px;color:var(--ink2);line-height:1.55;padding-top:2px}
+  .sx .sxt b{color:var(--red-d)}
+  /* grow animation */
+  @keyframes grow{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .gi{animation:grow .32s ease both}
+  /* empty (pre-AI) state */
+  .emptysec{background:var(--card);border:1px dashed var(--navy-line);border-radius:10px}
+  .emptybody{display:flex;gap:13px;align-items:center;padding:26px 20px;color:var(--sub);font-size:12px;line-height:1.7}
+  .emptybody svg{width:30px;height:30px;stroke:var(--navy-line);stroke-width:1.6;fill:none;flex:none}
+  .emptybody b{color:var(--navy-d)}
+  /* honest strip */
+  .honest{margin:6px 0 2px;display:flex;flex-wrap:wrap;gap:8px}
+  .honest .h{display:inline-flex;align-items:center;gap:6px;font-size:10.5px;color:var(--sub);background:var(--panel);border:1px solid var(--line);border-radius:7px;padding:6px 10px}
+  .honest .h svg{width:12px;height:12px;stroke:var(--soft);stroke-width:1.9;fill:none;flex:none}
+  .honest .h b{color:var(--ink2)}
+  .sig{margin:10px 16px 14px;text-align:center;color:var(--soft);font-size:11px}
+  .statusbar{display:flex;align-items:center;gap:14px;padding:6px 16px;background:var(--head2);color:#a8c2e3;font-size:10.5px}
+  .statusbar .on{color:#d6e6f7} .statusbar .sp{margin-left:auto}
+</style>
+</head>
+<body>
+<div style="position:sticky;top:0;z-index:99999;display:flex;gap:14px;align-items:center;justify-content:space-between;flex-wrap:wrap;padding:9px 14px;background:#12121F;color:#fff;font:600 13px/1.6 'Noto Sans JP','Hiragino Sans',sans-serif;">
+<a href="/#cases" style="display:inline-flex;align-items:center;gap:8px;padding:9px 18px;border-radius:999px;background:#fff;color:#12121F;text-decoration:none;font-weight:700;white-space:nowrap;">← アプリ一覧へ戻る</a>
+<span style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;"><span style="opacity:.7;font-weight:500;">架空の会社のデータで動きます。実際のデータは使っていません。</span><a href="https://zenn.dev/hiroshift/articles/59ce33f8a0aa4d" target="_blank" rel="noopener" style="color:#fff;text-decoration:none;border-bottom:1px solid rgba(255,255,255,.4);white-space:nowrap;">設計の解説を読む</a></span>
+</div>
+
+  <div class="titlebar">
+    <div class="logo"><span class="mk"><svg viewBox="0 0 24 24"><path d="M6 3h9l5 5v13H6z"/><path d="M14 3v6h6"/><path d="M9 13h7M9 17h5"/></svg></span><b>みなと行政書士事務所</b><span>KYONINKA DESK</span></div>
+    <div class="sys">お客様の話 ／ 許認可・必要書類ジェネレータ</div>
+    <div class="rt"><span>2025年7月1日（火）10:20</span><span class="who"><span class="av"></span><span><b>黒田</b> <small>所長・行政書士／補助1名</small></span></span></div>
+  </div>
+
+  <div class="tabs">
+    <div class="tab on"><svg viewBox="0 0 24 24"><path d="M12 3v18M3 12h18"/><circle cx="12" cy="12" r="9"/></svg>許認可ヒアリング</div>
+    <div class="tab"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>案件台帳</div>
+    <div class="tab"><svg viewBox="0 0 24 24"><path d="M6 3h9l5 5v13H6z"/><path d="M14 3v6h6"/></svg>許認可マスタ</div>
+    <div class="tab"><svg viewBox="0 0 24 24"><path d="M9 3h6l4 4v14H5V3z"/><path d="M9 12h6M9 16h4"/></svg>書類テンプレ</div>
+    <div class="tab"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 9h18M8 3v4M16 3v4"/></svg>期日管理</div>
+  </div>
+
+  <div class="vband">
+    <div class="vbhead">「あの先生しかできない」を、聞いた話から下書きに。</div>
+    <div class="vbcmp">
+      <div class="vbcol before">
+        <div class="vbk">これまで</div>
+        <p>相談のたびに、何の許認可で・どの書類か・どこへ出すかを、先生が頭から組み立て直す。補助者には渡せない。抜けが怖い。</p>
+      </div>
+      <div class="vbarrow"><svg viewBox="0 0 24 24"><path d="M4 12h15M13 6l6 6-6 6"/></svg></div>
+      <div class="vbcol after">
+        <div class="vbk">これから</div>
+        <p>依頼者の話を入れるだけ。許認可・必要書類・窓口・期限・他士業への振り分けまで、抜けなく下書き。先生は確認して承認するだけ。<strong>補助者でも回せる。</strong></p>
+      </div>
+    </div>
+    <div class="vbpayoff">「先生の頭の中」を、そのまま画面に。<b>だから、もう一人ぶん回せる。</b></div>
+  </div>
+
+  <div class="demo">
+    <span class="lab">DEMO</span>
+    <div><b>これはデモ画面です。</b>依頼者・事務所はすべて架空です。<b>AIはお客様の言葉から「条件」だけを読み取り</b>、該当する許認可・書類は<b>固定マスタ＋ルール表</b>が確定します（AIに法律を推測させません）。<b>表示は下書き</b>で、制度の最新の取扱いと<b>最終承認は先生（行政書士）</b>がご確認ください。依頼者の氏名・連絡先は<b>マスク・AIには渡さず、台帳のみ</b>に保持します（守秘義務のため）。</div>
+  </div>
+
+  <div class="cases">
+    <span class="cl">事例を試す ▶</span>
+    <button class="cbtn on" data-c="setup"><span class="st">①</span>法人成り・合同会社設立</button>
+    <button class="cbtn" data-c="kensetsu"><span class="st">②</span>建設業許可（内装仕上・知事）</button>
+    <button class="cbtn" data-c="souzoku"><span class="st">③</span>相続・遺産分割</button>
+  </div>
+
+  <div class="work">
+    <!-- ===== LEFT : hearing ===== -->
+    <div class="formcard">
+      <div class="formhead">
+        <span class="n"><svg viewBox="0 0 24 24"><path d="M12 3v18M3 12h18"/><circle cx="12" cy="12" r="9"/></svg></span>
+        <h2>お客様の話 → 条件</h2>
+        <span class="sub">AIは言葉→条件まで<br>許認可はマスタが確定</span>
+      </div>
+      <div class="formbody">
+
+        <!-- AI intake (top) -->
+        <div class="aibox">
+          <div class="aihead"><svg viewBox="0 0 24 24"><path d="M12 3a4 4 0 0 1 4 4v1a4 4 0 0 1-1 8 4 4 0 0 1-6 0 4 4 0 0 1-1-8V7a4 4 0 0 1 4-4z"/><path d="M9 18v2M15 18v2"/></svg>お客様の話（自由記述）<span class="src">面談メモ・電話の口述</span></div>
+          <textarea class="aita" id="ai_speech" spellcheck="false"></textarea>
+          <button class="aibtn" id="ai_run"><span class="sp"></span><svg viewBox="0 0 24 24"><path d="M5 12l4 4 10-10"/><path d="M3 7l2-2M19 19l2 2M21 5l-2 2"/></svg>AIで条件を読み取る</button>
+          <p class="ainote"><b>AIが読み取るのは「お客様の言葉 → 条件」まで。</b>該当する許認可・書類は<b>固定マスタ＋ルール表</b>が確定します（AIに法律を推測させません）。<b>最終承認は先生。</b></p>
+        </div>
+
+        <!-- PII (held by office, not sent to AI) -->
+        <div class="frow">
+          <div class="field"><label>依頼者 <span class="rq">*</span><span class="pii">折り返し用・AI非送信</span></label><div class="inp pii" id="f_client"></div></div>
+          <div class="field"><label>連絡先 <span class="rq">*</span><span class="pii">AI非送信</span></label><div class="inp pii" id="f_tel"></div></div>
+        </div>
+        <div class="piinote"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>氏名・連絡先は台帳と連絡に使う必須項目。<b style="margin-left:3px">画面はマスク、AIの読み取り・引き当てには渡しません。</b></div>
+
+        <!-- extracted conditions -->
+        <div class="condhead"><svg viewBox="0 0 24 24"><path d="M3 6h18M7 12h10M10 18h4"/></svg>AIが読み取った条件 <span class="tag" id="cond_tag">未読取</span></div>
+        <div id="f_conds"></div>
+
+        <div class="condhead" style="border-top:1px dashed var(--line);padding-top:11px;margin-top:2px"><svg viewBox="0 0 24 24"><path d="M3 6h18M7 12h10M10 18h4"/></svg>特記条件（選ぶと右の台帳が積み変わります）</div>
+        <div id="f_toggles"></div>
+
+        <div class="field" style="margin-top:6px"><label>自由メモ <span class="op">（聞いたまま一言）</span></label><div class="inp ta" id="f_memo"></div></div>
+
+        <p class="hint">＊AIは<b>お客様の言葉から条件を抽出</b>するところまで。条件に応じて<b>固定マスタ＋ルール表</b>が許認可・書類を引き当てます。<b>推測で項目は足さず、最後に承認するのは先生</b>です。</p>
+      </div>
+    </div>
+
+    <!-- ===== RIGHT : growing ledger ===== -->
+    <div class="ldg">
+      <div class="lhead"><svg viewBox="0 0 24 24"><path d="M9 3h6l4 4v14H5V3z"/><path d="M9 12h6M9 16h4M9 8h2"/></svg>許認可・必要書類ジェネレータ（下書き）<span class="gw" id="gw">AIで条件を読み取ると積み上がります</span></div>
+
+      <div class="sumbar">
+        <div class="sumtop"><span class="ttl" id="sum_name"></span><span class="tg">下書き・要承認</span></div>
+        <div class="sumstat">
+          <div class="cell"><div class="v" id="c_kyo">0</div><div class="k">許認可・届出</div></div>
+          <div class="cell"><div class="v" id="c_doc">0</div><div class="k">必要書類</div></div>
+          <div class="cell a"><div class="v" id="c_chk">0</div><div class="k">△ 要確認</div></div>
+          <div class="cell r"><div class="v" id="c_miss">0</div><div class="k">⚠ 不足・未提出</div></div>
+          <div class="cell g"><div class="v" id="c_sch">0</div><div class="k">ステップ</div></div>
+        </div>
+        <div class="doctrine"><svg viewBox="0 0 24 24"><path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7z"/><path d="M9 12l2 2 4-4"/></svg><span><b>賢さより、ブレなさ。</b>許認可マスタは固定、要件はルール表で判定、出力順も固定。<b>士業の線引き</b>（登記＝司法書士・税＝税理士・争い＝弁護士）も表で持ちます。</span></div>
+      </div>
+
+      <div id="boards"></div>
+
+      <div class="honest">
+        <span class="h"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg><b>最終承認は先生</b>。AIは言葉→条件と下書きまで</span>
+        <span class="h"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>氏名・連絡先は<b>AIに渡さない</b>（マスク・台帳のみ・守秘義務）</span>
+        <span class="h"><svg viewBox="0 0 24 24"><path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>制度は変わります。<b>最新の取扱いは管轄窓口と先生が確認</b></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="sig">『あの人しかできない』を、ほどく。 ── Day13 ／ 架空の「みなと行政書士事務所」（所長 黒田・行政書士＋補助1名）</div>
+
+  <div class="statusbar"><span class="on">● オンライン</span><span id="sbtxt">お客様の話 → 許認可ジェネレータ（デモ）</span><span class="sp"></span><span>みなと行政書士事務所 許認可ヒアリングシステム</span></div>
+
+<script>
+  var CK='<svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>';
+  var PIN='<svg viewBox="0 0 24 24"><path d="M12 21s-7-5.5-7-11a7 7 0 0 1 14 0c0 5.5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>';
+
+  function whoBadge(w){
+    if(w==='gyosei')   return '<span class="whob go">◎ 行政書士</span>';
+    if(w==='shihou')   return '<span class="whob ng">❌ 司法書士へ</span>';
+    if(w==='shihou_b') return '<span class="whob ng">❌ 司法書士・弁護士へ</span>';
+    if(w==='zeirishi') return '<span class="whob ng">❌ 税理士へ</span>';
+    if(w==='bengoshi') return '<span class="whob ng">❌ 弁護士へ</span>';
+    return '<span class="whob nt">届出（窓口提出）</span>';
+  }
+
+  var CASES={
+    /* ===== 事例① 法人成り・合同会社設立（★実話アンカー・デフォルト） ===== */
+    setup:{
+      name:'法人成り・合同会社の設立', sub:'個人 → 合同会社（LLC）・取引先の与信要件',
+      client:'森○○ 様（個人事業主）', tel:'090-****-**42',
+      speech:'いま個人でやってて、取引先から『法人さんとしか取引できない』って言われちゃって。株式会社だと費用かかるって聞いたんで、合同会社でいいかなと。事務所は自宅兼用なんだけど、何から手ぇつければいいのか、さっぱりで…',
+      fields:[
+        {l:'手続き種別',v:'会社設立 ／ 法人成り'},
+        {l:'事業形態',v:'個人事業主 → 法人成り（既存事業あり）'},
+        {l:'法人種別',v:'合同会社（LLC）'},
+        {l:'設立動機',v:'取引先の与信・取引要件（BtoB継続）'},
+        {l:'本店所在地',v:'自宅兼用（賃貸の事業利用可否を要確認）'},
+        {l:'業種',v:'未特定（許認可要否をヒアリングで判定）'}
+      ],
+      memo:'「何から手をつければ…」。取引先の与信要件で法人化したい。',
+      toggles:[
+        {id:'koyou', label:'従業員を雇うか', opts:['雇わない（1人法人）','雇う']},
+        {id:'kyoka', label:'事業目的に許認可業種を含むか', opts:['未特定','含む（建設・古物等）']}
+      ],
+      build:function(s){
+        var koyou=s.koyou===1, kyoka=s.kyoka===1;
+        var kyo=[
+          {nm:'定款の作成',law:'会社法',md:'みなと行政書士事務所（作成代理）',who:'gyosei',rq:'必須',note:'合同会社は公証役場の認証 不要（株式会社との最大の違い）'},
+          {nm:'設立登記の申請',law:'商業登記法',md:'法務局（登記所）',who:'shihou',rq:'必須',note:'⚠ 登記申請の代理は司法書士の独占（行政書士は不可）→提携司法書士へ連携／本人申請も可。登記日＝会社成立日'},
+          {nm:'法人設立届出書',law:'法人税法',md:'税務署',who:'todoke',rq:'必須',note:'設立日から2か月以内'},
+          {nm:'青色申告の承認申請書',law:'法人税法',md:'税務署',who:'todoke',rq:'条件該当',note:'設立3か月 or 事業年度末の早い日の前日まで'},
+          {nm:'給与支払事務所等の開設届出書',law:'所得税法',md:'税務署',who:'todoke',rq:'条件該当',note:'役員報酬の支払開始から1か月以内'},
+          {nm:'法人設立届出書（地方税）',law:'地方税法',md:'都道府県税事務所・市町村',who:'todoke',rq:'必須',note:'△ 提出期限は自治体ごと（条例で要確認）'},
+          {nm:'健康保険・厚生年金 新規適用届',law:'健康保険法ほか',md:'年金事務所',who:'todoke',rq:'必須',note:'設立5日以内・社長1人でも強制適用。登記事項証明書（90日以内）添付'}
+        ];
+        if(koyou) kyo.push({nm:'労働保険・雇用保険の加入',law:'労働保険徴収法ほか',md:'労基署／ハローワーク',who:'todoke',rq:'条件該当',note:'従業員を雇う場合のみ（1人法人は不要）'});
+        if(kyoka) kyo.push({nm:'業種別の許認可（建設・古物・飲食等）',law:'各業法',md:'各監督官庁',who:'gyosei',rq:'条件該当',note:'目的に許認可業種があれば別途取得'});
+        var doc=[
+          {nm:'定款（合同会社用・認証不要だが作成必須）'},
+          {nm:'合同会社設立登記申請書（法務局様式）'},
+          {nm:'登記すべき事項（別紙またはCD-R等）'},
+          {nm:'代表社員の印鑑証明書',note:'作成後3か月以内'},
+          {nm:'払込みがあったことを証する書面（払込証明書）＋通帳の写し'},
+          {nm:'印鑑届書（会社実印を登記所に届出）'},
+          {nm:'代表社員・本店所在地及び資本金決定書'},
+          {nm:'業務執行社員の就任承諾書',note:'ケースに応じて'},
+          {nm:'資本金の額の計上に関する証明書',note:'現物出資がある場合'},
+          {nm:'登録免許税納付用台紙'}
+        ];
+        var chk=[
+          '事業目的に許認可業種が含まれるか（目的の文言が後の許認可を左右）',
+          '社員（出資者）の構成（代表社員1名か複数か・法人社員か）',
+          '資本金の額（登録免許税に直結／消費税免税1,000万円未満の判定）',
+          '本店所在地（自宅可否・賃貸物件の事業利用＝法人登記可否）',
+          '設立日の希望（登記申請日＝設立日・法務局開庁日のみ）'
+        ];
+        var miss=[
+          '印鑑証明書の有効期限切れ（申請時点で発行後3か月以内が必須）',
+          '目的の書き方（将来の許認可を見据えないと、目的変更登記で再度の登録免許税）',
+          '払込みのタイミング（設立前は会社口座が無い→代表社員個人口座に払込み、通帳写しで証明）'
+        ];
+        var sch=[
+          '基本事項の決定（商号・本店・目的・資本金・代表社員・事業年度）',
+          '定款作成（行政書士の領域・LLCは認証不要）',
+          '出資金の払込み（代表社員個人口座 → 通帳コピー → 払込証明書）',
+          '登記書類一式の作成（申請書・印鑑届書・納付台紙ほか）',
+          '法務局へ設立登記申請（申請日＝設立日）→ 登記事項証明書・印鑑証明取得',
+          '設立後の届出（税務署 → 都道府県/市町村 → 年金事務所5日以内）'
+        ];
+        return {kyo:kyo,doc:doc,chk:chk,miss:miss,sch:sch,foot:'法定費用の目安：登録免許税＝資本金×0.7%・最低6万円。合同会社は定款認証手数料が不要。'};
+      }
+    },
+
+    /* ===== 事例② 建設業許可（内装仕上工事業・一般・知事） ===== */
+    kensetsu:{
+      name:'建設業許可の取得（内装仕上工事業）', sub:'一般・知事許可／個人 → 法人成り視野・神奈川県',
+      client:'三○○○ 様（個人事業主）', tel:'080-****-**07',
+      speech:'ひとりで内装の仕上げの仕事を10年くらいやってきたんだけど、最近は元請から『許可ないと出せない』って言われることが増えてさ。神奈川で営業所はうちの一カ所だけ。今は個人だけど、ゆくゆくは会社にしようかとも思ってて。何から揃えればいい？',
+      fields:[
+        {l:'手続き種別',v:'建設業許可'},
+        {l:'業種',v:'内装仕上工事業'},
+        {l:'許可区分',v:'一般 ／ 知事許可（営業所1か所）'},
+        {l:'事業形態',v:'個人事業主 → 法人成りを検討'},
+        {l:'所在地',v:'神奈川県（営業所1か所）'},
+        {l:'専技の見込み',v:'実務経験10年ルートの可能性'}
+      ],
+      memo:'「元請から許可を求められた。ゆくゆく会社にしたい」。',
+      toggles:[
+        {id:'houjin', label:'法人成りを視野に入れるか', opts:['視野にある','個人のまま']},
+        {id:'zaisan', label:'財産的基礎（自己資本500万円）', opts:['確認できる','未確認']}
+      ],
+      build:function(s){
+        var houjin=s.houjin===0, zOK=s.zaisan===0;
+        var kyo=[
+          {nm:'建設業許可（一般・知事）／内装仕上工事業',law:'建設業法 第3条',md:'神奈川県 県土整備局 建設業課',who:'gyosei',rq:'必須',note:'手数料 9万円・神奈川県収入証紙。標準処理期間はおおむね50日程度（最新の手引き要確認）'}
+        ];
+        if(houjin) kyo.push({nm:'法人設立登記（法人成りする場合）',law:'会社法・商業登記法',md:'法務局／提携司法書士',who:'shihou',rq:'条件該当',note:'⚠ 個人で取得後に法人成りすると許可は個人に帰属＝法人で新規取得（取り直し）。先に法人化が無駄なし'});
+        var doc=[
+          {nm:'様式第一号 建設業許可申請書（＋別紙二・三・四）'},
+          {nm:'様式第七号 常勤役員等（経管）証明書＋裏付け資料（工事請負契約書・注文書・確定申告書）'},
+          {nm:'様式第八号 営業所技術者等証明書／（実務経験なら）様式第九号 実務経験証明書'},
+          {nm:'様式第六号 誓約書（欠格要件に該当しない旨）'},
+          {nm:'様式第十二号 住所、生年月日等に関する調書'},
+          {nm:'財産的基礎の疎明＝預金残高証明書（500万円以上）or 直近決算の貸借対照表'},
+          {nm:'登記されていないことの証明書（法務局発行）'},
+          {nm:'身分証明書（本籍地市区町村発行）'},
+          {nm:'納税証明書（個人＝所得税／法人＝事業税）'},
+          {nm:'定款の写し・登記事項証明書',note:'法人の場合'},
+          {nm:'営業所の外観・内部写真（＋賃貸借契約書の写し）'}
+        ];
+        var chk=[
+          '経管の経験年数（個人5年以上を確定申告＋工事契約書で連続裏付けできるか・空白期間）',
+          '専技の証明方法（国家資格 or 実務経験10年／実務なら10年分の契約書）',
+          '財産的基礎の証明方法（残高証明 or 決算の自己資本500万円以上）',
+          '個人か法人か（法人成りで許可は取り直しになる点）',
+          '営業所の要件（独立性・看板/電話/机の実態・自宅兼の可否）'
+        ];
+        var miss=[];
+        if(!zOK) miss.push('財産的基礎500万円の残高証明が未確認（残高証明の有効期限と申請タイミングのズレに注意）');
+        miss.push('経管・専技の常勤性疎明（兼任は可だが両方とも常勤要件・社保や住所で確認される）');
+        if(houjin) miss.push('⚠ 個人で取得 → 法人成りで許可は消える（取り直しが基本）。先に法人化してから新規申請が無駄が少ない');
+        var sch=[
+          '要件確認・ヒアリング（経管5年・専技 資格or実務10年・500万円・欠格の棚卸し）',
+          '書類収集（公的証明書は発行後3か月以内＝期限管理）',
+          '申請書作成・提出（建設業課窓口／手数料 9万円・神奈川県収入証紙）',
+          '審査（おおむね50日程度・要 最新手引き確認）',
+          '許可・通知（許可番号付与）'
+        ];
+        return {kyo:kyo,doc:doc,chk:chk,miss:miss,sch:sch,foot:'許可の5要件（建設業法第7条）：①経管（建設業の経営経験5年以上）②専技（資格 or 実務10年）③誠実性 ④財産的基礎（自己資本500万円 等）⑤欠格要件に該当しないこと。'};
+      }
+    },
+
+    /* ===== 事例③ 相続・遺産分割（士業の線引きの実証） ===== */
+    souzoku:{
+      name:'相続・遺産分割の手続き', sub:'遺言なし・相続人3名／不動産あり・一人が海外在住',
+      client:'佐○○ 様', tel:'070-****-**31',
+      speech:'先月父が亡くなりまして…銀行の口座と、あと実家の土地と建物が父の名義のままなんです。遺言は無かったと思います。相続人は私と弟と妹の3人なんですが、弟が今アメリカに住んでて連絡もなかなか取れなくて、何から手をつけたらいいのか全然わからなくて。',
+      fields:[
+        {l:'手続き種別',v:'相続（遺産分割）'},
+        {l:'被相続人',v:'父（先月死亡｜放棄3か月・相続税10か月の起算）'},
+        {l:'相続人',v:'3名（本人・弟・妹）'},
+        {l:'遺言',v:'なし → 遺産分割協議が必要'},
+        {l:'不動産',v:'あり（実家の土地・建物／父名義）'},
+        {l:'特記リスク',v:'相続人の一人が海外在住・連絡困難'}
+      ],
+      memo:'「何から手をつけたら…」。弟が海外在住で連絡が取りにくい。',
+      toggles:[
+        {id:'fudosan', label:'不動産（父名義）', opts:['あり（実家の土地・建物）','なし']},
+        {id:'kaigai',  label:'相続人の海外在住', opts:['あり（連絡困難）','なし']}
+      ],
+      build:function(s){
+        var fudo=s.fudosan===0, kaigai=s.kaigai===0;
+        var kyo=[
+          {nm:'相続人調査・戸籍収集（出生〜死亡の連続戸籍）',law:'戸籍法',md:'市区町村（本籍地）',who:'gyosei',rq:'必須',note:'除籍・改製原戸籍を含めて遡る'},
+          {nm:'相続関係説明図／法定相続情報一覧図',law:'不動産登記規則',md:'法務局（一覧図・無料）',who:'gyosei',rq:'推奨',note:'各機関での戸籍束の再提出を省略できる'},
+          {nm:'遺産分割協議書の作成',law:'民法',md:'みなと行政書士事務所',who:'gyosei',rq:'必須',note:'争いのない前提。相続人全員が実印で押印'},
+          {nm:'預貯金・証券・自動車の名義変更／解約',law:'各種約款・道路運送車両法',md:'各金融機関・運輸支局',who:'gyosei',rq:'必須',note:'自動車の移転登録も行政書士の領域'}
+        ];
+        if(fudo) kyo.push({nm:'不動産の相続登記',law:'不動産登記法',md:'法務局',who:'shihou',rq:'条件該当',note:'⚠ 登記は司法書士（行政書士は不可）。義務化 2024/4/1・3年以内／過去分は 2027/3/31 まで・過料10万円以下'});
+        kyo.push(
+          {nm:'相続放棄の申述',law:'民法 第938条',md:'家庭裁判所',who:'shihou_b',rq:'条件該当',note:'⚠ 裁判所提出は行政書士は不可。自己のために相続開始を知った時から3か月'},
+          {nm:'相続税の申告',law:'相続税法',md:'税務署',who:'zeirishi',rq:'条件該当',note:'⚠ 税理士の独占。10か月。基礎控除＝3,000万円＋600万円×法定相続人数'}
+        );
+        kyo.push({nm:'争いのある遺産分割の調停・代理',law:'家事事件手続法',md:'家庭裁判所',who:'bengoshi',rq:'条件該当',note:'⚠ 弁護士の独占。協議が整わない場合'});
+        var doc=[
+          {nm:'被相続人の出生から死亡までの連続した戸籍（除籍・改製原戸籍を含む）'},
+          {nm:'被相続人の住民票の除票（または戸籍の附票）'},
+          {nm:'相続人全員の戸籍謄本',note:'死亡日以降に発行'},
+          {nm:'相続人全員の住民票'},
+          {nm:'相続人全員の印鑑証明書（協議書の実印に対応）'},
+          {nm:'遺産分割協議書（相続人全員が実印で押印）'},
+          {nm:'不動産＝登記事項証明書＋固定資産評価証明書（申請年度）',note:'不動産がある場合'},
+          {nm:'預貯金＝残高証明書（死亡日基準）、通帳'},
+          {nm:'有価証券・保険等の資料'},
+          {nm:'法定相続情報一覧図（法務局認証・無料）',note:'戸籍束の再提出を省略可'}
+        ];
+        var chk=[
+          '遺言の有無（自筆／公正証書・検認の要否で分岐）',
+          '相続人の人数・所在（疎遠・行方不明・海外在住＝在外公館証明で長期化）',
+          '不動産の有無（あれば相続登記＝司法書士へ・過去分2027/3/31）',
+          '相続放棄の意向・期限（相続開始を知った時から3か月・家裁＝司法書士／弁護士へ）',
+          '相続税の要否（基礎控除超過＝税理士へ・10か月）'
+        ];
+        var miss=[
+          '戸籍が一つの役所で揃わない（転籍・婚姻・改製で本籍が移動・複数市区町村を遡る）',
+          '印鑑証明・実印の未整備（法定相続情報一覧図を作ると各機関で戸籍束の再提出が不要に）'
+        ];
+        if(kaigai) miss.push('⚠ 相続人の一人が海外在住・連絡困難（協議は全員の合意・実印・印鑑証明が必須＝一人欠けると停止。在外公館の署名証明（サイン証明）で長期化）');
+        var sch=[
+          '相続人の確定（戸籍収集）→ 相続関係説明図／法定相続情報一覧図',
+          '財産調査（不動産・預貯金・証券・負債）　▶ 相続放棄の判断は死亡を知ってから3か月以内',
+          '遺産分割協議（相続人全員の合意）',
+          '遺産分割協議書の作成（全員 実印・印鑑証明）',
+          '各機関の名義変更／解約　▶ <b>不動産は相続登記＝司法書士</b>／<b>相続税申告は税理士（10か月）</b>'
+        ];
+        return {kyo:kyo,doc:doc,chk:chk,miss:miss,sch:sch,foot:'主な期限：相続放棄 3か月 ／ 相続税申告 10か月 ／ 相続登記 3年（過去分は2027/3/31まで）。'};
+      }
+    }
+  };
+
+  /* per-case toggle state（既定で⚠が出る側に寄せ、切替の効きを見せる） */
+  var STATE={ setup:{koyou:0,kyoka:0}, kensetsu:{houjin:0,zaisan:1}, souzoku:{fudosan:0,kaigai:0} };
+  var READ={ setup:true, kensetsu:false, souzoku:false }; /* AIで読み取り済みか */
+  var current='setup';
+  var checked={};
+
+  function set(id,v){document.getElementById(id).textContent=v;}
+
+  function renderForm(c,id,flash){
+    var read=READ[id], st=STATE[id];
+    set('f_client',c.client); set('f_tel',c.tel); set('f_memo', read? c.memo : '—');
+    document.getElementById('ai_speech').value=c.speech;
+
+    /* extracted conditions tag */
+    var tag=document.getElementById('cond_tag');
+    if(read){ tag.textContent='AI読み取り済み'; tag.classList.remove('wait'); }
+    else { tag.textContent='未読取'; tag.classList.add('wait'); }
+
+    /* condition fields (rows of 2) */
+    var fh='';
+    for(var i=0;i<c.fields.length;i+=2){
+      fh+='<div class="frow">';
+      for(var j=i;j<i+2 && j<c.fields.length;j++){
+        var f=c.fields[j];
+        var val = read ? f.v : '<span class="ph">— AIで読み取り後に表示 —</span>';
+        fh+='<div class="field"><label>'+f.l+'</label><div class="inp sel'+(read&&flash?' aifill':'')+'"><span>'+val+'</span><svg class="cv" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></div></div>';
+      }
+      fh+='</div>';
+    }
+    document.getElementById('f_conds').innerHTML=fh;
+
+    /* toggles */
+    if(read){
+      var th=c.toggles.map(function(t){
+        var opts=t.opts.map(function(o,i){return '<span class="o'+(st[t.id]===i?' on':'')+'" data-tg="'+t.id+'" data-i="'+i+'">'+o+'</span>';}).join('');
+        return '<div class="field"><label>'+t.label+'</label><div class="seg'+(flash?' aifill':'')+'">'+opts+'</div></div>';
+      }).join('');
+      document.getElementById('f_toggles').innerHTML=th;
+    } else {
+      document.getElementById('f_toggles').innerHTML='<div class="segwait">AIで条件を読み取ると、特記条件が表示されます</div>';
+    }
+  }
+
+  function rqHTML(rq){ return rq==='必須' ? '<span class="rqb must">必須</span>' : '<span class="rqb cond">'+rq+'</span>'; }
+
+  function emptyBoards(){
+    return '<div class="emptysec gi"><div class="emptybody">'
+      +'<svg viewBox="0 0 24 24"><path d="M12 3a4 4 0 0 1 4 4v1a4 4 0 0 1-1 8 4 4 0 0 1-6 0 4 4 0 0 1-1-8V7a4 4 0 0 1 4-4z"/><path d="M9 18v2M15 18v2"/></svg>'
+      +'<div><b>「AIで条件を読み取る」を押してください。</b><br>お客様の言葉から条件を抽出し、<b>固定マスタ＋ルール表</b>で許認可・必要書類・士業の線引きを台帳に生成します。</div>'
+      +'</div></div>';
+  }
+
+  function renderLedger(c,id){
+    var read=READ[id];
+    document.getElementById('sum_name').innerHTML=c.name+'<span>'+c.sub+'</span>';
+
+    if(!read){
+      set('c_kyo','0'); set('c_doc','0'); set('c_chk','0'); set('c_miss','0'); set('c_sch','0');
+      document.getElementById('boards').innerHTML=emptyBoards();
+      document.getElementById('gw').textContent='AIで条件を読み取ると積み上がります';
+      document.getElementById('sbtxt').textContent='お客様の話を読み取り待ち（デモ）';
+      return;
+    }
+
+    var L=c.build(STATE[id]);
+    set('c_kyo',L.kyo.length); set('c_doc',L.doc.length); set('c_chk',L.chk.length); set('c_miss',L.miss.length); set('c_sch',L.sch.length);
+
+    /* ① 許認可・届出 + 担い手（士業の線引き） */
+    var kRows=L.kyo.map(function(k){
+      var noteWarn = k.note && k.note.indexOf('⚠')===0;
+      var sub='<div class="ksub">'+rqHTML(k.rq)+(k.note?'<span class="knote'+(noteWarn?' warn':'')+'">'+k.note+'</span>':'')+'</div>';
+      return '<tr class="gi"><td class="knm">'+k.nm+sub+'</td>'
+        +'<td class="klaw">'+k.law+'</td>'
+        +'<td class="kmd"><span class="mi">'+PIN+'<span>'+k.md+'</span></span></td>'
+        +'<td class="kwho">'+whoBadge(k.who)+'</td></tr>';
+    }).join('');
+    var legend='<div class="wlegend"><span class="wi"><span class="d go">◎ 行政書士</span>当事務所で対応</span>'
+      +'<span class="wi"><span class="d ng">❌ 他士業へ</span>司法書士・税理士・弁護士へ連携</span>'
+      +'<span class="wi"><span class="d nt">届出</span>窓口へ提出</span></div>';
+    var b1='<div class="sec"><div class="sechead"><span class="bi">①</span><h3>必要な許認可・届出（担い手つき）</h3>'
+      +'<span class="cnt">'+L.kyo.length+' 件</span><span class="st">窓口・士業の線引き</span></div>'+legend
+      +'<table class="ktbl"><thead><tr><th>許認可・届出／区分・期限</th><th class="klaw">根拠法</th><th class="kmd">提出先・窓口</th><th class="kwho">担い手</th></tr></thead><tbody>'+kRows+'</tbody></table></div>';
+
+    /* ② 必要書類（チェックリスト） */
+    var dRows=L.doc.map(function(d){
+      var on=checked[id] && checked[id][d.nm];
+      return '<div class="ck gi'+(on?' done':'')+'" data-doc="'+d.nm+'"><span class="box">'+CK+'</span>'
+        +'<span class="ct">'+d.nm+(d.note?'<em>'+d.note+'</em>':'')+'</span></div>';
+    }).join('');
+    var b2='<div class="sec"><div class="sechead"><span class="bi">②</span><h3>必要書類</h3>'
+      +'<span class="cnt">'+L.doc.length+' 点</span><span class="st">□ 集めたら先生がチェック</span></div>'
+      +'<div class="clist">'+dRows+'</div></div>';
+
+    /* ③ △ 要確認 */
+    var cRows=L.chk.map(function(x){return '<div class="ni amb gi"><span class="mk">△</span><span>'+x+'</span></div>';}).join('');
+    var b3='<div class="sec acc-amb"><div class="sechead"><span class="bi">③</span><h3>要確認（条件次第）</h3>'
+      +'<span class="cnt">'+L.chk.length+' 件</span><span class="st">推測で確定しません</span></div>'
+      +'<div class="nlist">'+cRows+'</div></div>';
+
+    /* ④ ⚠ 不足・未提出 */
+    var mRows = L.miss.length
+      ? L.miss.map(function(x){return '<div class="ni red gi"><span class="mk">⚠</span><span>'+x.replace(/^⚠\s*/,'<b>')+(x.indexOf('⚠')===0?'</b>':'')+'</span></div>';}).join('')
+      : '<div class="ni ok gi"><span class="mk">✓</span><span>現時点で大きな不足はありません（取り寄せ書類の着手をおすすめします）</span></div>';
+    var b4='<div class="sec'+(L.miss.length?' acc-red':'')+'"><div class="sechead"><span class="bi">④</span><h3>不足・未提出</h3>'
+      +'<span class="cnt">'+L.miss.length+' 件</span><span class="st">'+(L.miss.length?'要対応':'なし')+'</span></div>'
+      +'<div class="nlist">'+mRows+'</div></div>';
+
+    /* ⑤ 想定スケジュール／順序 */
+    var sRows=L.sch.map(function(x){return '<div class="sx gi"><span class="sxt">'+x+'</span></div>';}).join('');
+    var foot=L.foot?'<div class="doctrine" style="border-top:1px solid var(--line2)"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg><span>'+L.foot+'</span></div>':'';
+    var b5='<div class="sec"><div class="sechead"><span class="bi">⑤</span><h3>想定スケジュール／順序</h3>'
+      +'<span class="cnt">'+L.sch.length+' ステップ</span><span class="st">出力順は固定</span></div>'
+      +'<div class="sch">'+sRows+'</div>'+foot+'</div>';
+
+    document.getElementById('boards').innerHTML=b1+b2+b3+b4+b5;
+    document.getElementById('gw').textContent='該当 '+L.kyo.length+' 許認可・書類 '+L.doc.length+' 点';
+    document.getElementById('sbtxt').textContent='該当許認可 '+L.kyo.length+'件・書類 '+L.doc.length+'点を生成（下書き）';
+  }
+
+  function render(id,flash){
+    var c=CASES[id];
+    renderForm(c,id,flash);
+    renderLedger(c,id);
+  }
+
+  /* case switch — 切替時は「未読取」に戻し、ボタンで読み取らせる動線 */
+  document.querySelectorAll('.cbtn').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      document.querySelectorAll('.cbtn').forEach(function(b){b.classList.remove('on');});
+      btn.classList.add('on');
+      current=btn.getAttribute('data-c');
+      READ[current]=false;
+      render(current,false);
+      window.scrollTo({top:0,behavior:'smooth'});
+    });
+  });
+
+  /* AIで条件を読み取る */
+  var aibtn=document.getElementById('ai_run');
+  aibtn.addEventListener('click',function(){
+    if(aibtn.classList.contains('busy')) return;
+    aibtn.classList.add('busy');
+    setTimeout(function(){
+      READ[current]=true;
+      render(current,true);          // flash=true で「今AIが埋めた」演出
+      aibtn.classList.remove('busy');
+    },650);
+  });
+
+  /* toggle change */
+  document.getElementById('f_toggles').addEventListener('click',function(e){
+    var o=e.target.closest('.o'); if(!o) return;
+    var tg=o.getAttribute('data-tg'), i=parseInt(o.getAttribute('data-i'),10);
+    STATE[current][tg]=i;
+    render(current,false);
+  });
+
+  /* doc checkbox toggle */
+  document.getElementById('boards').addEventListener('click',function(e){
+    var ck=e.target.closest('.ck'); if(!ck) return;
+    var nm=ck.getAttribute('data-doc');
+    if(!checked[current]) checked[current]={};
+    checked[current][nm]=!checked[current][nm];
+    ck.classList.toggle('done', checked[current][nm]);
+  });
+
+  render('setup',false); // 初期表示＝①は読み取り済み（ボタンで読み取り直しも可）
+</script>
+</body>
+</html>

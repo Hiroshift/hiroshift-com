@@ -1,0 +1,244 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>契約前リスク開示リスト ── ひまわり住宅リフォーム（表示例）</title>
+<style>
+  :root{
+    --bg:#f2ece1; --panel:#ffffff; --ink:#2c241d; --sub:#8a7a68; --line:#ddceb8;
+    --head:#332419; --headink:#f2e4d2; --stripe:#e8940c;
+    --strong:#b8420c; --strongbg:#fbe6d8; --strongln:#e8b98d;
+    --weak:#2f7d4f; --weakbg:#e7f3ec; --weakln:#bcdcc7;
+    --accent:#c1440e; --accentln:#8f3009;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{font-family:-apple-system,"Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,sans-serif;
+    background:var(--bg); color:var(--ink); line-height:1.75}
+  .wrap{max-width:940px; margin:0 auto; padding:0 0 60px}
+
+  .topbar{background:var(--head); color:var(--headink); padding:14px 22px; border-top:5px solid var(--stripe)}
+  .topbar .app{font-size:12.5px; font-weight:800; letter-spacing:.04em}
+  .topbar .sub{font-size:11px; color:#c9b39a; margin-top:2px}
+
+  .lead{padding:26px 22px 6px}
+  .lead h1{font-size:21px; margin:0 0 10px; line-height:1.5}
+  .lead p{font-size:14.5px; color:#463c30; margin:0 0 14px}
+  .lead .story{font-size:13.5px; color:var(--sub); background:var(--panel); border:1px solid var(--line);
+    border-left:4px solid var(--stripe); border-radius:6px; padding:12px 15px; margin:0 0 20px}
+
+  .panel{background:var(--panel); border:1px solid var(--line); border-radius:6px; margin:0 22px 20px; overflow:hidden}
+  .panel h2{font-size:13px; margin:0; padding:11px 15px; background:#f7f1e6; border-bottom:1px solid var(--line);
+    letter-spacing:.02em; color:#4a3f30}
+
+  table{width:100%; border-collapse:collapse; font-size:12.8px}
+  thead th{background:#faf6ec; color:var(--sub); font-weight:700; font-size:11px; text-align:left;
+    padding:8px 10px; border-bottom:1px solid var(--line); white-space:nowrap}
+  tbody td{padding:9px 10px; border-bottom:1px solid #f1e9db; vertical-align:middle}
+  tbody tr:last-child td{border-bottom:none}
+  .num{color:#9c8c78; font-size:11.5px}
+  .name{font-weight:700}
+  .kind{color:#5c5142}
+  .memo{color:var(--sub); font-size:11.8px}
+
+  tr.flash{animation:flash 1.6s ease}
+  @keyframes flash{
+    0%{background:#fde3c8} 60%{background:#fde3c8} 100%{background:transparent}
+  }
+
+  .formrow{padding:15px 15px; display:flex; gap:16px; flex-wrap:wrap; align-items:flex-end}
+  .field{display:flex; flex-direction:column; gap:5px; font-size:12px; color:var(--sub)}
+  .field select{font:inherit; font-size:13px; padding:7px 9px; border:1px solid var(--line); border-radius:5px; background:#fff; color:var(--ink); min-width:140px}
+
+  .actions{padding:14px 15px; display:flex; justify-content:center; gap:10px; border-top:1px solid var(--line)}
+  .runbtn{appearance:none; cursor:pointer; font:inherit; font-size:13.5px; font-weight:800; padding:9px 22px;
+    border-radius:6px; border:1px solid var(--accentln); background:var(--accent); color:#fff}
+  .runbtn:disabled{opacity:.5; cursor:default}
+  .resetbtn{appearance:none; cursor:pointer; font:inherit; font-size:13.5px; font-weight:700; padding:9px 18px;
+    border-radius:6px; border:1px solid var(--line); background:#fff; color:var(--sub)}
+  .resetbtn:disabled{opacity:.4; cursor:default}
+  .resetbtn:not(:disabled):hover{border-color:var(--accentln); color:var(--accent)}
+
+  .resultrow{display:none}
+  .resultrow.show{display:table-row; animation:fade .3s ease}
+  @keyframes fade{from{opacity:0}to{opacity:1}}
+
+  .badge{display:inline-block; font-size:11px; font-weight:800; padding:2px 8px; border-radius:20px; border:1px solid}
+  .badge.strong{color:var(--strong); background:var(--strongbg); border-color:var(--strongln)}
+  .badge.weak{color:var(--weak); background:var(--weakbg); border-color:var(--weakln)}
+
+  .why{margin-top:4px}
+  .srclink{appearance:none; cursor:pointer; font:inherit; font-size:11.3px; color:var(--accent); background:none;
+    border:none; padding:0; text-decoration:underline; text-underline-offset:2px}
+  .srclink:hover{color:var(--accentln)}
+
+  .empty{padding:16px 15px; font-size:12.8px; color:var(--sub)}
+
+  .note{background:#fff3de; border:1px solid #ecd6a4; border-radius:6px; padding:12px 15px; margin:0 22px 22px;
+    font-size:12px; color:#5b4212; line-height:1.85}
+  .note b{color:#8a4c00}
+
+  .foot{font-size:11px; color:var(--sub); padding:0 22px; line-height:1.9}
+  .foot .cap{display:inline-block; background:#fff; border:1px solid var(--line); border-radius:5px; padding:1px 7px; margin:0 5px 5px 0}
+</style>
+
+<div style="position:sticky;top:0;z-index:99999;display:flex;gap:14px;align-items:center;justify-content:space-between;flex-wrap:wrap;padding:9px 14px;background:#12121F;color:#fff;font:600 13px/1.6 'Noto Sans JP','Hiragino Sans',sans-serif;">
+<a href="/#cases" style="display:inline-flex;align-items:center;gap:8px;padding:9px 18px;border-radius:999px;background:#fff;color:#12121F;text-decoration:none;font-weight:700;white-space:nowrap;">← アプリ一覧へ戻る</a>
+<span style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;"><span style="opacity:.7;font-weight:500;">架空の会社のデータで動きます。実際のデータは使っていません。</span><a href="https://zenn.dev/hiroshift/articles/fe14c64209f6fc" target="_blank" rel="noopener" style="color:#fff;text-decoration:none;border-bottom:1px solid rgba(255,255,255,.4);white-space:nowrap;">設計の解説を読む</a></span>
+</div>
+<div class="wrap">
+
+  <div class="topbar">
+    <div class="app">ひまわり住宅リフォーム 現場管理システム ／ 契約前リスク開示リスト作成（表示例）</div>
+    <div class="sub">対象データ：過去の現地調査記録・見積り・追加工事記録から抽出（架空）／OFFLINE・架空DEMO</div>
+  </div>
+
+  <div class="lead">
+    <h1>「開けてみたら、話が違う」を、契約前に一言、減らす。</h1>
+    <p>ひまわり住宅リフォームの営業・現場代理人を20年務める梶さん（架空）は、新規の物件を一目見ただけで「このあたりは傷んでいそう」と契約前に伝えることで、後々のクレームを防いできました。新築の資材価格が上がり、リフォームの問い合わせが急増する中、新人がこの"当たりをつける勘"を持たないまま現場に出ています。</p>
+    <div class="story">解体してみないと分からないのは事実です。だからこそ大事なのは、当てることではなく——<b>「この条件の物件では、過去こういうことが起きやすかった」を契約前に言葉にしておく</b>ことです。</div>
+  </div>
+
+  <div class="panel">
+    <h2>過去の物件・追加工事 記録（抜粋・表示例）</h2>
+    <table>
+      <thead>
+        <tr><th>#</th><th>物件ID</th><th>調査日</th><th>担当</th><th>築年数</th><th>構造</th><th>エリア</th><th>解体後に発生した追加工事</th></tr>
+      </thead>
+      <tbody id="masterTbl">
+        <tr id="rec-P-114"><td class="num">1</td><td class="name">P-114</td><td class="kind">2026-03-11</td><td class="kind">梶</td><td class="kind">築38年</td><td class="kind">木造</td><td class="kind">市内</td><td class="memo">床下の給水管サビ・部分交換</td></tr>
+        <tr id="rec-P-098"><td class="num">2</td><td class="name">P-098</td><td class="kind">2026-03-24</td><td class="kind">梶</td><td class="kind">築42年</td><td class="kind">木造</td><td class="kind">郊外</td><td class="memo">壁内の断熱材が想定より薄い</td></tr>
+        <tr id="rec-P-131"><td class="num">3</td><td class="name">P-131</td><td class="kind">2026-04-02</td><td class="kind">富岡</td><td class="kind">築15年</td><td class="kind">鉄骨</td><td class="kind">市内</td><td class="memo">想定内で完了（追加なし）</td></tr>
+        <tr id="rec-P-076"><td class="num">4</td><td class="name">P-076</td><td class="kind">2026-04-19</td><td class="kind">梶</td><td class="kind">築33年</td><td class="kind">木造</td><td class="kind">市内</td><td class="memo">土台の一部にシロアリ被害</td></tr>
+        <tr id="rec-P-152"><td class="num">5</td><td class="name">P-152</td><td class="kind">2026-05-08</td><td class="kind">富岡</td><td class="kind">築8年</td><td class="kind">RC</td><td class="kind">市内</td><td class="memo">想定内で完了（追加なし）</td></tr>
+        <tr id="rec-P-109"><td class="num">6</td><td class="name">P-109</td><td class="kind">2026-05-27</td><td class="kind">梶</td><td class="kind">築29年</td><td class="kind">鉄骨</td><td class="kind">郊外</td><td class="memo">断熱材の不足（小規模）</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="panel">
+    <h2>新規物件の条件を入力</h2>
+    <div class="formrow">
+      <div class="field">
+        <label>築年数帯</label>
+        <select id="age">
+          <option value="築10年未満">築10年未満</option>
+          <option value="築10〜19年">築10〜19年</option>
+          <option value="築20〜29年">築20〜29年</option>
+          <option value="築30年以上" selected>築30年以上</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>構造</label>
+        <select id="structure">
+          <option value="木造" selected>木造</option>
+          <option value="鉄骨">鉄骨</option>
+          <option value="RC">RC</option>
+        </select>
+      </div>
+    </div>
+    <div class="actions">
+      <button class="runbtn" id="runBtn">契約前リスクを確認する</button>
+      <button class="resetbtn" id="resetBtn" disabled>リセット</button>
+    </div>
+  </div>
+
+  <div class="panel" id="resultPanel" style="display:none">
+    <h2 id="resultTitle">契約前に伝えておく候補 ── 確率・金額は出しません</h2>
+    <div id="resultBody"></div>
+  </div>
+
+  <div class="note">
+    ※このリストは、架空の過去物件データに対する<b>表示例</b>です（あらかじめ用意したもので、その場のライブ判定ではありません）。本番のAIは「築年数・構造・エリアが近い過去物件で、実際に何が起きたか」を列挙するだけで、<b>発生確率や追加費用の金額は一切出しません。</b>この条件でも何も起きなかった物件（P-131・P-152）も、そのまま「起きなかった実例」として残します。結果の各行にある「出典」を押すと、上の記録表の元データがハイライトされます。この一覧をどう客に伝えるか、追加提案するかは、梶さんたち現場の人が決めます。
+  </div>
+
+  <div class="foot">
+    <span class="cap">架空の会社・データです</span><span class="cap">確率・金額は表示していません</span><span class="cap">このページは端末内で完結します</span>
+  </div>
+
+</div>
+
+<script>
+  var records = [
+    {id:"P-114", age:"築30年以上", structure:"木造", area:"市内", note:"床下の給水管サビ・部分交換", hit:true},
+    {id:"P-098", age:"築30年以上", structure:"木造", area:"郊外", note:"壁内の断熱材が想定より薄い", hit:true},
+    {id:"P-131", age:"築10〜19年", structure:"鉄骨", area:"市内", note:"想定内で完了（追加なし）", hit:false},
+    {id:"P-076", age:"築30年以上", structure:"木造", area:"市内", note:"土台の一部にシロアリ被害", hit:true},
+    {id:"P-152", age:"築10年未満", structure:"RC", area:"市内", note:"想定内で完了（追加なし）", hit:false},
+    {id:"P-109", age:"築20〜29年", structure:"鉄骨", area:"郊外", note:"断熱材の不足（小規模）", hit:true}
+  ];
+  var DEFAULTS = {age:"築30年以上", structure:"木造"};
+
+  var runBtn = document.getElementById("runBtn");
+  var resetBtn = document.getElementById("resetBtn");
+  var resultPanel = document.getElementById("resultPanel");
+  var resultBody = document.getElementById("resultBody");
+  var resultTitle = document.getElementById("resultTitle");
+
+  function runDemo(instant){
+    var age = document.getElementById("age").value;
+    var structure = document.getElementById("structure").value;
+
+    var sameBoth = records.filter(function(r){ return r.age === age && r.structure === structure; });
+    var sameAge = records.filter(function(r){ return r.age === age; });
+    var pool = sameBoth.length ? sameBoth : sameAge;
+
+    resultPanel.style.display = "block";
+    runBtn.disabled = true;
+    runBtn.textContent = "確認済み";
+    resetBtn.disabled = false;
+
+    if(!pool.length){
+      resultBody.innerHTML = "<div class='empty'>この条件に近い過去記録が、まだありません。「まだ記録がない」こと自体を、契約前に正直に伝えてください。</div>";
+      return;
+    }
+
+    var html = "<table><thead><tr><th>#</th><th>契約前に伝えておく候補</th><th>根拠</th></tr></thead><tbody id='resultTbl'></tbody></table>";
+    resultBody.innerHTML = html;
+    var tbl = document.getElementById("resultTbl");
+
+    pool.forEach(function(r, i){
+      var tr = document.createElement("tr");
+      tr.className = "resultrow" + (instant ? " show" : "");
+      var badge = r.hit
+        ? "<span class='badge strong'>実例あり</span>"
+        : "<span class='badge weak'>実例なし</span>";
+      tr.innerHTML =
+        "<td class='num'>" + (i+1) + "</td>" +
+        "<td class='name'>" + r.note + "</td>" +
+        "<td>" + badge + "<div class='why'>" +
+          "<button class='srclink' data-rec='" + r.id + "'>出典：" + r.id + "（" + r.age + "・" + r.structure + "・" + r.area + "）を見る</button>" +
+        "</div></td>";
+      tbl.appendChild(tr);
+      if(!instant){ setTimeout(function(){ tr.classList.add("show"); }, i * 90); }
+    });
+
+    resultTitle.textContent = sameBoth.length
+      ? "契約前に伝えておく候補 ── 条件が近い過去物件" + pool.length + "件から（確率・金額は出しません）"
+      : "契約前に伝えておく候補 ── 同じ構造の実例なし・築年数のみ近い過去物件から（確率・金額は出しません）";
+  }
+
+  function resetDemo(){
+    document.getElementById("age").value = DEFAULTS.age;
+    document.getElementById("structure").value = DEFAULTS.structure;
+    resultPanel.style.display = "none";
+    resultBody.innerHTML = "";
+    runBtn.disabled = false;
+    runBtn.textContent = "契約前リスクを確認する";
+    resetBtn.disabled = true;
+  }
+
+  runBtn.addEventListener("click", function(){ runDemo(false); });
+  resetBtn.addEventListener("click", resetDemo);
+
+  resultBody.addEventListener("click", function(e){
+    var btn = e.target.closest(".srclink");
+    if(!btn) return;
+    var row = document.getElementById("rec-" + btn.getAttribute("data-rec"));
+    if(!row) return;
+    row.scrollIntoView({behavior:"smooth", block:"center"});
+    row.classList.remove("flash");
+    void row.offsetWidth;
+    row.classList.add("flash");
+  });
+
+  if(location.hash === "#go"){ runDemo(true); }
+</script>

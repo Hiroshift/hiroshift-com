@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta name="robots" content="noindex">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>受注カード ── 様式はバラバラ。でも、受注カードは必ず同じ場所。（架空デモ）</title>
+<style>
+  :root{
+    --bg:#e9e3d6; --bg2:#e2dbcb;
+    --ink:#221f19; --sub:#6b6456; --faint:#9b9483; --line:#d8d0bf;
+    --paper:#fdfbf5;
+    --slate:#2b3242; --slate2:#1f2530; --slate-soft:#3a4255;
+    --red:#b1392b; --red-soft:#c2503f; --red-bg:#f7e7e2; --red-line:#e2b6ad;
+    --gold:#9a6b2f;
+    --mark:#fbe6a8; --markline:#e6c25f;
+    --gothic:"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic",system-ui,sans-serif;
+    --mincho:"Hiragino Mincho ProN","YuMincho","Yu Mincho",serif;
+    --maru:"Hiragino Maru Gothic ProN","Hiragino Kaku Gothic ProN",sans-serif;
+    --mono:"SFMono-Regular",Menlo,Consolas,"Courier New",monospace;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;color:var(--ink);font-family:var(--gothic);line-height:1.7;
+    -webkit-font-smoothing:antialiased;
+    background:
+      radial-gradient(120% 80% at 50% -10%, #f1ecdf 0%, var(--bg) 46%, var(--bg2) 100%) fixed;}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 22px 70px}
+
+  /* ── terminal bar ── */
+  .term{margin:0 -22px 0;background:var(--slate2);color:#e9ecf2;
+    padding:10px 24px;display:flex;justify-content:space-between;align-items:center;
+    font-size:11.5px;letter-spacing:.03em;font-family:var(--mono)}
+  .term .l{display:flex;align-items:center;gap:11px}
+  .term .dot{width:9px;height:9px;border-radius:50%;background:#46506a;box-shadow:14px 0 0 #46506a,28px 0 0 #46506a}
+  .term .id b{color:#fff;font-weight:600}
+  .term .priv{display:inline-flex;align-items:center;gap:6px;color:#9fb8a6}
+  .term .priv::before{content:"";width:7px;height:7px;border-radius:50%;background:#5fbf86;box-shadow:0 0 7px #5fbf86}
+
+  /* ── header ── */
+  .head{padding:38px 4px 26px}
+  .kicker{font-size:11px;letter-spacing:.26em;color:var(--gold);margin:0 0 16px;font-family:var(--mono);font-weight:600}
+  .kicker .bar{display:inline-block;width:26px;height:1px;background:var(--gold);vertical-align:middle;margin:0 10px 3px 0}
+  h1{font-size:clamp(27px,4vw,40px);margin:0 0 14px;font-weight:800;letter-spacing:-.01em;line-height:1.28}
+  h1 .hl{position:relative;white-space:nowrap}
+  h1 .hl::after{content:"";position:absolute;left:-2px;right:-2px;bottom:.08em;height:.32em;
+    background:linear-gradient(transparent 55%, rgba(177,57,43,.20) 55%);z-index:-1}
+  .lede{font-size:15px;color:var(--sub);margin:0;max-width:680px;line-height:1.85}
+  .lede b{color:var(--ink);font-weight:600}
+  .lede .rb{color:var(--red);font-weight:700}
+
+  /* ── tabs ── */
+  .tabs{display:flex;gap:7px;margin:8px 0 0;flex-wrap:wrap;position:relative;z-index:2}
+  .tab{font-size:13.5px;border:1px solid var(--line);border-bottom:none;background:#efe9dc;color:var(--sub);
+    padding:11px 20px 12px;border-radius:9px 9px 0 0;cursor:pointer;transition:.16s;
+    display:flex;align-items:center;gap:9px;font-weight:600;position:relative;top:1px}
+  .tab:hover{color:var(--ink);background:#f3eee2}
+  .tab.on{background:var(--paper);color:var(--ink);border-color:var(--line);box-shadow:0 -3px 12px rgba(0,0,0,.04)}
+  .tab.on::after{content:"";position:absolute;left:0;right:0;top:0;height:3px;background:var(--red);border-radius:9px 9px 0 0}
+  .tab .n{font-family:var(--mono);font-size:11px;color:var(--faint);font-weight:600}
+  .tab.on .n{color:var(--red)}
+
+  /* ── stage ── */
+  .stage{background:linear-gradient(180deg,#efe9dc,#e9e2d2);
+    border:1px solid var(--line);border-radius:0 14px 14px 14px;
+    padding:26px;box-shadow:0 1px 0 #fff inset, 0 22px 50px -28px rgba(40,34,20,.45)}
+  .cols{display:grid;grid-template-columns:1fr 86px 1fr;gap:0;align-items:stretch}
+  @media(max-width:780px){.cols{grid-template-columns:1fr;gap:18px}}
+
+  .panel{display:flex;flex-direction:column;min-width:0}
+  .plabel{display:flex;align-items:center;gap:9px;font-size:11px;font-family:var(--mono);
+    letter-spacing:.06em;color:var(--sub);margin-bottom:12px;font-weight:600}
+  .plabel .pn{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;
+    border-radius:50%;font-size:10px;font-weight:700}
+  .plabel.L .pn{background:#ddd4c2;color:var(--slate)}
+  .plabel.R .pn{background:var(--slate);color:#fff}
+  .plabel .pos{margin-left:auto;font-size:10px;color:var(--red);background:var(--red-bg);
+    border:1px solid var(--red-line);padding:3px 9px;border-radius:20px;letter-spacing:0;font-weight:700}
+  .frameL,.frameR{flex:1;min-height:344px;display:flex}
+
+  /* ── arrow / convert node ── */
+  .arrow{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:0 6px}
+  .arrow .node{width:50px;height:50px;border-radius:50%;background:var(--slate);
+    display:flex;align-items:center;justify-content:center;color:#fff;
+    box-shadow:0 10px 22px -8px rgba(31,37,48,.6), 0 0 0 6px rgba(43,50,66,.10)}
+  .arrow .node svg{width:22px;height:22px}
+  .arrow .ai{font-size:9.5px;font-family:var(--mono);letter-spacing:.12em;color:var(--slate);font-weight:700}
+  .arrow .cap{font-size:10px;color:var(--sub);text-align:center;line-height:1.5;max-width:78px}
+  @media(max-width:780px){.arrow{flex-direction:row;gap:14px;padding:2px 0}.arrow .node{transform:rotate(90deg)}.arrow .cap{max-width:none}}
+
+  /* ════════ LEFT : raw order, rendered real ════════ */
+  .raw{flex:1;position:relative}
+
+  /* ① 発注書 ─ formal form */
+  .po{flex:1;background:
+      linear-gradient(180deg,#fffdf8,#fdfaf2);
+    border:1px solid #e4dcc8;border-radius:4px;padding:20px 22px 18px;position:relative;
+    box-shadow:0 16px 30px -22px rgba(60,50,25,.5), 0 1px 0 #fff inset;font-family:var(--mincho);color:#2a261d}
+  .po::before{content:"";position:absolute;inset:0;border:1px solid #efe7d4;border-radius:4px;margin:4px;pointer-events:none}
+  .po-top{display:flex;justify-content:space-between;align-items:flex-start}
+  .po-corp{font-size:11px;color:#6f6754;line-height:1.5}
+  .po-corp b{font-size:13.5px;color:#2a261d;font-weight:700;letter-spacing:.02em}
+  .po-no{font-family:var(--mono);font-size:10px;color:#8a8270;text-align:right;line-height:1.7}
+  .po-title{text-align:center;font-size:26px;font-weight:700;letter-spacing:.5em;margin:14px 0 4px;text-indent:.5em;color:#262219}
+  .po-title-u{width:148px;height:2px;background:#2a261d;margin:0 auto 16px;position:relative}
+  .po-title-u::after{content:"";position:absolute;left:0;right:0;top:3px;height:1px;background:#2a261d}
+  .po-to{font-size:16px;font-weight:700;letter-spacing:.04em;margin:0 0 14px}
+  .po-to .go{font-size:12px;font-weight:400;margin-left:6px;color:#5c5544}
+  .po-lead{font-size:11px;color:#6f6754;margin:0 0 12px}
+  table.po-t{width:100%;border-collapse:collapse;font-size:12px}
+  table.po-t th{background:#efe7d3;border:1px solid #cabfa6;color:#4d473a;font-weight:700;padding:6px 8px;font-size:11px;letter-spacing:.04em}
+  table.po-t td{border:1px solid #d6cdb6;padding:7px 9px;color:#34301f;height:30px}
+  table.po-t td.c{text-align:center;color:#7a7361}
+  table.po-t td.r{text-align:right;font-family:var(--mono);color:#7a7361}
+  table.po-t td.nm{font-weight:600;color:#262219}
+  .po-bot{display:flex;justify-content:space-between;align-items:flex-end;margin-top:13px;gap:14px}
+  /* remarks box ─ small, bottom-left, the trap */
+  .po-biko{flex:1;border:1px solid #d9c9a8;border-radius:3px;background:#fcf4e2;padding:8px 11px 9px;max-width:300px}
+  .po-biko .bl{font-size:9px;font-family:var(--mono);color:#a99a76;letter-spacing:.1em;margin-bottom:5px}
+  .po-biko .bt{font-size:11px;line-height:1.85;color:#4a4334;font-family:var(--gothic)}
+  .po-sum{border:1px solid #d6cdb6;border-radius:3px;overflow:hidden;width:150px;flex:none}
+  .po-sum .sr{display:flex;justify-content:space-between;font-size:11px;padding:5px 10px;border-bottom:1px solid #e4dcc8}
+  .po-sum .sr:last-child{border-bottom:none;background:#efe7d3;font-weight:700}
+  .po-sum .sr .v{font-family:var(--mono);color:#7a7361}
+  .po-seal{position:absolute;top:84px;right:26px;width:50px;height:50px;border:2px solid #b1392b;border-radius:50%;
+    color:#b1392b;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;
+    transform:rotate(-9deg);opacity:.82;font-family:var(--mincho);box-shadow:0 0 0 3px rgba(177,57,43,.06) inset}
+
+  /* ② 手書きFAX ─ transmission + handwriting */
+  .fax{flex:1;position:relative;transform:rotate(-.55deg);transform-origin:50% 30%}
+  .fax-sheet{background:#f3efe5;border:1px solid #ddd6c5;border-radius:2px;
+    box-shadow:0 16px 32px -22px rgba(60,50,25,.55);overflow:hidden;position:relative}
+  .fax-sheet::after{content:"";position:absolute;inset:0;pointer-events:none;
+    background:repeating-linear-gradient(180deg,rgba(40,40,40,.035) 0 1px,transparent 1px 4px);mix-blend-mode:multiply}
+  .fax-hdr{background:#2b3242;color:#dfe3ec;font-family:var(--mono);font-size:9.5px;letter-spacing:.04em;
+    padding:8px 13px;display:flex;justify-content:space-between;border-bottom:2px solid #1f2530}
+  .fax-hdr .big{font-size:11px;letter-spacing:.2em;color:#fff;font-weight:700}
+  .fax-meta{font-family:var(--mono);font-size:9.5px;color:#7d7665;padding:7px 14px 9px;
+    border-bottom:1px dashed #cfc6b2;display:flex;flex-wrap:wrap;gap:3px 18px;background:#efe9da}
+  .fax-meta b{color:#4a4334}
+  .fax-paper{position:relative;padding:16px 18px 8px;min-height:208px;
+    background:
+      repeating-linear-gradient(180deg,transparent 0 33px,#c4cedd 33px 34px);}
+  .hw{font-family:var(--maru);color:#1f2c4c;font-weight:600}
+  .fax-paper .line{display:block;line-height:34px;margin:0}
+  .scrawl{font-size:27px;font-weight:800;color:#b1392b;line-height:1.1;display:inline-block;transform:rotate(-1.5deg)}
+  .ring{position:relative;display:inline-block;padding:3px 16px 5px}
+  .ring::before{content:"";position:absolute;inset:-7px -2px -4px;border:2.6px solid #b1392b;
+    border-radius:62% 38% 56% 44%/52% 60% 40% 55%;transform:rotate(-2.5deg);opacity:.85}
+  .hw .l1{display:inline-block;transform:rotate(-.8deg) translateY(1px);font-size:18px}
+  .hw .l2{display:inline-block;transform:rotate(.5deg);font-size:17px;letter-spacing:.02em}
+  .hw .l3{display:inline-block;transform:rotate(-.6deg);font-size:17px}
+  .hw .l4{display:inline-block;transform:rotate(.4deg);font-size:15px;color:#3a4666}
+  .scribble{position:relative;font-weight:800;color:#b1392b;padding:0 3px}
+  .scribble::after{content:"";position:absolute;left:-3px;right:-3px;bottom:-2px;height:7px;
+    background:rgba(177,57,43,.26);transform:skewX(-14deg) rotate(-1deg);border-radius:3px}
+  .fax-foot{font-family:var(--mono);font-size:9px;color:#8a8270;padding:6px 14px 9px;border-top:1px dashed #cfc6b2;
+    display:flex;justify-content:space-between;background:#efe9da}
+  .fax-foot .ok{color:#3f7d57;font-weight:700}
+  .fax-recv{position:absolute;top:60px;right:14px;transform:rotate(7deg);border:2px solid #3f6f9c;color:#3f6f9c;
+    font-size:10px;font-weight:700;padding:3px 8px;border-radius:3px;opacity:.55;font-family:var(--mono);letter-spacing:.06em}
+
+  /* ③ メール ─ mail client */
+  .mail{flex:1;background:#fff;border:1px solid #e3ddd0;border-radius:8px;overflow:hidden;
+    box-shadow:0 16px 32px -22px rgba(60,50,25,.5);display:flex;flex-direction:column}
+  .mail-bar{display:flex;align-items:center;gap:6px;padding:9px 13px;background:#f6f4ef;border-bottom:1px solid #ebe6db}
+  .mail-bar .tl{width:9px;height:9px;border-radius:50%;background:#e0dccf}
+  .mail-bar .btn{font-size:10.5px;color:#7c7565;border:1px solid #e0dacd;background:#fff;border-radius:5px;
+    padding:3px 9px;display:flex;align-items:center;gap:4px}
+  .mail-bar .btn svg{width:11px;height:11px}
+  .mail-bar .sp{flex:1}
+  .mail-h{padding:14px 17px 12px;border-bottom:1px solid #eee9df}
+  .mail-subj{font-size:16px;font-weight:700;color:#211;margin:0 0 11px;letter-spacing:.01em}
+  .mail-from{display:flex;align-items:center;gap:11px}
+  .mail-av{width:38px;height:38px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;
+    color:#fff;font-weight:700;font-size:15px;background:linear-gradient(140deg,#4a6a8a,#33506e)}
+  .mail-who{flex:1;min-width:0;line-height:1.45}
+  .mail-who .nm{font-size:13px;font-weight:700;color:#221}
+  .mail-who .ad{font-size:11px;color:#9a9384;font-family:var(--mono)}
+  .mail-who .to{font-size:10.5px;color:#a8a191;margin-top:1px}
+  .mail-time{font-size:10.5px;color:#a8a191;text-align:right;white-space:nowrap;font-family:var(--mono)}
+  .mail-star{color:#e6b84f;font-size:15px;margin-left:2px}
+  .mail-body{padding:16px 18px 18px;font-size:13.5px;color:#33302a;line-height:2;flex:1}
+  .mail-body p{margin:0 0 14px}
+  .mail-sig{margin-top:4px;padding-top:11px;border-top:1px solid #f0ebe1;font-size:11.5px;color:#9a9384;line-height:1.7}
+
+  /* shared highlight on raw docs */
+  mark{background:linear-gradient(transparent 8%, var(--mark) 8% 88%, transparent 88%);
+    color:inherit;padding:0 2px;font-weight:700;box-shadow:none;border-radius:1px}
+
+  /* ════════ RIGHT : aligned 受注カード ════════ */
+  .card{flex:1;background:#fff;border:1px solid #d7d9e0;border-radius:13px;overflow:hidden;
+    display:flex;flex-direction:column;
+    box-shadow:0 18px 40px -24px rgba(31,37,48,.55), 0 0 0 1px rgba(255,255,255,.6) inset,
+      0 0 0 7px rgba(43,50,66,.045)}
+  .card-top{background:linear-gradient(120deg,var(--slate),var(--slate-soft));color:#fff;
+    padding:12px 16px;display:flex;align-items:center;gap:10px}
+  .card-top .ico{width:26px;height:26px;border-radius:7px;background:rgba(255,255,255,.13);
+    display:flex;align-items:center;justify-content:center}
+  .card-top .ico svg{width:15px;height:15px}
+  .card-top .ti{flex:1;line-height:1.3}
+  .card-top .ti .t{font-size:13px;font-weight:700;letter-spacing:.02em}
+  .card-top .ti .s{font-size:9.5px;color:#aeb6c6;font-family:var(--mono);letter-spacing:.04em}
+  .card-top .src{font-size:10px;font-family:var(--mono);background:rgba(255,255,255,.12);
+    border:1px solid rgba(255,255,255,.16);padding:3px 9px;border-radius:20px;white-space:nowrap}
+
+  .crit{padding:14px 16px 6px;background:linear-gradient(180deg,#fdf4f1,#fff)}
+  .crit-h{display:flex;align-items:center;gap:7px;font-size:10px;font-family:var(--mono);
+    color:var(--red);letter-spacing:.04em;font-weight:700;margin-bottom:11px}
+  .crit-h .ln{flex:1;height:1px;background:var(--red-line)}
+  .crow{display:flex;align-items:flex-start;gap:11px;padding:9px 0;border-bottom:1px solid #f1ece4}
+  .crow:last-child{border-bottom:none}
+  .crow .ci{width:30px;height:30px;border-radius:8px;flex:none;display:flex;align-items:center;justify-content:center}
+  .crow .ci svg{width:16px;height:16px}
+  .crow .cc{flex:1;min-width:0}
+  .crow .k{font-size:10px;color:var(--faint);letter-spacing:.06em;font-weight:600;margin-bottom:2px}
+  .crow .v{font-size:14.5px;font-weight:700;color:var(--ink);line-height:1.4}
+  .crow .v.none{color:#bdb6a7;font-weight:500}
+  /* critical variant */
+  .crow.hot .ci{background:var(--red-bg);color:var(--red)}
+  .crow.hot .v{color:var(--red)}
+  .crow.hot .v .pill{background:var(--red);color:#fff;font-size:10px;font-weight:700;border-radius:20px;
+    padding:2px 8px;margin-left:7px;vertical-align:1px;letter-spacing:.04em}
+  .crow.cool .ci{background:#eef0f4;color:var(--slate)}
+  .crow.cool .v{color:var(--ink)}
+
+  .card-rest{padding:13px 16px 14px;background:#fafafa;border-top:1px solid #eef0f4;margin-top:6px}
+  .card-rest .rl{font-size:9.5px;font-family:var(--mono);color:#a8a191;letter-spacing:.1em;margin-bottom:6px}
+  .card-rest .item{font-size:15px;font-weight:700;color:var(--ink);margin-bottom:5px}
+  .card-rest .sub{font-size:12px;color:var(--sub)}
+  .card-foot{padding:9px 16px;background:var(--slate2);color:#9aa3b5;font-size:9.5px;font-family:var(--mono);
+    display:flex;justify-content:space-between;align-items:center;letter-spacing:.03em}
+  .card-foot .chk{color:#cdd3df}
+
+  /* ── takeaway ── */
+  .takeaway{display:flex;gap:13px;align-items:flex-start;margin:20px 2px 0;
+    background:var(--paper);border:1px solid var(--line);border-left:3px solid var(--red);
+    border-radius:0 10px 10px 0;padding:14px 17px;font-size:13.5px;color:var(--ink);line-height:1.8}
+  .takeaway .qi{flex:none;color:var(--red);font-weight:800;font-size:17px;line-height:1.2;font-family:var(--mincho)}
+  .takeaway b{color:var(--red);font-weight:700}
+
+  /* ── honest box ── */
+  .honest{margin:24px 2px 0;border:1px solid var(--line);border-radius:12px;background:var(--paper);
+    overflow:hidden;box-shadow:0 14px 36px -28px rgba(40,34,20,.5)}
+  .honest-h{background:#efe9dc;padding:11px 18px;font-family:var(--mono);font-size:11px;letter-spacing:.1em;
+    color:var(--slate);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:9px;font-weight:700}
+  .honest-h .d{width:7px;height:7px;border-radius:50%;background:var(--gold)}
+  .honest-b{padding:6px 18px 16px}
+  .hp{display:flex;gap:13px;padding:13px 0;border-bottom:1px solid #efe9dc}
+  .hp:last-child{border-bottom:none}
+  .hp .no{flex:none;width:23px;height:23px;border-radius:50%;background:var(--slate);color:#fff;
+    font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;font-family:var(--mono);margin-top:1px}
+  .hp p{margin:0;font-size:12.5px;color:var(--sub);line-height:1.85}
+  .hp p b{color:var(--ink);font-weight:600}
+  .hp .tag{display:inline-block;font-size:10px;font-family:var(--mono);color:#3f7d57;
+    background:#e8f2eb;border:1px solid #c4ddcd;border-radius:20px;padding:2px 10px;margin-top:6px}
+
+  .foot{text-align:center;font-size:10.5px;color:var(--faint);margin-top:30px;
+    font-family:var(--mono);letter-spacing:.08em}
+</style>
+</head>
+<body>
+<div style="position:sticky;top:0;z-index:99999;display:flex;gap:14px;align-items:center;justify-content:space-between;flex-wrap:wrap;padding:9px 14px;background:#12121F;color:#fff;font:600 13px/1.6 'Noto Sans JP','Hiragino Sans',sans-serif;">
+<a href="/#cases" style="display:inline-flex;align-items:center;gap:8px;padding:9px 18px;border-radius:999px;background:#fff;color:#12121F;text-decoration:none;font-weight:700;white-space:nowrap;">← アプリ一覧へ戻る</a>
+<span style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;"><span style="opacity:.7;font-weight:500;">架空の会社のデータで動きます。実際のデータは使っていません。</span><a href="https://zenn.dev/hiroshift/articles/a8785765868934" target="_blank" rel="noopener" style="color:#fff;text-decoration:none;border-bottom:1px solid rgba(255,255,255,.4);white-space:nowrap;">設計の解説を読む</a></span>
+</div>
+<div class="wrap">
+
+  <div class="term">
+    <span class="l"><span class="dot"></span><span class="id">受注カード <b>v0</b> ／ Build30 Day10</span></span>
+    <span class="priv">端末内処理・外に出さない設計</span>
+  </div>
+
+  <div class="head">
+    <p class="kicker"><span class="bar"></span>BUILD30 — DAY10 ／ 「書いてあるだろ！」を、設計で消す</p>
+    <h1>様式はバラバラ。でも、<span class="hl">受注カードは必ず同じ場所</span>。</h1>
+    <p class="lede">架空の建材卸。注文は取引先ごとに様式がちがい、<b>納期・直送先・時間指定の位置が、右下だったり一番上だったり本文の中だったり</b>とバラつきます。後工程が見落とすと「書いてあるだろ！」。<br><span class="rb">見落としは注意力でなく、重要事項の“位置”のバラつきが真因。</span>だから、意味で拾って、ひとつの場所に揃えます。</p>
+  </div>
+
+  <div class="tabs" id="tabs"></div>
+
+  <div class="stage">
+    <div class="cols">
+      <div class="panel">
+        <div class="plabel L"><span class="pn">生</span>届いた注文（そのままの様式）<span class="pos" id="posTag"></span></div>
+        <div class="frameL"><div class="raw" id="raw"></div></div>
+      </div>
+
+      <div class="arrow">
+        <div class="ai">AI</div>
+        <div class="node">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h15"/><path d="M13 6l6 6-6 6"/></svg>
+        </div>
+        <div class="cap">意味で読んで<br>同じ場所へ揃える</div>
+      </div>
+
+      <div class="panel">
+        <div class="plabel R"><span class="pn">整</span>揃った受注カード（位置に関係なく先頭固定）</div>
+        <div class="frameR"><div class="card" id="card"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="takeaway"><span class="qi">“</span><span id="take"></span></div>
+
+  <div class="honest">
+    <div class="honest-h"><span class="d"></span>このデモの正体（正直に）</div>
+    <div class="honest-b">
+      <div class="hp"><span class="no">1</span><p>AIがやるのは「様式の<b>どこ</b>に書いてあっても、<b>意味で</b>重要事項（納期・届け先・時間・特記）を拾い、決まった場所へ揃える」こと。決まったセルを見るだけの固定処理ではありません（手書きFAXはOCR＝文字認識を挟んだうえで意味を整理）。<b>AIの値打ちは"読む"ことより、どこにあっても同じ場所へ揃える"意味の整理"のほう</b>。完璧抽出を狙わず、揃えて目立たせ、最終確認は人。</p></div>
+      <div class="hp"><span class="no">2</span><p><b>外部サーバー問題は、ローカルで解きます。</b>顧客情報（氏名・現場住所・履歴）は外に出さない＝客先の<b>常駐機1台でローカルLLMを動かす</b>。注文の処理そのものはオフラインで回せる設計です（モデルの取得・更新の経路だけは別途要りますが、そこは設計で閉じる）。ただし<b>動かす機械のスペック次第</b>で、どのモデルが妥当か・常駐機が要るかは変わります——その見極めも含めて現場に入って設計します（合わなければ正直に「不適合」と言う）。<span class="tag">外に出さない設計 ／ オフライン稼働</span></p></div>
+      <div class="hp"><span class="no">3</span><p>このデモの抽出カードは<b>仕組みを示す例</b>です。登場する会社・人物・データはすべて架空、本番はローカルで処理します。</p></div>
+    </div>
+  </div>
+
+  <p class="foot">受注カード v0 ／ 端末内処理・外に出さない設計 ／ Build30 Day10 — 様式に依存しない後工程をつくる</p>
+
+</div>
+
+<script>
+/* ─── icons (inline svg, offline) ─── */
+const I = {
+  cal:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="16" rx="2.5"/><path d="M3 9h18M8 2.5v4M16 2.5v4"/></svg>',
+  pin:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-6.2 7-11a7 7 0 1 0-14 0c0 4.8 7 11 7 11z"/><circle cx="12" cy="10" r="2.6"/></svg>',
+  clock:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>',
+  note:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3.5h9l5 5v12a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V4.5a1 1 0 0 1 1-1z"/><path d="M14 3.5V9h5M8 13h8M8 17h5"/></svg>',
+  layers:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l9 5-9 5-9-5 9-5z"/><path d="M3 13l9 5 9-5"/></svg>'
+};
+
+/* ─── data ─── */
+const F = [
+{
+  key:"発注書", n:"01", pos:"右下の備考欄に",
+  rawClass:"po",
+  raw:`
+   <div class="po-top">
+     <div class="po-corp"><b>株式会社 マルナカ建設</b><br>〒530-00XX 大阪府〇〇市△町2-7<br>TEL 06-XXXX-XXXX</div>
+     <div class="po-no">発注No. MN-20XX-0612<br>発注日 20XX年6月25日</div>
+   </div>
+   <div class="po-title">発注書</div><div class="po-title-u"></div>
+   <div class="po-to">〇〇工務店<span class="go">御中</span></div>
+   <p class="po-lead">下記のとおり発注いたします。</p>
+   <div class="po-seal">承認</div>
+   <table class="po-t">
+     <tr><th style="width:50%">品名・規格</th><th style="width:14%">数量</th><th style="width:18%">単価</th><th style="width:18%">金額</th></tr>
+     <tr><td class="nm">ユニットバス TOTO □□シリーズ</td><td class="c">1</td><td class="r">—</td><td class="r">—</td></tr>
+     <tr><td class="nm">&nbsp;</td><td class="c"></td><td class="r"></td><td class="r"></td></tr>
+     <tr><td class="nm">&nbsp;</td><td class="c"></td><td class="r"></td><td class="r"></td></tr>
+   </table>
+   <div class="po-bot">
+     <div class="po-biko">
+       <div class="bl">備考</div>
+       <div class="bt">※<mark>27日 午前必着</mark>／<mark>現場直送（△△市□□町3-1 新築現場）</mark>／職人待機のため<mark>時間厳守</mark></div>
+     </div>
+     <div class="po-sum">
+       <div class="sr"><span>小計</span><span class="v">—</span></div>
+       <div class="sr"><span>消費税</span><span class="v">—</span></div>
+       <div class="sr"><span>合計</span><span class="v">—</span></div>
+     </div>
+   </div>`,
+  src:"① 発注書",
+  rows:[
+    {k:"納期", ico:I.cal,  hot:true,  v:"27日 午前必着", pill:"必着"},
+    {k:"届け先", ico:I.pin, hot:false, v:"現場直送：△△市□□町3-1 新築現場"},
+    {k:"時間", ico:I.clock, hot:true,  v:"時間厳守（職人待機）"},
+    {k:"特記", ico:I.note,  hot:false, v:"現場直送"}
+  ],
+  item:"ユニットバス TOTO □□シリーズ ×1",
+  sub:"取引先：〇〇工務店 ／ 担当：佐川",
+  take:"整然とした発注書。でも一番大事な「27日午前必着・現場直送・時間厳守」は、<b>右下の小さな備考欄</b>に。流して見ると、確実に落ちます。"
+},
+{
+  key:"手書きFAX", n:"02", pos:"一番上に殴り書き",
+  rawClass:"fax-wrap",
+  raw:`
+   <div class="fax">
+     <div class="fax-sheet">
+       <div class="fax-hdr"><span class="big">FAX 送信票</span><span>TRANSMISSION</span></div>
+       <div class="fax-meta"><span>TO：<b>〇〇工務店 御中</b></span><span>FROM：<b>カネ商会</b></span><span>送信：6/27 14:0X</span><span>枚数：1/1</span></div>
+       <div class="fax-paper">
+         <div class="fax-recv">受信</div>
+         <span class="line"><span class="scrawl ring">【至急】<mark>28日中に！</mark></span></span>
+         <span class="line"><span class="hw l1">カネ商会さん より</span></span>
+         <span class="line"><span class="hw l2">いつものクロス　2ケース</span></span>
+         <span class="line"><span class="hw l3">現場じゃなくて <span class="scribble">事務所</span> に！</span></span>
+         <span class="line"><span class="hw l4">担当：山田</span></span>
+       </div>
+       <div class="fax-foot"><span>RECEIVED 06/27 14:0X</span><span class="ok">● 送信OK</span></div>
+     </div>
+   </div>`,
+  src:"② 手書きFAX",
+  rows:[
+    {k:"納期", ico:I.cal,  hot:true,  v:"28日中", pill:"至急"},
+    {k:"届け先", ico:I.pin, hot:true,  v:"事務所", pill:"現場ではない"},
+    {k:"時間", ico:I.clock, hot:false, v:"—", none:true},
+    {k:"特記", ico:I.note,  hot:false, v:"至急・届け先に注意"}
+  ],
+  item:"クロス 2ケース",
+  sub:"取引先：カネ商会 ／ 担当：山田",
+  take:"同じ重要事項でも、今度は<b>一番上に殴り書き</b>。位置が発注書と真逆です。「事務所（現場ではない）」を見落とすと、トラックが現場へ走ります。"
+},
+{
+  key:"メール", n:"03", pos:"本文の雑談に埋もれて",
+  rawClass:"mail-wrap",
+  raw:`
+   <div class="mail">
+     <div class="mail-bar">
+       <span class="tl"></span>
+       <span class="btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l-6 6 6 6"/><path d="M3 11h11a6 6 0 0 1 6 6v1"/></svg>返信</span>
+       <span class="btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l6 6-6 6"/><path d="M21 11H10a6 6 0 0 0-6 6v1"/></svg>転送</span>
+       <span class="sp"></span>
+       <span class="btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V4.5h6V7M6 7l1 13h10l1-13"/></svg></span>
+     </div>
+     <div class="mail-h">
+       <div class="mail-subj">先日の追加分のお願い</div>
+       <div class="mail-from">
+         <div class="mail-av">北</div>
+         <div class="mail-who">
+           <div class="nm">北原（丸金建設）</div>
+           <div class="ad">kitahara@marukin-k.example.jp</div>
+           <div class="to">To: 自分</div>
+         </div>
+         <div>
+           <div class="mail-time">6/27 (木) 9:14</div>
+           <div class="mail-star" style="text-align:right">★</div>
+         </div>
+       </div>
+     </div>
+     <div class="mail-body">
+       <p>お世話になっております。先日の追加分ですが、<b>フローリング 3ケース</b>お願いします。請求はまとめてで結構です。</p>
+       <p>あ、<mark>納品は来週月曜の午前、できれば10時までに現場（◇◇マンション改修）へ</mark>お願いできますか。午後は別業者が入ってしまうので…。</p>
+       <div class="mail-sig">――――――――――<br>丸金建設株式会社　北原</div>
+     </div>
+   </div>`,
+  src:"③ メール",
+  rows:[
+    {k:"納期", ico:I.cal,  hot:true,  v:"来週月曜 午前"},
+    {k:"届け先", ico:I.pin, hot:false, v:"現場：◇◇マンション改修"},
+    {k:"時間", ico:I.clock, hot:true,  v:"10時まで", pill:"午後は別業者"},
+    {k:"特記", ico:I.note,  hot:false, v:"請求はまとめ"}
+  ],
+  item:"フローリング 3ケース",
+  sub:"取引先：丸金建設 ／ 北原（追加分）",
+  take:"今度は<b>本文の雑談にまぎれて</b>。「10時まで（午後は別業者）」は、丁寧な文章ほど埋もれます。これも、探さないと出てきません。"
+}
+];
+
+let cur=0;
+function render(){
+  document.getElementById('tabs').innerHTML = F.map((f,i)=>
+    `<div class="tab ${i===cur?'on':''}" onclick="sel(${i})"><span class="n">${f.n}</span>${f.key}</div>`).join('');
+  const f=F[cur];
+  document.getElementById('posTag').textContent="位置："+f.pos;
+  document.getElementById('raw').innerHTML=f.raw;
+
+  const rowHTML = f.rows.map(r=>{
+    const cls = r.hot?'hot':'cool';
+    const pill = r.pill?` <span class="pill">${r.pill}</span>`:'';
+    const vcls = r.none?'v none':'v';
+    return `<div class="crow ${cls}"><div class="ci">${r.ico}</div><div class="cc">
+      <div class="k">${r.k}</div><div class="${vcls}">${r.v}${pill}</div></div></div>`;
+  }).join('');
+
+  document.getElementById('card').innerHTML=`
+    <div class="card-top">
+      <div class="ico">${I.layers}</div>
+      <div class="ti"><div class="t">受注カード</div><div class="s">整形後のイメージ（デモ例）</div></div>
+      <div class="src">${f.src}</div>
+    </div>
+    <div class="crit">
+      <div class="crit-h">重要事項<span class="ln"></span>様式が変わっても、ここは動かない</div>
+      ${rowHTML}
+    </div>
+    <div class="card-rest">
+      <div class="rl">注文内容</div>
+      <div class="item">${f.item}</div>
+      <div class="sub">${f.sub}</div>
+    </div>
+    <div class="card-foot"><span>本番はローカル処理・送信ゼロ</span><span class="chk">最終確認 → 人</span></div>`;
+
+  document.getElementById('take').innerHTML=f.take;
+}
+function sel(i){cur=i;render();}
+const h=parseInt(location.hash.replace('#',''),10);
+if(!isNaN(h)&&F[h])cur=h;
+render();
+</script>
+</body>
+</html>

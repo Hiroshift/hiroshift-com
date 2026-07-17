@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta name="robots" content="noindex">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>仕込みの進行表 ｜ ときわ舞台株式会社</title>
+<style>
+  :root{
+    --bg:#151a21; --panel:#1d242e; --panel2:#232c38; --line:#2f3a48;
+    --txt:#e6ebf2; --sub:#93a1b3; --dim:#6b7a8d;
+    --red:#e04a4a; --amber:#e0a53a; --green:#3fa66b; --blue:#4a8fe0; --grey:#5a6675;
+    --ai:#8f6fd6;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--txt);font:13px/1.5 "Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,sans-serif;padding:14px}
+  .app{max-width:1080px;margin:0 auto}
+
+  header{display:flex;align-items:baseline;gap:14px;border-bottom:2px solid var(--line);padding-bottom:8px;margin-bottom:12px}
+  header h1{font-size:16px;font-weight:700;letter-spacing:.02em}
+  header .co{font-size:11px;color:var(--dim)}
+  header .meta{margin-left:auto;font-size:11px;color:var(--sub);text-align:right;line-height:1.7}
+  header .meta b{color:var(--txt);font-weight:600}
+
+  .cols{display:grid;grid-template-columns:1fr 268px;gap:10px;
+        grid-template-areas:"top side" "karte side" "src side";align-items:start}
+  .colmain{grid-area:top}
+  aside{grid-area:side}
+  .karte{grid-area:karte}
+  .src{grid-area:src}
+
+  /* 使い方バー */
+  .howto{display:flex;align-items:center;gap:14px;flex-wrap:wrap;background:#1a2733;border:1px solid #33475a;border-left:3px solid var(--blue);border-radius:3px;padding:7px 11px;margin-bottom:10px;font-size:11px}
+  .howto>b{color:var(--blue);font-size:11px;white-space:nowrap}
+  .howto span{display:flex;align-items:center;gap:5px;color:var(--txt);white-space:nowrap}
+  .howto i{display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;border-radius:50%;background:var(--blue);color:#101820;font-style:normal;font-weight:700;font-size:9px;flex:none}
+  .howto em{font-style:normal;color:var(--dim);font-size:10px}
+
+  .board{background:var(--panel);border:1px solid var(--line);border-radius:3px;padding:10px}
+  .board h2{font-size:12px;color:var(--sub);font-weight:600;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+  .board h2 .tag{font-size:10px;background:#2a3442;color:var(--dim);padding:1px 6px;border-radius:2px;font-weight:400}
+
+  /* 全レーン共通のグリッド＝目盛りと工程レーンが同じ座標系 */
+  .lane{display:grid;grid-template-columns:96px 1fr;align-items:center;gap:8px;margin-bottom:5px}
+  .lane .nm{font-size:11px;color:var(--sub);text-align:right;white-space:nowrap}
+  .track{position:relative;height:26px;background:#161c24;border:1px solid #26303c;border-radius:2px;overflow:hidden;cursor:pointer}
+  .track:hover{border-color:#3d4c5e}
+  .track.sel{border-color:#5d7a9c}
+
+  /* 目盛りレーン */
+  .rule{height:18px;background:transparent;border:none;border-bottom:1px solid var(--line);cursor:default;overflow:visible;position:relative}
+  .rule .tk{position:absolute;top:0;bottom:0;border-left:1px solid #2f3a48}
+  .rule .tk span{position:absolute;top:1px;left:3px;font-size:10px;color:var(--dim);white-space:nowrap}
+
+  .bar{position:absolute;top:2px;bottom:2px;border-radius:2px;display:flex;align-items:center;padding:0 6px;font-size:10px;white-space:nowrap;overflow:hidden;color:#0e1319;font-weight:600}
+  .bar.blue{background:var(--blue)}
+  .bar.green{background:var(--green)}
+  .bar.grey{background:var(--grey);color:#c3ccd6}
+  .bar.amber{background:var(--amber)}
+  .bar.red{background:var(--red);color:#fff}
+  .bar.hatch{background-image:repeating-linear-gradient(45deg,rgba(0,0,0,.22) 0 5px,transparent 5px 10px)}
+  .crew{margin-left:auto;font-size:9px;opacity:.75;letter-spacing:1px}
+  .bar.rehbar{justify-content:flex-end}
+  .fix{position:absolute;top:0;bottom:0;width:3px;background:#ff5f5f;opacity:.9}
+
+  .push{background:var(--panel2);border:1px solid var(--line);border-radius:3px;padding:9px 10px;margin-top:10px}
+  .push .cap{font-size:11px;color:var(--sub);font-weight:600;margin-bottom:7px}
+  .btns{display:flex;flex-wrap:wrap;gap:6px}
+  .btns button{background:#2b3541;color:var(--txt);border:1px solid #3a4757;border-radius:2px;padding:5px 9px;font-size:11px;cursor:pointer;font-family:inherit}
+  .btns button:hover{background:#354254;border-color:#4d5e73}
+  .btns button.on{background:var(--amber);color:#171c22;border-color:var(--amber);font-weight:700}
+  .btns button.reset{margin-left:auto;background:transparent;color:var(--dim);border-color:#333f4d}
+
+  aside{display:flex;flex-direction:column;gap:10px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:3px;padding:9px 10px}
+  .card h3{font-size:11px;color:var(--sub);font-weight:600;margin-bottom:7px;padding-bottom:5px;border-bottom:1px solid var(--line)}
+  .keep li{list-style:none;font-size:11px;padding:4px 0;display:flex;gap:6px;align-items:flex-start;border-bottom:1px dotted #2a3440}
+  .keep li:last-child{border-bottom:none}
+  .keep .dot{width:7px;height:7px;border-radius:50%;margin-top:4px;flex:none}
+  .keep .ok{background:var(--green)} .keep .ng{background:var(--red)}
+  .keep .t{color:var(--txt)} .keep .s{color:var(--dim);font-size:10px;display:block}
+
+  .status{padding:8px 10px;border-radius:3px;font-size:12px;font-weight:700;text-align:center;border:1px solid}
+  .mstat{display:none}
+  .status.ok{background:#173025;border-color:#2c5f43;color:#7fdcaa}
+  .status.warn{background:#332a12;border-color:#6b5520;color:#ecc46a}
+  .status.bad{background:#361a1a;border-color:#6e2e2e;color:#ff9a9a}
+  .status small{display:block;font-weight:400;font-size:10px;margin-top:3px;opacity:.9}
+
+  .ai{border:1px solid var(--ai);background:#211c31}
+  .ai h3{color:#c3aef0;border-bottom-color:#3b3252;display:flex;align-items:center;gap:6px}
+  .ai h3 .b{font-size:9px;background:var(--ai);color:#fff;padding:1px 5px;border-radius:2px;font-weight:700}
+  .habit{font-size:11px;color:#ddd4f2;background:#2a2340;border-left:2px solid var(--ai);padding:6px 8px;border-radius:2px;margin-bottom:8px;line-height:1.6}
+  .habit b{color:#fff}
+  .habit .ev{display:block;color:#a292c9;font-size:10px;margin-top:4px}
+  .opt{width:100%;text-align:left;font:inherit;font-size:11px;padding:6px 8px;border:1px solid #3b3252;border-radius:2px;margin-bottom:5px;background:#251f38;cursor:pointer;color:var(--txt)}
+  .opt:hover{border-color:var(--ai)}
+  .opt:disabled{opacity:.4;cursor:not-allowed}
+  .opt:disabled:hover{border-color:#3b3252}
+  .opt .h{color:#e3daf7;font-weight:600;display:block;margin-bottom:2px}
+  .opt .w{color:#8f81b3;font-size:10px;display:block}
+  .opt.on{background:#3d3159;border-color:#b79bf5}
+  .opt.on .h{color:#fff}
+  .opt.on .h:before{content:"✓ "}
+  .opt.danger{border-color:#6e2e2e;background:#2c1c22}
+  .opt.danger .h{color:#ff9a9a}
+  .opt.danger .w{color:#c98a8a}
+  .opt.danger.on{background:#5a2020;border-color:#e04a4a}
+  .note{font-size:10px;color:var(--dim);line-height:1.5;margin-top:6px;padding-top:6px;border-top:1px dotted #2a3440}
+
+  .karte{margin-top:10px;background:var(--panel);border:1px solid var(--line);border-radius:3px;padding:10px}
+  .karte h3{font-size:11px;color:var(--sub);font-weight:600;margin-bottom:7px}
+  .kgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+  .kgrid div{background:#1a212a;border:1px solid #27313d;border-radius:2px;padding:6px 8px}
+  .kgrid .k{font-size:10px;color:var(--dim);display:block}
+  .kgrid .v{font-size:13px;color:var(--txt);font-weight:600}
+  .kmemo{margin-top:7px;font-size:11px;color:var(--sub);background:#1a212a;border:1px solid #27313d;border-left:2px solid var(--dim);padding:6px 8px;border-radius:2px}
+  .kmemo b{color:var(--txt)}
+
+  .src{margin-top:10px;background:var(--panel);border:1px solid var(--line);border-radius:3px;padding:10px}
+  .src h3{font-size:11px;color:var(--sub);font-weight:600;margin-bottom:7px;display:flex;align-items:center;gap:8px}
+  .src h3 .b{font-size:9px;background:#2a3442;color:var(--dim);padding:1px 6px;border-radius:2px;font-weight:400}
+  .src ul{list-style:none}
+  .src li{font-size:11px;color:var(--sub);padding:5px 8px;background:#1a212a;border:1px solid #27313d;border-radius:2px;margin-bottom:4px;display:flex;gap:10px}
+  .src li b{color:var(--txt)}
+  .src .d{color:var(--dim);font-size:10px;white-space:nowrap;min-width:104px}
+  .note2{font-size:10px;color:var(--dim);line-height:1.5;margin-top:6px;padding-top:6px;border-top:1px dotted #2a3440}
+  .note2 b{color:var(--sub)}
+
+  /* ── 現場のスマホ（縦持ち・片手）── */
+  @media (max-width:760px){
+    html,body{max-width:100vw;overflow-x:hidden}
+    body{padding:8px}
+    .app{width:100%;max-width:100%}
+    .board h2 .tag{display:none}
+    header{flex-wrap:wrap;gap:6px}
+    header .meta{margin-left:0;text-align:left;width:100%;font-size:10px}
+    .mstat{display:block;position:sticky;top:0;z-index:9;margin-bottom:8px;font-size:13px;padding:10px}
+    aside .status{display:none}
+    .cols{display:flex;flex-direction:column;gap:8px}
+    .howto{gap:6px 12px}
+    .howto span{white-space:normal}
+    .lane{grid-template-columns:70px 1fr;gap:6px}
+    .lane .nm{font-size:10px;white-space:normal;line-height:1.25}
+    .board h2{flex-wrap:wrap}
+    .board h2 .tag{white-space:normal;min-width:0}
+    .colmain,.board,.push,.karte,.src,aside{min-width:0;overflow:hidden}
+    header .meta{white-space:normal}
+    .track{height:30px}
+    .bar{font-size:9px;padding:0 4px}
+    .btns button{padding:15px 10px;font-size:14px;flex:1 1 100%;min-height:52px;text-align:left}
+    .btns button.reset{flex:1 1 100%;margin-left:0;text-align:center}
+    .opt{padding:14px 12px;font-size:13px;min-height:56px}
+    .opt .w{font-size:11px}
+    .kgrid{grid-template-columns:repeat(2,1fr)}
+    .src li{flex-direction:column;gap:2px}
+    .src .d{min-width:0}
+    .legend{gap:8px}
+  }
+
+  footer{margin-top:10px;font-size:10px;color:var(--dim);line-height:1.6;border-top:1px solid var(--line);padding-top:7px}
+  .legend{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:5px}
+  .legend span{display:flex;align-items:center;gap:4px}
+  .legend i{width:10px;height:10px;border-radius:2px;display:inline-block}
+</style>
+</head>
+<body>
+<div style="position:sticky;top:0;z-index:99999;display:flex;gap:14px;align-items:center;justify-content:space-between;flex-wrap:wrap;padding:9px 14px;background:#12121F;color:#fff;font:600 13px/1.6 'Noto Sans JP','Hiragino Sans',sans-serif;">
+<a href="/#cases" style="display:inline-flex;align-items:center;gap:8px;padding:9px 18px;border-radius:999px;background:#fff;color:#12121F;text-decoration:none;font-weight:700;white-space:nowrap;">← アプリ一覧へ戻る</a>
+<span style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;"><span style="opacity:.7;font-weight:500;">架空の会社のデータで動きます。実際のデータは使っていません。</span><a href="https://zenn.dev/hiroshift/articles/f045f875ecdd38" target="_blank" rel="noopener" style="color:#fff;text-decoration:none;border-bottom:1px solid rgba(255,255,255,.4);white-space:nowrap;">設計の解説を読む</a></span>
+</div>
+
+<div class="app">
+
+<header>
+  <div>
+    <h1>仕込みの進行表</h1>
+    <div class="co">ときわ舞台株式会社（架空）</div>
+  </div>
+  <div class="meta">
+    現場：<b>市民アリーナ／音楽公演</b>　搬入 06:00 ─ 開場 <b>17:00</b><br>
+    職長：<b>大槻</b>　班：12名（4班）　タイムテーブル：舞台監督支給　リハ：14:30–17:00（固定）
+  </div>
+</header>
+
+<div class="status ok mstat" id="status-m">─</div>
+
+<div class="cols">
+  <div class="colmain">
+    <div class="howto">
+      <b>使い方</b>
+      <span><i>1</i>下の「押した」を押す<em>＝その工程が予定より遅れる</em></span>
+      <span><i>2</i>リハに何分食い込むかが出る<em>＝リハは削れない</em></span>
+      <span><i>3</i>紫の枠の候補を押す<em>＝進行表が組み直る</em></span>
+    </div>
+
+    <div class="board">
+      <h2>工程レーン <span class="tag">時刻の計算・安全の停止・休憩とリハの固定は、すべてブラウザ内の決定論（実際に動きます）</span></h2>
+      <div class="lane">
+        <div class="nm" style="color:var(--dim)">タイムテーブル</div>
+        <div class="track rule" id="rule"></div>
+      </div>
+      <div id="lanes"></div>
+    </div>
+
+    <div class="push">
+      <div class="cap">押した ── 当日そこで起きたこと</div>
+      <div class="btns" id="btns"></div>
+    </div>
+
+    <div class="karte" id="karte"></div>
+
+    <div class="src">
+      <h3>AIが読んだもの ── 作業報告の走り書き（過去14現場・抜粋）<span class="b">これしか読んでいません</span></h3>
+      <ul>
+        <li><span class="d">3/09 県立ホール</span>トラック2台目が遅れ。吊り込み押す。<b>養生を2班に割り、音響を先に上げた</b>。14:25に終えてリハに間に合わせた。</li>
+        <li><span class="d">4/21 市民アリーナ</span>照明卓の差し替えで+45。<b>養生2班</b>。14:20に終わり。休憩は通常どおり。</li>
+        <li><span class="d">5/17 文化会館</span>搬入20分遅れ。<b>そのまま流した</b>。13:50に終わる見込みだったので触らず。</li>
+        <li><span class="d">6/02 市民アリーナ</span>吊り物増。<b>音響を先に上げて照明を後ろへ</b>。14:15に終わり。</li>
+      </ul>
+      <div class="note2">読んでいるのは、この走り書きと、渡されたタイムテーブルの時刻だけです。<b>人の名前・評価・出面（誰が何分働いたか）は読んでいません。</b></div>
+    </div>
+  </div>
+
+  <aside>
+    <div class="status ok" id="status">─</div>
+
+    <div class="card">
+      <h3>守る線（動かさない）</h3>
+      <ul class="keep" id="keep"></ul>
+    </div>
+
+    <div class="card ai">
+      <h3>大槻さんの癖 <span class="b">AI・表示例</span></h3>
+      <div id="ai"></div>
+      <div class="note">過去14現場の<b>作業報告の走り書き</b>（既に毎回書いているもの）を横断して、条件と吸収先の対応を取り出したものです。<b>押すと進行表が組み直ります。採用するかどうかは大槻さんが決めます。</b></div>
+    </div>
+  </aside>
+</div>
+
+<footer>
+  <div class="legend">
+    <span><i style="background:#4a8fe0"></i>作業</span>
+    <span><i style="background:#3fa66b"></i>リハ（削れない・固定）</span>
+    <span><i style="background:#5a6675"></i>休憩（削らない・削ると後半が遅くなる）</span>
+    <span><i style="background:#e0a53a"></i>押している</span>
+    <span><i style="background:#e04a4a"></i>安全違反／リハに食い込んだ</span>
+    <span><i style="background:#8f6fd6"></i>AI（表示例）</span>
+  </div>
+  会社・人物・現場・データはすべて架空です。時刻の再計算・安全違反の停止・休憩の固定・リハへの食い込みの算出は、<b>ブラウザ内の決定論の計算</b>で、実際に動きます。紫の枠（大槻さんの癖・吸収の候補）は<b>「こう出る」という表示例</b>で、その場のライブ生成ではありません。人員削減・工程の最適化・休憩の圧縮を提案する機能は、このアプリには<b>ありません</b>。
+</footer>
+
+</div>
+
+<script>
+/* ---------- 現場の条件（どれも動かせない） ---------- */
+const T0    = 6*60;            // 06:00 搬入開始
+const REH_S = 14*60+30;        // 14:30 リハ開始 ── 動かせない（アーティストが入る）
+const DOORS = 17*60;           // 17:00 開場 ── 動かせない（客が入る）
+const BREAK_S = 12*60, BREAK_E = 12*60+45;  // 休憩 12:00-12:45 ── 削らない
+const END   = 18*60;
+
+const BASE = [
+  // tired ＝ 一人減ったときに、その工程がどれだけ余分に食うか。
+  // 均等ではない。担ぐ重量が一人あたり増え、疲れは一日の後ろほど溜まる。
+  {id:'hanin', nm:'搬入',        dur:85,  crew:12, tired:0.08, prev:'前回この会場：90分（トラック4台・荷降ろし口が1つ）'},
+  {id:'tsuri', nm:'吊り込み',    dur:170, crew:8,  tired:0.14, prev:'前回この会場：175分（トラス→照明→音響の順・照明は1台20kg前後）', rig:true},
+  {id:'stage', nm:'ステージ設営', dur:105, crew:10, tired:0.20, prev:'前回この会場：110分（脚を立てて天板を載せる・腰が効く）'},
+  {id:'yojo',  nm:'客席養生',    dur:75,  crew:6,  tired:0.26, prev:'前回この会場：80分（2班に割れば約35分・一日の最後で足が終わっている）'}
+];
+
+const PUSHES = [
+  {id:'truck', label:'搬入トラックが40分遅れ',          target:'hanin', add:40},
+  {id:'light', label:'照明卓の初期不良（吊り込み+50分）', target:'tsuri', add:50},
+  {id:'power', label:'電源口が図面と違う（+25分）',      target:'stage', add:25},
+  {id:'short', label:'1人来ない（後半ほど効く）',          target:'*',     rate:1}
+];
+
+let active = new Set();     // 押した
+let absorb = new Set();     // 採用した吸収
+let selected = 'tsuri';
+
+const hhmm = m => String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0');
+
+/* 休憩をまたぐ作業は、休憩の分だけ後ろへ押し出す（休憩は削らない） */
+function addWork(start, dur){
+  let t = start, left = dur;
+  while(left > 0){
+    if(t >= BREAK_S && t < BREAK_E){ t = BREAK_E; continue; }
+    const wall = (t < BREAK_S) ? BREAK_S : Infinity;
+    const step = Math.min(left, wall - t);
+    t += step; left -= step;
+  }
+  return t;
+}
+
+/* ---------- 決定論の再計算 ---------- */
+function build(useAbsorb){
+  const short = active.has('short');
+
+  const tasks = BASE.map(b=>{
+    let dur = b.dur;
+    PUSHES.forEach(p=>{ if(active.has(p.id) && p.target === b.id) dur += p.add; });
+    if(useAbsorb && absorb.has('yojo2') && b.id==='yojo')  dur -= 40;  // 養生を2班に割る
+    if(useAbsorb && absorb.has('onkyo') && b.id==='tsuri') dur -= 25;  // 音響を先に上げ、照明を後ろへ
+    if(short) dur = Math.round(dur * (1 + b.tired));                  // 疲れは、後ろの工程ほど重い
+    return {...b, dur};
+  });
+
+  const unsafe = useAbsorb && absorb.has('para');   // 養生を吊り込みと並行＝吊り物の下に人が入る
+
+  let t = T0;
+  tasks.forEach(k=>{
+    if(unsafe && k.id === 'yojo') return;            // 直列の鎖から外す（＝並行させる）
+    let s = t;
+    if(s >= BREAK_S && s < BREAK_E) s = BREAK_E;     // 休憩中には着工しない
+    k.s = s; k.e = addWork(s, k.dur); t = k.e;
+  });
+  if(unsafe){
+    const tsuri = tasks.find(k=>k.id==='tsuri');
+    const yojo  = tasks.find(k=>k.id==='yojo');
+    yojo.s = tsuri.s;                                // 吊り物の下に人が入る
+    yojo.e = addWork(yojo.s, yojo.dur);
+  }
+
+  const end  = Math.max(...tasks.map(k=>k.e));       // 仕込みが終わる時刻
+  const bite = Math.max(0, end - REH_S);             // リハに食い込む分（リハは削れない）
+  return {tasks, unsafe, end, bite};
+}
+
+function compute(){
+  const now = build(true);
+  const raw = build(false);                          // 吸収する"前"＝癖が発火する条件
+  return {...now, rawBite: raw.bite};
+}
+
+/* ---------- 描画 ---------- */
+const X = m => ((m - T0) / (END - T0)) * 100;
+
+function drawRule(){
+  const el = document.getElementById('rule'); el.innerHTML='';
+  for(let h=6; h<18; h++){
+    const tk = document.createElement('div'); tk.className='tk';
+    tk.style.left = X(h*60)+'%';
+    if(h%2===0){ const s=document.createElement('span'); s.textContent=hhmm(h*60); tk.appendChild(s); }
+    el.appendChild(tk);
+  }
+  const r = document.createElement('div'); r.className='fix'; r.style.left = X(REH_S)+'%'; r.style.background='#3fa66b';
+  el.appendChild(r);
+  const fx = document.createElement('div'); fx.className='fix'; fx.style.left = X(DOORS)+'%';
+  el.appendChild(fx);
+}
+
+function bar(tr, s, e, cls, label, crew){
+  const segs = (s < BREAK_S && e > BREAK_E) ? [[s,BREAK_S],[BREAK_E,e]] : [[s,e]];
+  let widest = 0;
+  segs.forEach(([a,b],j)=>{ if(X(b)-X(a) > X(segs[widest][1])-X(segs[widest][0])) widest = j; });
+  segs.forEach(([a,b],j)=>{
+    const el = document.createElement('div');
+    el.className = 'bar ' + cls;
+    el.style.left = X(a)+'%';
+    const w = X(b)-X(a);
+    el.style.width = Math.max(0.6, w)+'%';
+    if(j===widest && label){
+      if(w > 20) el.innerHTML = label + (crew ? '<span class="crew">'+'◼'.repeat(Math.round(crew/3))+'</span>' : '');
+      else if(w > 6) el.textContent = label.split(' ')[0];
+    }
+    tr.appendChild(el);
+  });
+}
+
+function draw(){
+  const {tasks, unsafe, end, bite, rawBite} = compute();
+
+  const wrap = document.getElementById('lanes'); wrap.innerHTML='';
+
+  /* 仕込みの4工程 */
+  tasks.forEach((k,i)=>{
+    const lane = document.createElement('div'); lane.className='lane';
+    const nm = document.createElement('div'); nm.className='nm'; nm.textContent = k.nm;
+    const tr = document.createElement('div'); tr.className='track' + (selected===k.id?' sel':'');
+    tr.onclick = ()=>{ selected = k.id; draw(); };
+
+    const br = document.createElement('div');
+    br.className='bar grey hatch';
+    br.style.left = X(BREAK_S)+'%';
+    br.style.width = (X(BREAK_E)-X(BREAK_S))+'%';
+    if(i===0) br.textContent = '休憩';
+    tr.appendChild(br);
+
+    const pushed = PUSHES.some(p=>active.has(p.id) && p.target===k.id) || active.has('short');
+    let cls = pushed ? 'amber' : 'blue';
+    if(unsafe && (k.id==='yojo' || k.rig)) cls = 'red hatch';       // 重なっている二本を赤＋斜線
+    else if(k.e > REH_S) cls = 'red';                                // リハに食い込んでいる工程
+
+    bar(tr, k.s, k.e, cls, k.nm + ' ' + hhmm(k.s) + '–' + hhmm(k.e), k.crew);
+
+    const rl = document.createElement('div'); rl.className='fix'; rl.style.left = X(REH_S)+'%'; rl.style.background='#3fa66b';
+    tr.appendChild(rl);
+    const fx = document.createElement('div'); fx.className='fix'; fx.style.left = X(DOORS)+'%';
+    tr.appendChild(fx);
+
+    lane.appendChild(nm); lane.appendChild(tr); wrap.appendChild(lane);
+  });
+
+  /* リハ＝削れない固定ブロック。食い込まれた分だけ赤く塗り潰される */
+  const lane = document.createElement('div'); lane.className='lane';
+  const nm = document.createElement('div'); nm.className='nm'; nm.style.color='#7fdcaa'; nm.textContent='リハ（固定）';
+  const tr = document.createElement('div'); tr.className='track'; tr.style.cursor='default';
+  bar(tr, REH_S, DOORS, 'green', 'リハ 14:30–17:00', 0);
+  if(bite > 0){
+    const ov = document.createElement('div');
+    ov.className = 'bar red hatch';
+    ov.style.left = X(REH_S)+'%';
+    const ow = X(Math.min(end, DOORS)) - X(REH_S);
+    ov.style.width = ow+'%';
+    if(ow > 9) ov.textContent = 'まだ仕込み中';
+    tr.appendChild(ov);
+  }
+  const fx2 = document.createElement('div'); fx2.className='fix'; fx2.style.left = X(DOORS)+'%';
+  tr.appendChild(fx2);
+  lane.appendChild(nm); lane.appendChild(tr); wrap.appendChild(lane);
+
+  /* 状態 */
+  const st = document.getElementById('status');
+  const stm = document.getElementById('status-m');
+  if(unsafe){
+    st.className='status bad';
+    st.innerHTML = 'この進行表は、組めません<small>時間だけなら間に合います（仕込みは '+hhmm(end)+' に終わる）。ですが、吊り込みが終わる前に客席へ人を入れることになります</small>';
+  } else if(bite > 0){
+    st.className='status bad';
+    st.innerHTML = 'リハに '+bite+'分 食い込みます<small>仕込みの終わりが '+hhmm(end)+'。リハは 14:30 から。<b>リハは削れません</b></small>';
+  } else if(absorb.size){
+    st.className='status ok';
+    st.innerHTML = '仕込み '+hhmm(end)+' 終了 ／ リハ 14:30<small>吸収できました。守る線は全部保っています</small>';
+  } else if(active.size){
+    st.className='status warn';
+    st.innerHTML = '仕込み '+hhmm(end)+' 終了 ／ リハ 14:30<small>押していますが、リハには間に合います</small>';
+  } else {
+    st.className='status ok';
+    st.innerHTML = '仕込み '+hhmm(end)+' 終了 ／ リハ 14:30<small>予定どおり</small>';
+  }
+
+  /* 守る線 */
+  const keep = document.getElementById('keep');
+  const rows = [
+    {ok: true,      t:'開場 17:00',                    s:'動かせない（客が入る）'},
+    {ok: bite===0,  t:'リハ 14:30–17:00（150分）',      s: bite ? bite+'分 食い込んでいます' : '削らない（音を出さずに本番へは入れない）'},
+    {ok: !unsafe,   t:'吊り込み中は、下に人を入れない',   s: unsafe ? '違反しています（養生が吊り込みに重なっています）' : '頭の上に鉄と20kgの照明がある'},
+    {ok: true,      t:'休憩 12:00–12:45',              s:'削らない（削ると後半が遅くなる。事故は、その後に来る）'}
+  ];
+  stm.className = st.className.replace('status','status') + ' mstat';
+  stm.innerHTML = st.innerHTML;
+
+  keep.innerHTML = rows.map(r =>
+    '<li><span class="dot '+(r.ok?'ok':'ng')+'"></span><span><span class="t">'+r.t+'</span><span class="s">'+r.s+'</span></span></li>'
+  ).join('');
+
+  /* AI枠（癖＝条件つき。押す→進行表が組み直る） */
+  const ai = document.getElementById('ai');
+  let html = '';
+  if(rawBite > 0){
+    html += '<div class="habit"><b>大槻さんは、リハの14:30に間に合わないと分かったときだけ、客席養生を2班に割っています。</b>そして<b>吊り込みが残っている間は、絶対に割らない</b>（下に人が入るため）。'
+          + '<span class="ev">過去14現場のうち、この条件が揃った5回すべてで実施・例外0。吊り込み中に前倒しした回：0。</span></div>';
+  } else {
+    html += '<div class="habit"><b>いまは、大槻さんは何もしません。</b>リハの14:30に間に合っている間は、順序を崩さず、そのまま流しています。'
+          + '<span class="ev">過去14現場中、間に合っている日での順序変更：0回。崩すと、後ろでもう一度組み直すことになるため。</span></div>';
+  }
+  if(rawBite === 0){
+    html += '<div style="font-size:10px;color:var(--dim);margin-bottom:7px;line-height:1.5">リハに食い込んでいない日には、吸収する手はありません。下の候補は選べません。</div>';
+  }
+  const dis = rawBite > 0 ? '' : ' disabled';
+  html += '<button class="opt'+(absorb.has('yojo2')?' on':'')+'"'+dis+' onclick="tog(\'yojo2\')"><span class="h">客席養生を2班に割る</span><span class="w">吊り込み完了後。約40分の吸収。</span></button>'
+        + '<button class="opt'+(absorb.has('onkyo')?' on':'')+'"'+dis+' onclick="tog(\'onkyo\')"><span class="h">音響の吊りを先に、照明を後に回す</span><span class="w">約25分の吸収。リハは音が要るので、音響が上がれば始められます。</span></button>'
+        + '<button class="opt danger'+(absorb.has('para')?' on':'')+'"'+dis+' onclick="tog(\'para\')"><span class="h">客席養生を、吊り込みと並行させる</span><span class="w">押すと分かります。吊り物の下に人が入ります。</span></button>';
+  if(rawBite > 0 && bite > 0 && !unsafe && absorb.has('yojo2') && absorb.has('onkyo')){
+    html += '<div style="font-size:10px;color:#ecc46a;background:#332a12;border:1px solid #6b5520;border-radius:2px;padding:6px 8px;margin-top:2px;line-height:1.5">'
+          + '<b>吸収では戻りません。</b>これ以上の候補は出しません。人を足すか、公演側と話すかです。</div>';
+  }
+  ai.innerHTML = html;
+
+  /* カルテ */
+  const kt = document.getElementById('karte');
+  const k = tasks.find(x=>x.id===selected) || tasks[1];
+  const base = BASE.find(b=>b.id===k.id);
+  kt.innerHTML = '<h3>カルテ ── '+k.nm+'（工程レーンをクリックすると切り替わります）</h3>'+
+    '<div class="kgrid">'+
+      '<div><span class="k">人数</span><span class="v">'+k.crew+' 名</span></div>'+
+      '<div><span class="k">予定の所要</span><span class="v">'+base.dur+' 分</span></div>'+
+      '<div><span class="k">今日の所要</span><span class="v">'+k.dur+' 分</span></div>'+
+      '<div><span class="k">今日の時刻</span><span class="v">'+hhmm(k.s)+'–'+hhmm(k.e)+'</span></div>'+
+    '</div>'+
+    '<div class="kmemo"><b>前回の実測：</b>'+base.prev+'</div>';
+}
+
+function tog(id){ absorb.has(id) ? absorb.delete(id) : absorb.add(id); draw(); }
+
+function drawBtns(){
+  const el = document.getElementById('btns'); el.innerHTML='';
+  PUSHES.forEach(p=>{
+    const b = document.createElement('button');
+    b.textContent = p.label;
+    b.className = active.has(p.id) ? 'on' : '';
+    b.onclick = ()=>{
+      active.has(p.id) ? active.delete(p.id) : active.add(p.id);
+      if(build(false).bite === 0) absorb.clear();   // 食い込んでいない日には、吸収は残さない
+      drawBtns(); draw();
+    };
+    el.appendChild(b);
+  });
+  const r = document.createElement('button');
+  r.textContent = '戻す'; r.className='reset';
+  r.onclick = ()=>{ active.clear(); absorb.clear(); selected='tsuri'; drawBtns(); draw(); };
+  el.appendChild(r);
+}
+
+drawRule(); drawBtns(); draw();
+const h = location.hash;
+if(h === '#go'){ active.add('truck'); active.add('light'); drawBtns(); draw(); }
+if(h === '#fix'){ active.add('truck'); active.add('light'); absorb.add('yojo2'); absorb.add('onkyo'); drawBtns(); draw(); }
+if(h === '#danger'){ active.add('truck'); active.add('light'); absorb.add('para'); drawBtns(); draw(); }
+</script>
+</body>
+</html>

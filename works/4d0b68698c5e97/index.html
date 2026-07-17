@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta name="robots" content="noindex">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>あさひ住宅管理｜入居者対応 受付フォーム（デモ）</title>
+<style>
+  :root{
+    --ink:#1b2530; --ink2:#2f3d4c; --sub:#586679; --soft:#8694a6;
+    --bg:#dfe5ec; --panel:#eef2f6; --card:#ffffff;
+    --line:#c6d1dc; --line2:#dde5ee; --hl:#f4f7fb;
+    --head:#23416b; --head2:#1c3458; --head-line:#34588a;
+    --teal:#1f5fa6; --teal-d:#184c86; --teal-soft:#dde9f6;
+    --red:#cf3b32; --red-d:#a82e26; --red-soft:#fae2df; --red-line:#eebab4;
+    --org:#c06d16; --org-soft:#f8ead4; --org-line:#e9cd9a;
+    --amb:#9c7f1f; --amb-soft:#f3edd5; --amb-line:#ddd09a;
+    --blu:#346394; --blu-soft:#e3ebf4; --blu-line:#bcccdf;
+    --gry:#6c757d; --gry-soft:#e8ebed; --gry-line:#cdd3d7;
+    --grn:#357a4d; --grn-soft:#e4efe6;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Hiragino Sans","Noto Sans JP",Meiryo,sans-serif;color:var(--ink);background:var(--bg);line-height:1.55;-webkit-font-smoothing:antialiased;font-size:13px}
+  .titlebar{background:linear-gradient(180deg,var(--head),var(--head2));color:#eaf1fb;display:flex;align-items:center;gap:12px;padding:0 16px;height:46px;border-bottom:2px solid var(--head-line)}
+  .titlebar .logo{display:flex;align-items:center;gap:9px}
+  .titlebar .logo .mk{width:26px;height:26px;border-radius:6px;background:#fff;display:flex;align-items:center;justify-content:center;flex:none}
+  .titlebar .logo .mk svg{width:16px;height:16px;stroke:var(--head);stroke-width:2;fill:none}
+  .titlebar .logo b{font-size:14.5px;font-weight:800;letter-spacing:.02em}
+  .titlebar .logo span{font-size:10px;color:#a8c2e3;letter-spacing:.16em;margin-left:2px}
+  .titlebar .sys{font-size:11px;color:#9fb8da;border-left:1px solid #335787;padding-left:12px}
+  .titlebar .rt{margin-left:auto;display:flex;align-items:center;gap:16px;font-size:12px}
+  .titlebar .rt .who{display:flex;align-items:center;gap:7px}
+  .titlebar .rt .who .av{width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,#7ea6d3,#1f5fa6);border:1px solid #335787;flex:none}
+  .titlebar .rt .who small{color:#9fb8da;font-size:10.5px}
+  .tabs{display:flex;align-items:flex-end;gap:1px;background:var(--head2);padding:0 12px;height:36px}
+  .tab{display:flex;align-items:center;gap:7px;padding:0 16px;height:30px;font-size:12.5px;font-weight:700;color:#bfd3ee;background:#173053;border-radius:6px 6px 0 0;cursor:pointer}
+  .tab svg{width:14px;height:14px;stroke:currentColor;stroke-width:1.8;fill:none}
+  .tab.on{color:var(--ink);background:var(--bg);height:34px}
+  .tab.on svg{stroke:var(--teal-d)}
+  .demo{display:flex;gap:11px;align-items:flex-start;margin:11px 16px 0;background:#fffced;border:1px solid #e6d79a;border-left:3px solid var(--org);border-radius:6px;padding:9px 13px;font-size:11.5px;color:#6a5a2f;line-height:1.65}
+  .demo .lab{flex:none;font-size:10px;font-weight:800;letter-spacing:.1em;color:#fff;background:var(--org);padding:2px 7px;border-radius:4px;margin-top:1px}
+  .demo b{color:#4a3f1d}
+  /* case selector */
+  .cases{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:12px 16px 0}
+  .cases .cl{font-size:11px;font-weight:800;color:var(--soft);margin-right:2px}
+  .cases .cbtn{font-size:12px;font-weight:700;color:var(--sub);background:#fff;border:1px solid var(--line);border-radius:999px;padding:7px 14px;cursor:pointer;font-family:inherit}
+  .cases .cbtn.on{background:var(--teal);color:#fff;border-color:var(--teal);box-shadow:0 1px 4px rgba(31,95,166,.3)}
+  /* stepper */
+  .steps{display:flex;align-items:center;gap:10px;justify-content:center;margin:13px 16px 0;font-size:11.5px}
+  .steps .s{display:flex;align-items:center;gap:7px;color:var(--soft);font-weight:700}
+  .steps .s .num{width:20px;height:20px;border-radius:50%;border:1.5px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;background:#fff}
+  .steps .s.on{color:var(--teal-d)} .steps .s.on .num{border-color:var(--teal);background:var(--teal);color:#fff}
+  .steps .s.done .num{border-color:var(--grn);background:var(--grn);color:#fff}
+  .steps .bar{width:46px;height:2px;background:var(--line);border-radius:2px}
+  .steps .bar.done{background:var(--grn)}
+  .page{padding:14px 16px 8px}
+  .page[hidden]{display:none}
+  /* form */
+  .formcard{max-width:660px;margin:0 auto;background:var(--card);border:1px solid var(--line);border-radius:11px;box-shadow:0 1px 3px rgba(20,40,50,.07);overflow:hidden}
+  .formhead{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,#f2f6fb,#e9eff6)}
+  .formhead .n{width:23px;height:23px;border-radius:6px;background:var(--teal);color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex:none}
+  .formhead h2{margin:0;font-size:13.5px;font-weight:800;color:var(--ink)}
+  .formhead .sub{font-size:10.5px;color:var(--soft);margin-left:auto}
+  .formbody{padding:15px 16px}
+  .callnote{display:flex;gap:8px;align-items:flex-start;font-size:11.5px;color:var(--teal-d);background:var(--teal-soft);border:1px solid var(--blu-line);border-radius:8px;padding:10px 12px;margin-bottom:15px;line-height:1.65}
+  .callnote svg{width:15px;height:15px;stroke:var(--teal-d);stroke-width:1.9;fill:none;flex:none;margin-top:1px}
+  .callnote b{color:#143e6f}
+  .frow{display:flex;gap:11px}
+  .frow .field{flex:1}
+  .field{margin-bottom:13px}
+  .field>label{display:block;font-size:11px;font-weight:800;color:var(--sub);margin-bottom:5px;letter-spacing:.02em}
+  .field>label .rq{color:var(--red);font-weight:800;margin-left:3px}
+  .field>label .op{color:var(--soft);font-weight:600}
+  .field>label .pii{color:var(--teal-d);font-weight:700;font-size:10px;margin-left:4px}
+  .inp{border:1px solid var(--line);border-radius:7px;background:#fff;padding:9px 12px;font-size:12.5px;color:var(--ink);display:flex;align-items:center;gap:8px;min-height:40px}
+  .inp.sel{justify-content:space-between;cursor:pointer}
+  .inp .cv{width:17px;height:17px;stroke:var(--sub);stroke-width:2.5;fill:none;flex:none}
+  .inp.ta{display:block;min-height:44px;line-height:1.7;color:var(--ink2)}
+  .inp.sel.hot{border-color:var(--red-line);background:#fff8f7;color:var(--red-d);font-weight:700}
+  .inp.sel.hot .cv{stroke:var(--red)}
+  .inp.pii{background:#f7fbff;border-color:var(--blu-line);color:var(--teal-d);font-weight:700;font-variant-numeric:tabular-nums}
+  .seg{display:flex;border:1px solid var(--line);border-radius:7px;overflow:hidden;background:#fff}
+  .seg .o{flex:1;text-align:center;padding:9px 6px;font-size:12px;font-weight:700;color:var(--sub);border-right:1px solid var(--line2);cursor:pointer}
+  .seg .o:last-child{border-right:none}
+  .seg .o.on{background:var(--teal-soft);color:var(--teal-d)}
+  .piinote{font-size:10.5px;color:var(--teal-d);background:var(--teal-soft);border:1px solid var(--blu-line);border-radius:6px;padding:6px 10px;margin:-5px 0 13px;display:flex;align-items:center;gap:6px}
+  .piinote svg{width:12px;height:12px;stroke:var(--teal-d);stroke-width:1.9;fill:none;flex:none}
+  .hint{font-size:10.5px;color:var(--soft);margin:-7px 0 13px} .hint b{color:var(--sub)}
+  .run{width:100%;border:none;border-radius:8px;padding:13px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;background:var(--teal);color:#fff;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 1px 0 #143e6f,0 2px 8px rgba(31,95,166,.3)}
+  .run svg{width:16px;height:16px;stroke:#fff;stroke-width:2;fill:none}
+  .run:hover{background:var(--teal-d)}
+  /* page2 */
+  .p2top{max-width:1000px;margin:0 auto 13px;display:flex;align-items:center;gap:12px}
+  .back{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:var(--teal-d);background:#fff;border:1px solid var(--line);border-radius:7px;padding:8px 12px;cursor:pointer;font-family:inherit}
+  .back svg{width:13px;height:13px;stroke:var(--teal-d);stroke-width:2;fill:none}
+  .p2top .ttl{font-size:13px;font-weight:800;color:var(--ink)}
+  .p2top .ttl span{font-weight:600;color:var(--sub);font-size:11.5px}
+  .sumc{max-width:1000px;margin:0 auto 14px;background:linear-gradient(0deg,#fff,#fbfdff);border:1px solid var(--line);border-radius:11px;overflow:hidden}
+  .sumc.hot{background:linear-gradient(0deg,#fff,#fff7f6);border-color:var(--red-line)}
+  .sumtop{display:flex;align-items:center;gap:10px;padding:11px 15px;border-bottom:1px solid var(--line);background:var(--panel)}
+  .sumc.hot .sumtop{border-bottom-color:var(--red-line);background:var(--red-soft)}
+  .sumtop .id{font-size:11.5px;font-weight:800;color:var(--ink2);font-variant-numeric:tabular-nums}
+  .sumc.hot .sumtop .id{color:var(--red-d)}
+  .sumtop .tg{margin-left:auto;font-size:10px;font-weight:800;color:#7a5212;background:var(--org-soft);border:1px solid var(--org-line);border-radius:5px;padding:3px 8px}
+  .sumbody{padding:13px 15px;display:grid;grid-template-columns:1.25fr 1fr;gap:14px}
+  @media(max-width:820px){.sumbody{grid-template-columns:1fr}}
+  .sline{display:flex;gap:9px;font-size:12.5px;margin-bottom:8px}
+  .sline .sl{flex:none;width:78px;font-size:11px;font-weight:800;color:var(--soft);padding-top:2px}
+  .sline .sv{color:var(--ink2);line-height:1.6} .sline .sv b{color:var(--ink)}
+  .kbn{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:800;padding:3px 9px;border-radius:6px;background:#fff;border:1px solid var(--line);color:var(--ink2)}
+  .kbn .d{width:8px;height:8px;border-radius:50%;background:var(--gry)}
+  .kbn.red{color:var(--red-d);border-color:var(--red-line)} .kbn.red .d{background:var(--red)}
+  .kbn.amb{color:#7a6217;border-color:var(--amb-line)} .kbn.amb .d{background:var(--amb)}
+  .kbn.blu{color:var(--blu);border-color:var(--blu-line)} .kbn.blu .d{background:var(--blu)}
+  .urg{font-size:11px;font-weight:800;padding:3px 9px;border-radius:5px;display:inline-block}
+  .urg.u3{background:var(--red);color:#fff}
+  .urg.u2{background:#e7a23c;color:#5a3d05}
+  .urg.u1{background:#e8edef;color:#5a6770;border:1px solid var(--line)}
+  .flag{display:inline-block;font-size:10px;font-weight:800;color:var(--red-d);background:#fff;border:1px solid var(--red-line);border-radius:4px;padding:2px 7px;margin-left:6px}
+  .reason{background:#fff;border:1px solid var(--line);border-radius:8px;padding:11px 13px}
+  .sumc.hot .reason{border-color:var(--red-line)}
+  .reason .h{font-size:11px;font-weight:800;color:var(--teal-d);margin-bottom:5px;display:flex;align-items:center;gap:6px}
+  .sumc.hot .reason .h{color:var(--red-d)}
+  .reason .h svg{width:13px;height:13px;stroke:currentColor;stroke-width:1.9;fill:none}
+  .reason p{margin:0 0 8px;font-size:11.5px;color:var(--sub);line-height:1.7} .reason p:last-child{margin:0}
+  .reason b{color:var(--ink2)}
+  .reason .chk{font-size:11px;color:var(--ink2);background:var(--org-soft);border:1px solid var(--org-line);border-radius:6px;padding:6px 9px} .reason .chk b{color:#7a5212}
+  .approve{display:flex;align-items:center;gap:9px;padding:11px 15px;border-top:1px solid var(--line);background:#fff}
+  .sumc.hot .approve{border-top-color:var(--red-line)}
+  .approve .ab{border:none;border-radius:7px;padding:9px 16px;font-size:12.5px;font-weight:800;cursor:pointer;font-family:inherit;background:var(--teal);color:#fff;display:inline-flex;align-items:center;gap:7px}
+  .approve .ab svg{width:14px;height:14px;stroke:#fff;stroke-width:2;fill:none}
+  .approve .ab.ghost{background:#fff;color:var(--ink2);border:1px solid var(--line)} .approve .ab.ghost svg{stroke:var(--ink2)}
+  .approve .nt{margin-left:auto;font-size:10.5px;color:var(--soft)}
+  .bhead{max-width:1000px;margin:4px auto 9px;font-size:12px;font-weight:800;color:var(--ink2);display:flex;align-items:center;gap:7px}
+  .bhead svg{width:14px;height:14px;stroke:var(--teal-d);stroke-width:1.9;fill:none}
+  .boards{max-width:1000px;margin:0 auto;display:flex;flex-direction:column;gap:13px}
+  .board{background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden;box-shadow:0 1px 2px rgba(20,40,50,.06)}
+  .board.top{border-color:var(--red-line)}
+  .board.na{opacity:.94}
+  .boardhead{display:flex;align-items:center;gap:9px;padding:10px 14px;border-bottom:1px solid var(--line);background:var(--panel)}
+  .board.top .boardhead{background:var(--red-soft);border-bottom-color:var(--red-line)}
+  .boardhead .bi{width:24px;height:24px;border-radius:6px;background:var(--teal-soft);display:flex;align-items:center;justify-content:center;flex:none}
+  .boardhead .bi svg{width:14px;height:14px;stroke:var(--teal-d);stroke-width:1.9;fill:none}
+  .board.top .boardhead .bi{background:#f5cdc8} .board.top .boardhead .bi svg{stroke:var(--red-d)}
+  .boardhead h3{margin:0;font-size:13px;font-weight:800;color:var(--ink)}
+  .boardhead .cnt{font-size:10.5px;color:var(--soft);font-weight:700}
+  .boardhead .st{margin-left:auto;font-size:10.5px;font-weight:800;color:var(--sub);background:#fff;border:1px solid var(--line);border-radius:5px;padding:3px 9px}
+  .board.top .boardhead .st{color:#fff;background:var(--red);border-color:var(--red)}
+  .btbl{width:100%;border-collapse:collapse;font-size:12px;table-layout:fixed}
+  .btbl th{background:#f6f8fb;font-size:10px;font-weight:800;color:var(--soft);text-align:left;padding:7px 12px;border-bottom:1px solid var(--line2);letter-spacing:.02em}
+  .btbl td{padding:9px 12px;border-bottom:1px solid var(--line2);vertical-align:top;color:var(--ink2)}
+  .btbl tr:last-child td{border-bottom:none}
+  .btbl .cid{width:104px;font-size:10.5px;color:var(--sub);font-variant-numeric:tabular-nums}
+  .btbl .cpr{width:92px;font-weight:700}
+  .btbl .cur{width:118px}
+  .btbl .cst{width:154px;font-size:11px;color:var(--sub)}
+  tr.newrow td{background:#fff7f6} tr.newrow .cpr{color:var(--red-d)}
+  tr.sharerow td{background:#f5faff}
+  .nb{display:inline-block;font-size:9.5px;font-weight:800;color:#fff;background:var(--red);border-radius:4px;padding:1px 6px;margin-left:6px;vertical-align:1px}
+  .shared{display:inline-block;font-size:9.5px;font-weight:800;color:var(--teal-d);background:var(--teal-soft);border:1px solid var(--blu-line);border-radius:4px;padding:1px 6px;margin-left:6px;vertical-align:1px}
+  .nrow{padding:12px 14px;font-size:11.5px;color:var(--sub);background:#fbfcfe;border-bottom:1px solid var(--line2);line-height:1.7}
+  .nrow b{color:var(--ink2)}
+  .nrow .x{display:inline-flex;align-items:center;gap:5px;font-weight:800;color:var(--gry)}
+  .nrow .x svg{width:13px;height:13px;stroke:var(--gry);stroke-width:2;fill:none}
+  .honest{margin:14px auto 18px;max-width:1000px;display:flex;flex-wrap:wrap;gap:8px}
+  .honest .h{display:inline-flex;align-items:center;gap:6px;font-size:10.5px;color:var(--sub);background:var(--panel);border:1px solid var(--line);border-radius:7px;padding:6px 10px}
+  .honest .h svg{width:12px;height:12px;stroke:var(--soft);stroke-width:1.9;fill:none}
+  .honest .h b{color:var(--ink2)}
+  .sig{margin:2px 16px 14px;text-align:center;color:var(--soft);font-size:11px}
+  .statusbar{display:flex;align-items:center;gap:14px;padding:6px 16px;background:var(--head2);color:#a8c2e3;font-size:10.5px}
+  .statusbar .on{color:#d6e6f7} .statusbar .sp{margin-left:auto}
+</style>
+</head>
+<body>
+<div style="position:sticky;top:0;z-index:99999;display:flex;gap:14px;align-items:center;justify-content:space-between;flex-wrap:wrap;padding:9px 14px;background:#12121F;color:#fff;font:600 13px/1.6 'Noto Sans JP','Hiragino Sans',sans-serif;">
+<a href="/#cases" style="display:inline-flex;align-items:center;gap:8px;padding:9px 18px;border-radius:999px;background:#fff;color:#12121F;text-decoration:none;font-weight:700;white-space:nowrap;">← アプリ一覧へ戻る</a>
+<span style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;"><span style="opacity:.7;font-weight:500;">架空の会社のデータで動きます。実際のデータは使っていません。</span><a href="https://zenn.dev/hiroshift/articles/4d0b68698c5e97" target="_blank" rel="noopener" style="color:#fff;text-decoration:none;border-bottom:1px solid rgba(255,255,255,.4);white-space:nowrap;">設計の解説を読む</a></span>
+</div>
+
+  <div class="titlebar">
+    <div class="logo"><span class="mk"><svg viewBox="0 0 24 24"><path d="M4 11l8-6 8 6"/><path d="M6 10v9h12v-9"/><path d="M10 19v-5h4v5"/></svg></span><b>あさひ住宅管理</b><span>RESIDENT DESK</span></div>
+    <div class="sys">入居者対応 ／ 電話一次受付</div>
+    <div class="rt"><span>2025年10月3日（金）9:05</span><span class="who"><span class="av"></span><span><b>久保</b> <small>管理担当・ベテラン</small></span></span></div>
+  </div>
+
+  <div class="tabs">
+    <div class="tab on"><svg viewBox="0 0 24 24"><path d="M5 4h4l2 5-3 2a12 12 0 0 0 5 5l2-3 5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></svg>受付（電話対応）</div>
+    <div class="tab"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>部門の台帳</div>
+    <div class="tab"><svg viewBox="0 0 24 24"><path d="M4 11l8-6 8 6"/><path d="M6 10v9h12v-9"/></svg>物件台帳</div>
+    <div class="tab"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>入居者台帳</div>
+    <div class="tab"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9 9 0 0 0-7 3.3M3 4v3h3"/><path d="M12 8v4l3 2"/></svg>対応履歴</div>
+  </div>
+
+  <div class="demo">
+    <span class="lab">DEMO</span>
+    <div><b>これはデモ画面です。</b>会社・物件・入居者はすべて架空で、生成結果は「こう出る」<b>表示例</b>（本番はAIが文脈判定・取りこぼしも過剰指摘もあり・<b>最終判断は人</b>）。狙いは、<b>対応に精一杯の受付でも、聞いたことを置くだけで、取りこぼし・回し間違いを一段減らすこと</b>（最終確認は人）。氏名・電話は折り返し用に受付が入力しますが<b>マスク表示・AIには渡しません</b>（実運用もローカル／DPA前提）。</div>
+  </div>
+
+  <div class="cases">
+    <span class="cl">事例を試す ▶</span>
+    <button class="cbtn on" data-c="leak">① 漏水「急がない」</button>
+    <button class="cbtn" data-c="boiler">② 給湯器・乳児</button>
+    <button class="cbtn" data-c="noise">③ 騒音・2度目</button>
+    <button class="cbtn" data-c="renew">④ 更新の問い合わせ</button>
+  </div>
+
+  <div class="steps">
+    <span class="s on" id="st1"><span class="num">1</span>電話を受けながら入力</span>
+    <span class="bar" id="stbar"></span>
+    <span class="s" id="st2"><span class="num">2</span>各部門の台へ振り分け</span>
+  </div>
+
+  <!-- ===== PAGE 1 ===== -->
+  <div class="page" id="page1">
+    <div class="formcard">
+      <div class="formhead"><span class="n">1</span><h2>電話を受けながら入力</h2><span class="sub">あなたは聞くことに集中／AIが下書き・人が承認</span></div>
+      <div class="formbody">
+        <div class="callnote"><svg viewBox="0 0 24 24"><path d="M5 4h4l2 5-3 2a12 12 0 0 0 5 5l2-3 5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></svg><span>通話中。入居者は不安で、あなたは「すぐ確認します」で精一杯。<b>入力は最小で大丈夫</b>——区分も緊急度も、どの部門へ回すかも、AIが下書きします。</span></div>
+
+        <div class="field"><label>経路 <span class="rq">*</span></label><div class="seg" id="f_route"></div></div>
+
+        <div class="frow">
+          <div class="field"><label>氏名 <span class="rq">*</span><span class="pii">折り返し用・AI非送信</span></label><div class="inp pii" id="f_name"></div></div>
+          <div class="field"><label>電話番号 <span class="rq">*</span><span class="pii">折り返し用・AI非送信</span></label><div class="inp pii" id="f_tel"></div></div>
+        </div>
+        <div class="piinote"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>氏名・電話は台帳と折り返しに使う必須項目。<b style="margin-left:3px">画面はマスク、AIの分類には渡しません。</b></div>
+
+        <div class="frow">
+          <div class="field"><label>物件 <span class="rq">*</span></label><div class="inp sel"><span id="f_bldg"></span><svg class="cv" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></div></div>
+          <div class="field"><label>部屋 <span class="rq">*</span></label><div class="inp sel"><span id="f_room"></span><svg class="cv" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></div></div>
+        </div>
+        <div class="frow">
+          <div class="field"><label>用件の種類 <span class="rq">*</span></label><div class="inp sel"><span id="f_kind"></span><svg class="cv" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></div></div>
+          <div class="field"><label>起きている場所</label><div class="inp sel"><span id="f_place"></span><svg class="cv" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></div></div>
+        </div>
+        <div class="frow">
+          <div class="field"><label>具体的な症状 <span class="rq">*</span></label><div class="inp sel"><span id="f_symptom"></span><svg class="cv" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></div></div>
+          <div class="field"><label>気になるサイン <span class="op">（必ず確認）</span></label><div class="inp sel" id="f_signbox"><span id="f_sign"></span><svg class="cv" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></div></div>
+        </div>
+        <div class="frow">
+          <div class="field"><label>緊急の手がかり</label><div class="inp sel"><span id="f_urg"></span><svg class="cv" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></div></div>
+          <div class="field"><label>本人の困り具合</label><div class="inp sel"><span id="f_trouble"></span><svg class="cv" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></div></div>
+        </div>
+        <div class="frow">
+          <div class="field"><label>世帯の事情</label><div class="inp sel"><span id="f_household"></span><svg class="cv" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></div></div>
+          <div class="field"><label>写真</label><div class="inp sel"><span id="f_photo"></span><svg class="cv" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></div></div>
+        </div>
+        <div class="field"><label>自由メモ <span class="op">（任意・聞いたまま一言）</span></label><div class="inp ta" id="f_memo"></div></div>
+
+        <p class="hint">＊プルダウンで聞きもれを防止。<b>詳しく聞くほど、台帳がはっきりします。</b>とくに「気になるサイン」が、緊急度の引き上げを左右します。</p>
+
+        <button class="run" id="run"><svg viewBox="0 0 24 24"><path d="M3 12h5l2-6 4 12 2-6h5"/></svg>AIで仕分け → 各部門の台へ送る</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== PAGE 2 ===== -->
+  <div class="page" id="page2" hidden>
+    <div class="p2top">
+      <button class="back" id="back"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>受付に戻る</button>
+      <span class="ttl">AIが1件を、各部門の台へ振り分けました <span id="p2sub"></span></span>
+    </div>
+    <div id="sumc"></div>
+    <div class="bhead"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M9 4v16"/></svg>各部門の台帳（共有）── この1件は ここへ載りました</div>
+    <div class="boards" id="boards"></div>
+    <div class="honest">
+      <span class="h"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg><b>最終判断は人</b>。AIは仮分類・振り分けの下書きまで</span>
+      <span class="h"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>氏名・連絡先・住所は<b>AIに渡さない</b>（マスク・ローカル保持）</span>
+      <span class="h"><svg viewBox="0 0 24 24"><path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>留守電は文字起こしを読み、<b>聞き取れない箇所は「要確認」</b></span>
+    </div>
+  </div>
+
+  <div class="sig">『あの人しかできない』を、ほどく。 ── Day12 ／ 架空の「あさひ住宅管理」（管理2,100戸・スタッフ9名）</div>
+
+  <div class="statusbar"><span class="on">● オンライン</span><span id="sbtxt">受付フォーム（デモ）</span><span class="sp"></span><span>あさひ住宅管理 入居者対応システム</span></div>
+
+<script>
+  var CV='<svg class="cv" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>';
+  var ICON={shuzen:'<svg viewBox="0 0 24 24"><path d="M14 2l-2 7h6l-10 13 2-9H4z"/></svg>',
+            kanri:'<svg viewBox="0 0 24 24"><path d="M4 11l8-6 8 6"/><path d="M6 10v9h12v-9"/></svg>',
+            jimu:'<svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>'};
+  var DEPT={
+    shuzen:{name:'① 修繕手配', exist:[
+      {id:'#H512-1003',pr:'物件H・512',sum:'給湯器の調子が悪い',ur:['u3','即対応'],st:'対応中 ／ 物件H担当'},
+      {id:'#C108-1002',pr:'物件C・108',sum:'玄関ドアの建付け不良',ur:['u2','当日中'],st:'業者調整中'}]},
+    kanri:{name:'② 物件管理担当',exist:[
+      {id:'#C102-1002',pr:'物件C・102',sum:'植栽の越境のご相談',ur:['u1','計画対応'],st:'受付 ／ 物件C担当'}]},
+    jimu:{name:'③ 契約・入退去事務',exist:[
+      {id:'#E210-1001',pr:'物件E・210',sum:'退去予告の相談（来月末）',ur:['u1','計画対応'],st:'受付 ／ 契約事務'}]}
+  };
+  function dh(d){return d==='kanri'?'区分':'緊急度';}
+
+  var CASES={
+    leak:{tab:'① 漏水「急がない」',hot:true,
+      sub:'修繕が最上段（即対応）・物件管理へ共有・契約事務は非該当。最終承認は人。',
+      form:{route:'電話',name:'田●　様',tel:'090-****-**12',bldg:'物件A（築28年）',room:'305 号',kind:'水漏れ・漏水',place:'室内・水まわり',symptom:'蛇口から少量（ポタポタ）',sign:'床がフカフカ・浮く感じ',signHot:true,urg:'生活はできる範囲',trouble:'急いでいない（明日以降で）',household:'特になし',photo:'後送可（電話で確認）',memo:'「明日以降でいいです」とのこと。'},
+      out:{id:'#A305-1003',prroom:'物件A・305号（築28年・漏水が多発）',kbn:['red','緊急補修'],urg:['u3','即対応（2時間以内）'],up:'↑ 申告より格上げ',
+        summary:'蛇口の漏れ＋<b>「床がフカフカ」</b>（漏水進行の疑い）／本人は「急がない」',
+        reasonH:'なぜ格上げしたか（AIの判断）',
+        reason:'本人は「急がない」。でも<b>「床がフカフカ」は床下浸水の兆候</b>で、放置すると階下被害・オーナー賠償に直結。台帳上<b>物件A は築28年・漏水多発</b>→計画対応から<b>即対応へ引き上げ</b>。',
+        check:'現地で漏水範囲・階下への影響（症状の発生時期は未確認＝折り返しで補足）'},
+      route:{primary:{dept:'shuzen',st:'即対応 1 件 到着',row:{id:'#A305-1003',pr:'物件A・305',sum:'蛇口の漏れ＋<b>「床がフカフカ」</b>（漏水進行の疑い）',ur:['u3','即対応'],st:'手配待ち ／ 物件A担当→業者'}},
+        shared:{dept:'kanri',st:'共有 1 件 到着',row:{id:'#A305-1003',pr:'物件A・305',sum:'修繕と並行で状況把握（オーナー報告は被害確認後）',ur:['k','緊急補修'],st:'確認中 ／ 物件A担当'}},
+        na:[{dept:'jimu',why:'設備の緊急補修のため、契約・事務には回しません。'}]}},
+
+    boiler:{tab:'② 給湯器・乳児',hot:true,
+      sub:'修繕が最上段（即対応）・物件管理へ共有・契約事務は非該当。最終承認は人。',
+      form:{route:'電話',name:'佐●　様',tel:'080-****-**45',bldg:'物件B（築12年）',room:'411 号',kind:'給湯・お湯',place:'室内・浴室',symptom:'お湯が出たり止まったりする',sign:'特になし',signHot:false,urg:'設備が使えない',trouble:'今日中に来てほしい',household:'乳幼児あり',photo:'なし',memo:'「子どもをお風呂に入れられず…」と。'},
+      out:{id:'#B411-1003',prroom:'物件B・411号（築12年）',kbn:['red','緊急補修'],urg:['u3','即対応（2時間以内）'],up:'',
+        summary:'給湯が不安定（出たり止まる）／乳幼児世帯・本日中の希望',
+        reasonH:'なぜ即対応か（AIの判断）',
+        reason:'<b>お湯が止まる＋乳幼児</b>は入浴・衛生に直結。本人の希望（本日中）とも一致＝<b>そのまま即対応</b>（申告どおりで格上げは不要）。設備はオーナー資産、初動の遅れは信用に響く。',
+        check:'給湯器の型番・症状の頻度が未確認＝折り返しで補足（聞き取りの欠けはAIが指摘）'},
+      route:{primary:{dept:'shuzen',st:'即対応 1 件 到着',row:{id:'#B411-1003',pr:'物件B・411',sum:'給湯器が不安定（乳幼児世帯・本日中希望）',ur:['u3','即対応'],st:'手配待ち ／ 物件B担当→業者'}},
+        shared:{dept:'kanri',st:'共有 1 件 到着',row:{id:'#B411-1003',pr:'物件B・411',sum:'設備故障を記録・必要なら代替手段を案内',ur:['k','緊急補修'],st:'確認中 ／ 物件B担当'}},
+        na:[{dept:'jimu',why:'設備の緊急補修のため、契約・事務には回しません。'}]}},
+
+    noise:{tab:'③ 騒音・2度目',hot:false,
+      sub:'物件管理が一次対応（当日中）・修繕／契約事務は非該当。最終承認は人。',
+      form:{route:'LINE',name:'鈴●　様',tel:'090-****-**78',bldg:'物件F（築16年）',room:'203 号',kind:'騒音・近隣',place:'上の階',symptom:'深夜まで物音が続く',sign:'本人が眠れていない',signHot:true,urg:'生活に支障が出ている',trouble:'相談したい（強く言いにくい）',household:'特になし',photo:'なし',memo:'「気にしすぎかもですが…」と前置き。'},
+      out:{id:'#F203-1003',prroom:'物件F・203号（築16年）',kbn:['amb','近隣トラブル'],urg:['u2','当日中'],up:'↑ 言い方より重く',
+        summary:'上階の騒音／<b>深夜まで・眠れていない</b>／同じ入居者から2度目',
+        reasonH:'なぜ当日中か（AIの判断）',
+        reason:'「気にしすぎかも」と<b>低姿勢でも、芯は"眠れていない"</b>＝生活への影響大。台帳上<b>同じ入居者から2度目</b>＝こじれ前に当日中の一報が要る。丁寧さに引っぱられず一段上げ。',
+        check:'発生の時間帯・頻度・相手戸（当事者対応の前に事実確認）'},
+      route:{primary:{dept:'kanri',st:'当日中 1 件 到着',row:{id:'#F203-1003',pr:'物件F・203',sum:'上階の騒音（深夜・眠れない／2度目）',ur:['u2','当日中'],st:'一次対応 ／ 物件F担当'}},
+        shared:null,
+        na:[{dept:'shuzen',why:'設備の不具合ではないため、修繕手配には回しません。'},{dept:'jimu',why:'契約・事務の用件ではありません。'}]}},
+
+    renew:{tab:'④ 更新の問い合わせ',hot:false,
+      sub:'契約・事務が受け（計画対応）・修繕／物件管理は非該当。慌てて赤にしない。',
+      form:{route:'メール',name:'高●　様',tel:'070-****-**33',bldg:'物件G（築9年）',room:'401 号',kind:'更新・退去',place:'—',symptom:'更新書類の時期を知りたい',sign:'特になし',signHot:false,urg:'急ぎではない',trouble:'相談・確認だけ',household:'特になし',photo:'—',memo:'「来月末で更新です」とのこと。'},
+      out:{id:'#G401-1003',prroom:'物件G・401号（築9年）',kbn:['blu','更新・退去'],urg:['u1','計画対応'],up:'',
+        summary:'契約更新の書類はいつ届くか、という事務的な確認（来月末更新）',
+        reasonH:'なぜ計画対応か（AIの判断）',
+        reason:'急ぎでも不満でもない事務連絡。<b>慌てて赤に上げない</b>のも仕分けのうち（なんでも即対応にすると本当に急ぐ一件が埋もれる）。<b>ただし「受け取りました」の一報だけは早めに</b>返す。',
+        check:'更新時期（来月末）だけ控える。期日管理に登録。'},
+      route:{primary:{dept:'jimu',st:'計画対応 1 件 受付',row:{id:'#G401-1003',pr:'物件G・401',sum:'契約更新の書類時期の問い合わせ（来月末）',ur:['u1','計画対応'],st:'受付 ／ 契約事務'}},
+        shared:null,
+        na:[{dept:'shuzen',why:'設備の不具合ではないため、修繕手配には回しません。'},{dept:'kanri',why:'物件管理の対応事項ではありません。'}]}}
+  };
+
+  var ROUTES=['電話','留守電','LINE','メール'];
+  function renderForm(c){
+    var f=c.form;
+    document.getElementById('f_route').innerHTML=ROUTES.map(function(r){return '<span class="o'+(r===f.route?' on':'')+'">'+r+'</span>';}).join('');
+    var set=function(id,v){document.getElementById(id).textContent=v;};
+    set('f_name',f.name); set('f_tel',f.tel); set('f_bldg',f.bldg); set('f_room',f.room);
+    set('f_kind',f.kind); set('f_place',f.place); set('f_symptom',f.symptom); set('f_sign',f.sign);
+    set('f_urg',f.urg); set('f_trouble',f.trouble); set('f_household',f.household); set('f_photo',f.photo); set('f_memo',f.memo);
+    document.getElementById('f_signbox').className='inp sel'+(f.signHot?' hot':'');
+  }
+  function urgHTML(u){
+    if(u[0]==='k') return '<span class="kbn red"><span class="d"></span>緊急補修</span>';
+    if(u[0]==='u3'||u[0]==='u2'||u[0]==='u1') return '<span class="urg '+u[0]+'">'+u[1]+'</span>';
+    return '<span class="kbn">'+u[1]+'</span>';
+  }
+  function rowHTML(r,cls,badge){
+    return '<tr class="'+(cls||'')+'"><td class="cid">'+r.id+(badge||'')+'</td><td class="cpr">'+r.pr+'</td><td>'+r.sum+'</td>'
+      +'<td class="cur">'+urgHTML(r.ur)+'</td><td class="cst">'+r.st+'</td></tr>';
+  }
+  function boardHTML(deptKey,role,info){
+    var d=DEPT[deptKey], top=(role==='primary'), head1=(deptKey==='kanri'&&role!=='primary')?'区分':'緊急度';
+    var rows='';
+    if(role==='primary'){ rows+=rowHTML(info.row,'newrow','<span class="nb">NEW</span>'); }
+    if(role==='shared'){ rows+=rowHTML(info.row,'sharerow','<span class="shared">共有</span>'); }
+    d.exist.forEach(function(e){ rows+=rowHTML(e,''); });
+    var na = role==='na' ? '<div class="nrow"><span class="x"><svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>この1件は載せません</span>　'+info.why+' <b>"載せない"判断も振り分けのうち</b>です。</div>' : '';
+    var st = role==='na' ? '<span class="st">今回 非該当</span>' : '<span class="st">'+info.st+'</span>';
+    var cnt = '未対応 '+(d.exist.length+(role==='primary'||role==='shared'?1:0));
+    var colhead = (role==='primary')?'緊急度':(deptKey==='kanri'&&role==='shared'?'区分':'緊急度');
+    return '<div class="board'+(top?' top':'')+(role==='na'?' na':'')+'">'
+      +'<div class="boardhead"><span class="bi">'+ICON[deptKey]+'</span><h3>'+d.name+'</h3><span class="cnt">'+cnt+'</span>'+st+'</div>'
+      +na
+      +'<table class="btbl"><thead><tr><th class="cid">案件</th><th class="cpr">物件・部屋</th><th>要約</th><th class="cur">'+colhead+'</th><th class="cst">状態／担当</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
+  }
+  function renderPage2(c){
+    var o=c.out;
+    document.getElementById('p2sub').textContent='／ '+c.sub;
+    var up = o.up? '<span class="flag">'+o.up+'</span>' : '';
+    document.getElementById('sumc').innerHTML=
+      '<div class="sumc'+(c.hot?' hot':'')+'">'
+      +'<div class="sumtop"><span class="id">いま受けた1件 ／ 案件 '+o.id+' ／ 受付 09:05</span><span class="tg">仮分類・要承認</span></div>'
+      +'<div class="sumbody"><div>'
+        +'<div class="sline"><span class="sl">物件・部屋</span><span class="sv"><b>'+o.prroom+'</b></span></div>'
+        +'<div class="sline"><span class="sl">区分（AI）</span><span class="sv"><span class="kbn '+o.kbn[0]+'"><span class="d"></span>'+o.kbn[1]+'</span></span></div>'
+        +'<div class="sline"><span class="sl">緊急度</span><span class="sv">'+urgHTML(o.urg)+up+'</span></div>'
+        +'<div class="sline"><span class="sl">症状・要望</span><span class="sv">'+o.summary+'</span></div>'
+      +'</div><div class="reason">'
+        +'<div class="h"><svg viewBox="0 0 24 24"><path d="M12 2.5C12 2.5 5.5 9.5 5.5 14.5a6.5 6.5 0 0 0 13 0C18.5 9.5 12 2.5 12 2.5z"/></svg>'+o.reasonH+'</div>'
+        +'<p>'+o.reason+'</p><p class="chk"><b>要確認：</b>'+o.check+'</p>'
+      +'</div></div>'
+      +'<div class="approve"><button class="ab"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>この振り分けで承認</button>'
+        +'<button class="ab ghost"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>担当を変える</button>'
+        +'<span class="nt">分類は固定の選択肢／緊急度はSLA段固定／台帳の値はルールで再計算。AIは判断だけ、承認は人。</span></div>'
+      +'</div>';
+    var r=c.route, html='';
+    html+=boardHTML(r.primary.dept,'primary',r.primary);
+    if(r.shared) html+=boardHTML(r.shared.dept,'shared',r.shared);
+    r.na.forEach(function(n){ html+=boardHTML(n.dept,'na',n); });
+    document.getElementById('boards').innerHTML=html;
+  }
+
+  var current='leak';
+  function loadCase(id){ current=id; renderForm(CASES[id]); goPage1(); }
+  function goPage1(){
+    document.getElementById('page1').hidden=false; document.getElementById('page2').hidden=true;
+    document.getElementById('st1').className='s on'; document.getElementById('st2').className='s';
+    document.getElementById('stbar').className='bar';
+    document.getElementById('sbtxt').textContent='受付フォーム（デモ）';
+    var b=document.getElementById('run'); b.innerHTML='<svg viewBox="0 0 24 24"><path d="M3 12h5l2-6 4 12 2-6h5"/></svg>AIで仕分け → 各部門の台へ送る';
+  }
+  document.querySelectorAll('.cbtn').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      document.querySelectorAll('.cbtn').forEach(function(b){b.classList.remove('on');});
+      btn.classList.add('on'); loadCase(btn.getAttribute('data-c'));
+      window.scrollTo({top:0,behavior:'smooth'});
+    });
+  });
+  document.getElementById('run').addEventListener('click',function(){
+    renderPage2(CASES[current]);
+    document.getElementById('page1').hidden=true; document.getElementById('page2').hidden=false;
+    document.getElementById('st1').className='s done'; document.getElementById('st2').className='s on';
+    document.getElementById('stbar').className='bar done';
+    document.getElementById('sbtxt').textContent='振り分け結果（例を表示中）';
+    window.scrollTo({top:0,behavior:'smooth'});
+  });
+  document.getElementById('back').addEventListener('click',goPage1);
+  renderForm(CASES['leak']);
+</script>
+</body>
+</html>

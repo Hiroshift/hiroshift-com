@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta name="robots" content="noindex">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>設備保全メモ ── まず何を見るか（マルヤマ製作所・架空デモ）</title>
+<style>
+  :root{
+    --bg:#f4f2ec; --ink:#23211c; --sub:#6f6a5f; --line:#d8d2c4;
+    --paper:#fbfaf6; --steel:#494f55; --steel2:#3a3f44;
+    --amber:#9a6b28; --warn:#9a5b3f; --plate:#2c3035; --chip:#ece7db;
+    --mono:"SFMono-Regular",Menlo,Consolas,"Courier New",monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",system-ui,sans-serif;
+    line-height:1.7;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:780px;margin:0 auto;padding:0 0 80px}
+
+  .term{background:var(--plate);color:#e9e4d8;padding:11px 22px;display:flex;
+    justify-content:space-between;align-items:center;font-size:12px;letter-spacing:.04em}
+  .term .id{font-family:var(--mono);color:#b8b0a0}
+  .term .id b{color:#e9e4d8;font-weight:600}
+  .hazard{height:6px;background:repeating-linear-gradient(45deg,#caa64e,#caa64e 11px,#2c3035 11px,#2c3035 22px);opacity:.85}
+
+  .head{padding:30px 22px 20px;border-bottom:1px solid var(--line)}
+  .kicker{font-size:11px;letter-spacing:.18em;color:var(--sub);margin:0 0 10px;font-family:var(--mono)}
+  h1{font-size:23px;margin:0 0 8px;font-weight:700}
+  .lede{font-size:13px;color:var(--sub);margin:6px 0 0}
+  .lede b{color:var(--ink)}
+
+  .sec{padding:22px}
+  .sec-label{font-size:11px;letter-spacing:.12em;color:var(--steel);font-family:var(--mono);
+    margin:0 0 14px;display:flex;align-items:center;gap:9px}
+  .sec-label::before{content:"";width:14px;height:1px;background:var(--steel)}
+
+  .ledger{display:grid;grid-template-columns:1fr 1fr 1fr;gap:11px}
+  @media(max-width:640px){.ledger{grid-template-columns:1fr}}
+  .unit{border:1px solid var(--line);background:var(--paper);border-radius:3px;padding:13px;
+    cursor:pointer;transition:.15s;position:relative}
+  .unit:hover{border-color:var(--steel)}
+  .unit.on{border-color:var(--steel2);box-shadow:inset 0 0 0 1px var(--steel2)}
+  .unit .plate{font-family:var(--mono);font-size:11px;font-weight:700;color:#fff;background:var(--steel);
+    display:inline-block;padding:2px 8px;border-radius:2px;letter-spacing:.05em}
+  .unit .nm{font-size:14px;font-weight:600;margin:9px 0 3px}
+  .unit .meta{font-size:11px;color:var(--sub);font-family:var(--mono)}
+  .unit .on-mark{position:absolute;top:11px;right:12px;font-size:11px;color:var(--steel2);display:none}
+  .unit.on .on-mark{display:block}
+
+  .symptom{margin-top:16px}
+  .symptom label{font-size:12px;color:var(--sub);display:block;margin-bottom:7px}
+  .symptom textarea{width:100%;border:1px solid var(--line);background:#fff;border-radius:3px;
+    padding:10px 12px;font-size:14px;font-family:inherit;resize:none;color:var(--ink)}
+  .symptom textarea:focus{outline:none;border-color:var(--steel)}
+  .go{margin-top:14px;width:100%;background:var(--steel2);color:#f2efe7;border:none;border-radius:3px;
+    padding:13px;font-size:14px;font-family:inherit;cursor:pointer;letter-spacing:.1em}
+  .go:hover{background:#2c3035}
+
+  #out{display:none;padding:0 22px}
+  .ticket{border:1px solid var(--steel);border-radius:3px;background:var(--paper);overflow:hidden}
+  .ticket .thead{background:#eee9dd;border-bottom:1px solid var(--line);padding:11px 16px;
+    display:flex;justify-content:space-between;align-items:center}
+  .ticket .thead .ttl{font-size:12px;font-family:var(--mono);letter-spacing:.06em;color:var(--steel2);font-weight:700}
+  .ticket .thead .no{font-size:10.5px;font-family:var(--mono);color:var(--sub)}
+  .ticket .meta-row{display:flex;gap:18px;padding:11px 16px;border-bottom:1px dashed var(--line);font-size:12px}
+  .ticket .meta-row .k{color:var(--sub);font-family:var(--mono);margin-right:6px}
+  .ticket .body{padding:14px 16px}
+
+  .naive{background:#f6efe7;border-left:3px solid var(--warn);padding:9px 13px;margin:0 0 16px;
+    font-size:12.5px;color:var(--sub);border-radius:0 2px 2px 0}
+  .naive b{color:var(--warn)}
+
+  .obs{display:flex;gap:11px;padding:11px 0;border-bottom:1px dashed var(--line)}
+  .obs:last-child{border-bottom:none}
+  .obs .box{flex:0 0 17px;height:17px;border:1.5px solid var(--steel);border-radius:2px;margin-top:3px}
+  .obs .n{flex:0 0 auto;font-family:var(--mono);font-size:12px;color:var(--steel2);font-weight:700;margin-top:2px}
+  .obs .q{font-size:14px}
+  .obs .q em{font-style:normal;color:var(--amber);font-weight:700}
+
+  .why{margin-top:14px;border-top:1px solid var(--line);padding-top:12px}
+  .why-hd{font-size:12px;color:var(--steel2);font-family:var(--mono);margin:0 0 4px}
+  .why-sub{font-size:11px;color:var(--sub);margin:0 0 11px}
+  .slip{display:flex;flex-direction:column;gap:9px}
+
+  /* 引用記録カード（クリックで原票を開く） */
+  .rec{background:#fff;border:1px solid var(--line);border-left:3px solid var(--steel);border-radius:0 2px 2px 0}
+  .rec .rechd{padding:9px 12px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:10px}
+  .rec .recmain{font-size:12px;color:var(--ink)}
+  .rec .src{font-family:var(--mono);font-size:10.5px;color:var(--steel2);display:block;margin-bottom:3px;letter-spacing:.02em}
+  .rec .open{font-family:var(--mono);font-size:10px;color:var(--sub);white-space:nowrap;border:1px solid var(--line);
+    padding:2px 7px;border-radius:2px}
+  .rec.show .open{background:var(--steel2);color:#f2efe7;border-color:var(--steel2)}
+
+  /* 原票ビュー */
+  .doc{display:none;margin:0 10px 11px;border:1px solid #cfc8b8;background:#fcfbf7;
+    box-shadow:0 1px 0 #e7e1d2,0 6px 14px rgba(70,60,40,.06)}
+  .rec.show .doc{display:block}
+  .doc .dochd{background:#33373c;color:#e9e4d8;padding:7px 12px;font-family:var(--mono);font-size:11px;
+    display:flex;justify-content:space-between;letter-spacing:.04em}
+  .doc .grid{display:grid;grid-template-columns:auto 1fr auto 1fr;gap:0;border-bottom:1px solid #e3ddcd}
+  .doc .grid div{padding:6px 11px;font-size:11px;border-right:1px solid #efe9da;border-bottom:1px solid #efe9da}
+  .doc .grid .lab{background:#f1ecde;color:var(--sub);font-family:var(--mono);white-space:nowrap}
+  .doc .docbody{padding:12px 14px;font-size:12.5px;line-height:1.85;color:#2a2722;white-space:pre-wrap}
+  .doc .stamp{display:inline-block;margin:0 12px 12px;border:1.5px solid #9a5b3f;color:#9a5b3f;
+    font-family:var(--mono);font-size:10px;padding:2px 8px;border-radius:2px;transform:rotate(-3deg);opacity:.8}
+
+  .honest{font-size:11px;color:var(--sub);background:#efece3;border:1px solid var(--line);
+    border-radius:3px;padding:12px 14px;margin:14px 0 0;line-height:1.75}
+  .honest b{color:var(--ink)}
+  footer{margin-top:26px;padding:0 22px;font-size:11px;color:var(--sub);text-align:center;line-height:1.9}
+</style>
+</head>
+<body>
+<div style="position:sticky;top:0;z-index:99999;display:flex;gap:14px;align-items:center;justify-content:space-between;flex-wrap:wrap;padding:9px 14px;background:#12121F;color:#fff;font:600 13px/1.6 'Noto Sans JP','Hiragino Sans',sans-serif;">
+<a href="/#cases" style="display:inline-flex;align-items:center;gap:8px;padding:9px 18px;border-radius:999px;background:#fff;color:#12121F;text-decoration:none;font-weight:700;white-space:nowrap;">← アプリ一覧へ戻る</a>
+<span style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;"><span style="opacity:.7;font-weight:500;">架空の会社のデータで動きます。実際のデータは使っていません。</span><a href="https://zenn.dev/hiroshift/articles/e5d73df44516c3" target="_blank" rel="noopener" style="color:#fff;text-decoration:none;border-bottom:1px solid rgba(255,255,255,.4);white-space:nowrap;">設計の解説を読む</a></span>
+</div>
+<div class="wrap">
+  <div class="term">
+    <span class="id">設備保全メモ <b>v0</b></span>
+    <span class="id">マルヤマ製作所 ／ 社内端末・オフライン</span>
+  </div>
+  <div class="hazard"></div>
+
+  <div class="head">
+    <p class="kicker">BUILD30 / DAY09 / 投げかけ回</p>
+    <h1>まず、何を見るか。</h1>
+    <p class="lede">答えは出しません。号機を選んで様子を一言入れると、過去の事故報告・修理ノートから<br>
+      <b>ベテランなら投げる「次の一問」</b>だけを、点検観点票にして返します。<b>根拠の原票は1件ずつ開けます。</b></p>
+  </div>
+
+  <div class="sec">
+    <p class="sec-label">設備台帳 ── 不調の号機を選ぶ</p>
+    <div class="ledger" id="ledger"></div>
+
+    <div class="symptom">
+      <label for="q">どんな様子？（機械の前で思ったまま・きれいに書かなくて可）</label>
+      <textarea id="q" rows="2" placeholder="例：また変な音がする"></textarea>
+      <button class="go" id="go">点検観点を出す</button>
+    </div>
+  </div>
+
+  <div id="out">
+    <div class="ticket">
+      <div class="thead">
+        <span class="ttl">点検観点票</span>
+        <span class="no" id="ticketno">No. ──</span>
+      </div>
+      <div class="meta-row">
+        <span><span class="k">号機</span><b id="m-unit"></b></span>
+        <span><span class="k">様子</span><span id="m-sym"></span></span>
+      </div>
+      <div class="body">
+        <div class="naive" id="naive"></div>
+        <div id="obs"></div>
+        <div class="why">
+          <p class="why-hd">なぜこの観点か ── 根拠の原票</p>
+          <p class="why-sub">この観点は下記の社内記録から引いています。<b>各カードをクリックすると原票（修理ノート・事故報告書・日報）の中身が開きます。</b></p>
+          <div class="slip" id="slip"></div>
+        </div>
+        <div class="honest">
+          <b>正直な但し書き。</b>このデモにAIは入っていません。症状で過去記録を引き当て、点検観点を組み立てているだけの決定論です（だから幻覚がなく、出どころを原票まで辿れる）。AIが本当に効くのは、むしろ裏側——散らかった手書きの記録を、この"引き当てられる形"に整えるところ（データラングリング）。記録はすべてこの端末の中だけ・外部送信ゼロ。データは架空の合成です。
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    Build30 Day09 ／「職人がAIに一言だけ話す日は来るか」<br>
+    登場人物・社名・記録はすべて架空。オフラインで動く単一HTML。
+  </footer>
+</div>
+
+<script>
+// ── この工場の過去記録（架空合成・事故報告書/修理ノート/日報を電子化した体）──
+const RECORDS = {
+  press_noise: {
+    unit:"3号機", machine:"自動プレス機", install:"1991年導入・改造あり",
+    echo:"また変な音がする", ticketno:"P-3",
+    words:["音","異音","変な音","異常音","うるさい","がたがた","ガタガタ","ごりごり","ゴリゴリ","鳴る","鳴り","きしむ","軋む","プレス","プレス機","3号機","おかしい","異常","振動","ガラガラ"],
+    naive:"後任の若手なら ── 『ベアリングがいったな』と即、交換の手配に走りがち。",
+    obs:[
+      "その音、<em>止まる直前から鳴っていた？ それとも動かした瞬間だけ？</em>（鳴り出すタイミングで原因が割れる）",
+      "<em>Vベルトの張り</em>を先に触った？（前回の『ベアリングだと思った異音』は、実はベルトの伸びだった）",
+      "<em>プーリーの偏摩耗</em>を見た？ ベルトを替えても1ヶ月で再発したのはここが原因だった"
+    ],
+    src:[
+      {kind:"修理ノート", no:"REP-2023-0912", date:"2023-09-12", by:"寺田", main:"ベアリングと判断→実はVベルトの伸び",
+       body:"朝、3号機から金属の擦れ音。当初ベアリング音と判断し在庫の6204を発注・交換するも改善せず。\nベルトカバーを開けるとVベルトが伸びてテンションが低下、プーリー側で滑り音が出ていた。テンションを張り直して解消。\nベアリングは結果として無交換でよかった（在庫を1個無駄にした）。\n教訓：異音＝即ベアリングは早い。まずベルトの張りを見ること。"},
+      {kind:"事故報告書", no:"ACC-No.41", date:"2024-02-14", by:"寺田／承認 田所", main:"異音放置でベルト破断・半日停止",
+       body:"2/7に3号機の異音を認識するも『前と同じベルトだろう』と対応を後回しにした。\n2/14、稼働中にVベルトが破断し緊急停止。交換部品の手配に半日、ライン停止による納期遅延1件が発生。\n再発防止：異音は当日中に記録し、その日のうちにベルトの張りを点検する。"},
+      {kind:"作業日報", no:"DR-2024-0603", date:"2024-06-03", by:"寺田", main:"再発はプーリーの片減りが原因",
+       body:"3号機ベルト交換（3本）。前回ベルトを替えたのに1ヶ月で再発したのは、プーリーの片減りが原因だった。\n安く済ませたいならベルトより先にプーリーの摩耗を見ること。\n次の若手に必ず伝えておくこと。"}
+    ]
+  },
+  nc_surface: {
+    unit:"NC2号", machine:"NC旋盤", install:"2003年・メーカー保守終了",
+    echo:"加工面が急に荒れてきた", ticketno:"N-2",
+    words:["面","荒れ","荒い","粗い","加工面","表面","面粗さ","びびり","ビビり","仕上げ","仕上がり","バイト","刃物","刃","ざらつき","ざらざら","ガサガサ","削れ","旋盤","nc","nc2号","nc旋盤","汚い"],
+    naive:"後任の若手なら ── 『バイト（刃物）が摩耗した』と決めて、刃物交換から入りがち。",
+    obs:[
+      "<em>切削油の濃度</em>は測った？（夏場に水が増えて濃度が落ち、面が荒れた事例が過去2回）",
+      "刃物より先に<em>主軸の振れ（微振動）</em>を見た？ 刃を替えても直らなかったのはここ",
+      "<em>同じ材料ロット</em>か？ 材料の硬さのばらつきを面の荒れと取り違えたことがある"
+    ],
+    src:[
+      {kind:"修理ノート", no:"REP-2023-0728", date:"2023-07-28", by:"寺田", main:"刃物でなく切削油の濃度低下が真因",
+       body:"NC2号、加工面のざらつき。若手がバイトを交換したが改善せず。\n切削油の濃度を測ると規定より低い（夏場に水を足しすぎて希釈）。原液を足して濃度を戻したら面が落ち着いた。\n刃を替える前に、まず油の状態を疑うこと。"},
+      {kind:"作業日報", no:"DR-2023-0815", date:"2023-08-15", by:"寺田", main:"夏は油が水っぽくなる／濃度計を先に",
+       body:"夏は切削油が水っぽくなる。面が荒れたら、まず濃度計。刃のせいにするのは最後。\n濃度計はNC横の引き出し。月初に校正すること。"},
+      {kind:"事故報告書", no:"ACC-No.33", date:"2024-01-20", by:"寺田／承認 田所", main:"主軸ベアリング劣化の微振動・気づくのに3日",
+       body:"NC2号の面荒れが油でも刃でも直らず。最終的に主軸ベアリングの劣化による微振動が原因と判明。\n原因特定まで3日を要し、その間の加工品に不良が混入。\n再発防止：油・刃で直らない面荒れは、主軸の振れをダイヤルゲージで確認する手順を追加。"}
+    ]
+  },
+  comp_pressure: {
+    unit:"コンプ1", machine:"スクリュー圧縮機", install:"1998年導入",
+    echo:"朝イチで圧が上がらない", ticketno:"C-1",
+    words:["圧","圧力","エア","エアー","空気","空気圧","上がらない","上がらん","上がりが悪い","上がりが鈍い","朝","朝イチ","ドレン","水抜き","効かない","弱い","出ない","コンプ","コンプレッサー","圧縮機","漏れ"],
+    naive:"後任の若手なら ── 『本体が寿命だ』と早合点して、メーカーに修理見積を取りがち。",
+    obs:[
+      "<em>ドレン（水抜き）</em>は溜まってない？ 朝だけ症状が出るのは大体これだった",
+      "<em>継手やホースの緩み</em>を石けん水で見た？ 微少な漏れは音もせず圧だけ食う",
+      "昨日より<em>冷え込んだ朝</em>か？ 気温で凝縮水が増える日に症状が集中している（記録上）"
+    ],
+    src:[
+      {kind:"作業日報", no:"DR-2023-1209", date:"2023-12-09", by:"寺田", main:"朝だけ圧が弱い＝まずドレンを疑う",
+       body:"『朝だけ圧が弱い』はドレン（水抜き）を疑え。本体故障と思ってメーカーを呼ぶ前に、まず下のドレンを抜くこと。\n夜間に溜まった凝縮水でエアの通りが悪くなる。"},
+      {kind:"修理ノート", no:"REP-2024-0122", date:"2024-01-22", by:"寺田", main:"継手の微少漏れ・増し締めで修理費ゼロ",
+       body:"コンプ1の圧の上がりが鈍い。配管の継手に石けん水を塗ると一箇所で発泡＝微少漏れ。\n増し締めで解消。部品交換なし・修理費ゼロ。\n微少漏れは音もせず圧だけ食うので、石けん水での点検を習慣に。"},
+      {kind:"事故報告書", no:"ACC-No.38", date:"2023-12-18", by:"寺田／承認 田所", main:"ドレン詰まり放置でライン混水・工具1台損傷",
+       body:"コンプ1のドレン詰まりを放置した結果、ドレン水がエアラインに混入。\n下流のエア工具1台が水を噛んで損傷、交換となった。\n再発防止：始業点検にドレン抜きを明記。冷え込んだ朝は特に注意。"}
+    ]
+  }
+};
+
+let selectedKey = null;
+
+const ledger = document.getElementById("ledger");
+Object.keys(RECORDS).forEach(key=>{
+  const r = RECORDS[key];
+  const el = document.createElement("div");
+  el.className = "unit";
+  el.dataset.key = key;
+  el.innerHTML = '<span class="on-mark">● 選択中</span>'
+    + '<span class="plate">'+r.unit+'</span>'
+    + '<div class="nm">'+r.machine+'</div>'
+    + '<div class="meta">'+r.install+'</div>';
+  el.onclick = ()=>{
+    selectedKey = key;
+    document.querySelectorAll(".unit").forEach(u=>u.classList.remove("on"));
+    el.classList.add("on");
+    document.getElementById("q").value = r.echo;
+  };
+  ledger.appendChild(el);
+});
+
+// 表記ゆれ吸収：NFKC（全角→半角）＋小文字化＋カタカナ→ひらがな＋記号/空白除去
+function norm(s){
+  return (s||"")
+    .normalize("NFKC")
+    .toLowerCase()
+    .replace(/[ァ-ヶ]/g, c => String.fromCharCode(c.charCodeAt(0) - 0x60))
+    .replace(/[\s　・、。,.!?！？「」『』()（）-]/g, "");
+}
+// 各号機の正規化済みキーワードを事前生成
+Object.keys(RECORDS).forEach(key=>{
+  RECORDS[key]._norm = RECORDS[key].words.map(norm).filter(Boolean);
+});
+function matchByText(text){
+  const t = norm(text);
+  if(!t) return null;
+  let best=null, score=0;
+  for(const key of Object.keys(RECORDS)){
+    let s=0;
+    for(const w of RECORDS[key]._norm){
+      if(!w) continue;
+      if(t.includes(w)) s += (w.length>=2 ? 2 : 1); // 2文字以上の一致を重く（単漢字の誤爆を抑制）
+    }
+    if(s>score){ score=s; best=key; }
+  }
+  return score>0 ? best : null;
+}
+
+function recCard(o){
+  return '<div class="rec">'
+    + '<div class="rechd"><div class="recmain"><span class="src">'+o.kind+' ／ '+o.no+' ／ '+o.date+' ／ 記入: '+o.by+'</span>'+o.main+'</div>'
+    + '<span class="open">原票を開く</span></div>'
+    + '<div class="doc">'
+    +   '<div class="dochd"><span>'+o.kind+'</span><span>'+o.no+'</span></div>'
+    +   '<div class="grid"><div class="lab">設備</div><div>'+CUR.unit+' '+CUR.machine+'</div><div class="lab">日付</div><div>'+o.date+'</div>'
+    +     '<div class="lab">区分</div><div>'+o.kind+'</div><div class="lab">記入</div><div>'+o.by+'</div></div>'
+    +   '<div class="docbody">'+o.body+'</div>'
+    +   '<span class="stamp">社内記録・架空</span>'
+    + '</div></div>';
+}
+
+let CUR = {unit:"",machine:""};
+
+document.getElementById("go").onclick = ()=>{
+  const text = document.getElementById("q").value.trim();
+  const key = selectedKey || matchByText(text);
+  const out = document.getElementById("out");
+  if(!key){
+    out.style.display="block";
+    document.getElementById("ticketno").textContent="No. ──";
+    document.getElementById("m-unit").textContent="未選択";
+    document.getElementById("m-sym").textContent = text || "（未入力）";
+    document.getElementById("naive").innerHTML="まず上の<b>設備台帳から号機を選んで</b>ください。症状の言い回しだけでも引き当てますが、このデモは過去記録のある3号機（プレス）／NC2号（旋盤）／コンプ1（圧縮機）でお試しを。";
+    document.getElementById("obs").innerHTML="";
+    document.getElementById("slip").innerHTML="";
+    out.scrollIntoView({behavior:"smooth"});
+    return;
+  }
+  const r = RECORDS[key];
+  CUR = {unit:r.unit, machine:r.machine};
+  document.getElementById("ticketno").textContent = "No. "+r.ticketno;
+  document.getElementById("m-unit").textContent = r.unit+"（"+r.machine+"）";
+  document.getElementById("m-sym").textContent = text || r.echo;
+  document.getElementById("naive").innerHTML = r.naive.replace(/『(.+?)』/g,"<b>『$1』</b>");
+  document.getElementById("obs").innerHTML = r.obs.map((q,i)=>
+    '<div class="obs"><div class="box"></div><div class="n">観点'+(i+1)+'</div><div class="q">'+q+'</div></div>').join("");
+  document.getElementById("slip").innerHTML = r.src.map(recCard).join("");
+  // 原票トグル
+  document.querySelectorAll("#slip .rec .rechd").forEach(hd=>{
+    hd.onclick = ()=> hd.parentElement.classList.toggle("show");
+  });
+  out.style.display="block";
+  out.scrollIntoView({behavior:"smooth"});
+};
+</script>
+</body>
+</html>

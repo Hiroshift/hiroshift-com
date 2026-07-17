@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta name="robots" content="noindex">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>配置マップ｜倉見台不動産（社内試作）</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,sans-serif; background:#e8eaed; color:#22262b; font-size:14px; }
+  .topbar { background:#2a3b2e; color:#fff; padding:10px 18px; display:flex; align-items:center; gap:14px; }
+  .topbar .app { font-size:16px; font-weight:bold; }
+  .topbar .env { background:#b7791f; color:#fff; font-size:11px; padding:2px 8px; border-radius:2px; }
+  .topbar .user { margin-left:auto; font-size:12px; color:#c9d5cb; }
+  .navbar { display:flex; background:#fff; border-bottom:2px solid #cfd4da; }
+  .navtab { padding:9px 22px; font-size:13px; color:#8a929c; border-right:1px solid #e2e5e9; cursor:pointer; }
+  .navtab.on { color:#2a3b2e; font-weight:bold; background:#eef4ef; border-bottom:2px solid #3e6b4a; margin-bottom:-2px; }
+  .wrap { max-width:1120px; margin:14px auto 26px; padding:0 14px; }
+  .view { display:none; } .view.show { display:block; }
+  .card { background:#fff; border:1px solid #cfd4da; border-radius:3px; margin-bottom:12px; }
+  .card h2 { font-size:13px; background:#f1f3f5; border-bottom:1px solid #dde1e6; padding:7px 12px; color:#33404e; }
+  .card .bd { padding:12px; }
+  table { width:100%; border-collapse:collapse; font-size:13px; }
+  th,td { border:1px solid #dde1e6; padding:7px 9px; text-align:left; vertical-align:top; }
+  th { background:#f6f7f9; font-weight:bold; color:#465468; white-space:nowrap; }
+  .tag { display:inline-block; font-size:11px; font-weight:bold; padding:2px 7px; border-radius:2px; white-space:nowrap; margin:1px 2px 1px 0; }
+  .tag.p { background:#eef2f7; color:#3c5878; border:1px solid #c6d3e2; font-weight:normal; }
+  .tag.new { background:#eef4ef; color:#2e6b38; border:1px solid #b5d8bb; font-weight:normal; }
+  .quote { color:#5a4a12; background:#fdf9ea; border-left:3px solid #d9c268; padding:1px 5px; font-size:12px; display:inline-block; margin:1px 0; }
+  .note { font-size:12px; color:#7a828c; background:#f6f7f9; border:1px dashed #c9ced5; padding:8px 11px; border-radius:2px; margin-top:10px; line-height:1.7; }
+  .deny { background:#fff; border:1px solid #e0b4b4; border-radius:3px; padding:9px 12px; font-size:12px; color:#7c3a3a; margin-bottom:12px; }
+  .deny b { color:#a03030; }
+  .quest { background:#2a3b2e; color:#fff; border-radius:3px; padding:10px 14px; margin-bottom:10px; display:flex; align-items:center; gap:12px; font-size:13.5px; }
+  .quest .q { font-weight:bold; }
+  .quest .st { margin-left:auto; font-size:12px; background:rgba(255,255,255,.12); padding:3px 10px; border-radius:10px; }
+  .mapwrap { position:relative; background:#f2efe6; border:1px solid #cfd4da; border-radius:3px; margin-bottom:12px; overflow:hidden; }
+  svg { display:block; width:100%; height:auto; user-select:none; -webkit-user-select:none; touch-action:none; }
+  .pop { position:absolute; font-weight:bold; font-size:14px; pointer-events:none; animation:fl 2.1s ease-out forwards; text-shadow:0 1px 0 #fff; }
+  @keyframes fl { 0%{opacity:0;transform:translateY(6px);} 12%{opacity:1;} 75%{opacity:1;} 100%{opacity:0;transform:translateY(-42px);} }
+  .scores { display:flex; gap:10px; margin-bottom:12px; }
+  .sbox { flex:1; background:#fff; border:1px solid #cfd4da; border-radius:3px; padding:10px 12px; }
+  .sbox .l { font-size:11.5px; color:#8a929c; }
+  .gauge { height:12px; background:#e8eaed; border-radius:6px; margin:7px 0 5px; overflow:hidden; }
+  .gauge i { display:block; height:100%; border-radius:6px; transition:width .5s; }
+  .sbox .vv { font-size:15px; font-weight:bold; }
+  .sbox .w { font-size:11px; color:#7a828c; line-height:1.6; }
+  .alert { border-left:3px solid #c0564a; background:#fdf6f5; padding:8px 11px; font-size:12.5px; margin-bottom:7px; line-height:1.7; }
+  .alert.mid { border-left-color:#d99a3d; background:#fdfaf2; }
+  .alert.good { border-left-color:#5b8c68; background:#f4f9f5; }
+  .alert .h { font-weight:bold; }
+  .ctrl { display:flex; gap:8px; align-items:center; margin-bottom:10px; flex-wrap:wrap; }
+  button.mini { background:#fff; border:1px solid #b9c0c9; border-radius:3px; font-size:12px; padding:6px 12px; cursor:pointer; }
+  .tcard { background:#fdf9ea; border:1px solid #d9c268; border-radius:4px; font-size:12px; padding:7px 11px; cursor:pointer; box-shadow:1px 2px 0 rgba(0,0,0,.06); }
+  .tcard:hover { transform:translateY(-1px); }
+  .tcard.used { background:#eef4ef; border-color:#b5d8bb; color:#2e6b38; cursor:default; box-shadow:none; }
+  .ovr { background:#fff; border:1px solid #cfd4da; border-radius:3px; padding:10px 12px; margin-bottom:12px; }
+  .ovr input { font-size:13px; padding:7px 9px; border:1px solid #b9c0c9; border-radius:3px; width:52%; }
+  .ovr button { background:#8f6b2e; color:#fff; border:none; font-size:13px; font-weight:bold; padding:8px 16px; border-radius:3px; cursor:pointer; margin-left:6px; }
+  .scope { background:#eef4ef; border:1px solid #c8dccb; border-radius:3px; padding:9px 12px; font-size:12px; margin-bottom:10px; }
+  .scope b { color:#2a3b2e; } .scope .no { color:#8a929c; }
+  .gl { font-size:10.5px; color:#9aa1aa; font-weight:normal; line-height:1.5; }
+  .foot { text-align:center; font-size:11.5px; color:#9aa1aa; padding:10px 0 18px; }
+</style>
+</head>
+<body>
+<div style="position:sticky;top:0;z-index:99999;display:flex;gap:14px;align-items:center;justify-content:space-between;flex-wrap:wrap;padding:9px 14px;background:#12121F;color:#fff;font:600 13px/1.6 'Noto Sans JP','Hiragino Sans',sans-serif;">
+<a href="/#cases" style="display:inline-flex;align-items:center;gap:8px;padding:9px 18px;border-radius:999px;background:#fff;color:#12121F;text-decoration:none;font-weight:700;white-space:nowrap;">← アプリ一覧へ戻る</a>
+<span style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;"><span style="opacity:.7;font-weight:500;">架空の会社のデータで動きます。実際のデータは使っていません。</span><a href="https://zenn.dev/hiroshift/articles/55302c4314a468" target="_blank" rel="noopener" style="color:#fff;text-decoration:none;border-bottom:1px solid rgba(255,255,255,.4);white-space:nowrap;">設計の解説を読む</a></span>
+</div>
+<div class="topbar">
+  <span class="app">配置マップ</span>
+  <span class="env">社内試作・ローカル</span>
+  <span style="font-size:12px;color:#c9d5cb;">倉見台不動産（貸工場・貸倉庫仲介・98名・都内10拠点）</span>
+  <span class="user">総務・人事：小暮｜7/10(金)</span>
+</div>
+<div class="navbar">
+  <div class="navtab" id="nav-m" onclick="go('map')">配置マップ</div>
+  <div class="navtab" id="nav-d" onclick="go('daicho')">人の台帳（出典つき）</div>
+</div>
+<div class="wrap">
+
+<!-- ===== 台帳 ===== -->
+<div class="view" id="v-daicho">
+  <div class="scope"><b>この台帳の出どころ：</b>特性・相性・事情のタグはすべて、小暮さんの面談メモ・雑談の書き留め・過去の配置判断の記録から（各タグに出典）。この変換だけがAIの仕事です　<span class="no">／勝手に測らない：性格診断・チャット解析・監視ツールは使いません。※タグの読み取りは表示例（本番はその場でメモを読みます・確定は小暮さん）</span></div>
+  <div class="card">
+    <h2>蒲田拠点に欠員（営業1席）── 関係者8名の台帳（98名から抜粋）</h2>
+    <div class="bd">
+      <table id="dtable"></table>
+      <div class="note">98人分の「誰と誰が合う・誰に何の事情がある・誰をどう育てたい」を、小暮さんは全部頭で覚えています。この表は、その頭の中を変数として降ろしたもの。</div>
+      <div style="text-align:center;padding:14px 0 4px;"><button style="background:#3e6b4a;color:#fff;border:none;font-size:15px;font-weight:bold;padding:11px 34px;border-radius:3px;cursor:pointer;" onclick="go('map')">地図で動かす →</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== マップ ===== -->
+<div class="view" id="v-map">
+  <div class="quest"><span>🗺</span><span class="q">今回のお題：蒲田拠点の欠員（営業1席）を埋める</span><span style="font-size:12px;color:#c9d5cb;">人のコマをつまんで、拠点ビルへドラッグ（都内10拠点のうち、今回の欠員に関わる3拠点を拡大表示）</span><span class="st" id="quest-st">未充足</span></div>
+  <div class="mapwrap" id="mapwrap">
+    <svg id="map" viewBox="0 0 1000 620" xmlns="http://www.w3.org/2000/svg"></svg>
+    <div id="pops"></div>
+  </div>
+  <div class="card" id="detail"><h2 id="det-h">詳細（コマ・家・拠点ビルをクリック）</h2><div class="bd" id="det-b" style="font-size:13px;line-height:1.8;color:#7a828c;">人のコマや家をクリックすると人材の詳細、拠点ビルをクリックすると所属メンバーがここに出ます。</div></div>
+  <div class="ctrl">
+    <button class="mini" onclick="resetSim()">⟲ はじめから</button>
+    <button class="mini" style="border-color:#8f6b2e;color:#8f6b2e;font-weight:bold;" onclick="aiSuggest()">🤖 AIの見立てを見る（参考・決定ではない）</button>
+    <span style="font-size:12px;color:#8a929c;">📔 小暮さんの手帳の書き留め（クリックで変数に登録＝計算が変わる）：</span>
+    <span class="tcard" id="chip-soto" onclick="addVar('soto')">📝 三上：外回り志向（6/20雑談）</span>
+    <span class="tcard" id="chip-home" onclick="addVar('home')">📝 唐沢：褒めて育てるが効く（戸倉談）</span>
+  </div>
+  <div class="scores" id="scores"></div>
+  <div class="card">
+    <h2 id="ah2">衝突と整合（スコアの内訳・全件表示）</h2>
+    <div class="bd"><div id="alerts"></div><div class="note" id="anote"></div></div>
+  </div>
+  <div class="ovr"><b>オーバーライド：</b>スコアがどうであれ、この配置で進める——理由を一言だけ（その一言が、次の変数になります）
+    <div style="margin-top:8px;"><input id="ovtext" placeholder="例：本人が強く希望している／家庭の事情で残業ができない"><button onclick="doOverride()">理由を記録する（確定は面談と社長へ）</button></div>
+    <div id="ovlog" style="font-size:12px;color:#2e6b38;margin-top:6px;"></div>
+    <div class="gl" style="margin-top:4px;">※本番はAIがこの一言を計算用の変数に翻訳します（この試作では記録まで）。確定＝本人との面談と社長の承認が次の工程。</div>
+  </div>
+  <div class="deny"><b>この道具の規律：</b>変数の出典はすべて小暮さんの記録／性格診断・チャット解析はしない／評価・給与に接続しない／AIの見立ては<b>求めたときだけ・参考の格で</b>出す（勝手に押しつけない）。<b>配置を決めるのは、本人との面談と、社長です。</b></div>
+</div>
+
+</div>
+<div class="foot">配置マップ（社内試作）｜スコアと通勤の計算はこの画面内で実際に動いています（AIは台帳のタグ化のみ・表示例）</div>
+<script>
+// ====== 地図データ ======
+var STA={ oji:[700,180,'王子'], tabata:[678,232,'田端'], ueno:[658,300,'上野'], tokyo:[668,372,'東京'],
+ shinagawa:[640,452,'品川'], omori:[608,506,'大森'], kamata_st:[578,558,'蒲田'], akabane:[736,120,'赤羽'],
+ kitasenju:[758,232,'北千住'], ayase:[818,198,'綾瀬'], akihabara:[652,332,'秋葉原'], kameido:[788,334,'亀戸'], shinkoiwa:[858,332,'新小岩'],
+ shinjuku:[478,330,'新宿'], tachikawa_st:[186,302,'立川'], hachioji:[84,322,'八王子'] };
+var BPOS={ honten:[620,286], toda:[540,568], saitama:[168,258] };
+var MINOR=[['品川',676,458],['亀戸',788,364],['新小岩',858,362],['北千住',792,244],['板橋',600,138],['八王子',84,352],['府中',282,392]];
+var BASES={
+ honten:{nm:'本店（上野）',info:'案件38・残業12h',load:function(){var n=salesAt('honten');var sk=(typeof P!=='undefined'&&P.sakaki.base==='honten')?'・榊さん限界申告中':'';return n<=2?['#c0564a','負荷 赤（営業'+n+'名'+sk+'）']:['#d99a3d','負荷 黄（営業'+n+'名'+sk+'）'];}},
+ toda:{nm:'蒲田拠点（城南）',info:'案件24・残業22h・欠員1',load:function(){var n=salesAt('toda');return n<2?['#c0564a','負荷 赤（欠員未充足）']:['#d99a3d','負荷 黄（充足直後・残業22h）'];}},
+ saitama:{nm:'立川拠点',info:'案件19・残業8h',load:function(){return ['#5b8c68','負荷 緑'];}}
+};
+// ====== 人 ======
+var P={
+ karasawa:{nm:'唐沢',rl:'拠点長・48',base:'toda',fixed:true,leader:true,tags:[['数字に厳しい','拠点会議・小暮メモ'],['押しが強い','4/2小暮メモ'],['新規開拓の鬼','実績']]},
+ sakaki:{nm:'榊',rl:'営業・57',base:'honten',fixed:false,home:[706,158],htxt:'王子・車',col:'#3e6b4a',tags:[['エース','実績'],['教えるより現場','本人談'],['担当31社・限界申告2回','7/8要請']]},
+ mikami:{nm:'三上',rl:'営業・2年目',base:'honten',fixed:false,home:[830,178],htxt:'綾瀬・電車',col:'#2b6cb0',tags:[['丁寧・既存客に好かれる','6月 客の声'],['新規の電話が苦手','4/2面談']]},
+ miyashita:{nm:'宮下',rl:'営業・3年目',base:'honten',fixed:false,home:[660,214],htxt:'田端・電車',col:'#7c5cbf',tags:[['サポート型','小暮メモ'],['幹部候補・来年拠点経験を','12月 社長'],['現場で伸びる型','榊評']]},
+ tokura:{nm:'戸倉',rl:'営業・44',base:'toda',fixed:false,home:[590,528],htxt:'大森・車',col:'#b7791f',tags:[['唐沢さんと補完関係','配置記録2022']]},
+ ohira:{nm:'大平',rl:'営業・5年目',base:'saitama',fixed:false,home:[142,238],htxt:'立川・車（持ち家）',col:'#5f7480',tags:[['単独で回れる','拠点長評'],['異動希望なし','1/12面談']]},
+ ashida:{nm:'芦田',rl:'拠点長・51',base:'saitama',fixed:true,leader:true,tags:[['温和・育て上手','小暮メモ']]},
+ minagawa:{nm:'皆川',rl:'事務・36',base:'saitama',fixed:true,tags:[['正確・段取り上手','拠点長評'],['保育園送りで8:45以降着','3/8面談']]}
+};
+var HOME={}; Object.keys(P).forEach(k=>HOME[k]=P[k].base);
+var ORIGTAGS={}; Object.keys(P).forEach(k=>ORIGTAGS[k]=P[k].tags.map(t=>t.slice()));
+// ====== 通勤（分・説明・経路・モード）======
+function stp(names){ return names.map(n=>STA[n].slice(0,2)); }
+var COM={
+ sakaki:{honten:{m:15,d:'車15分',mode:'car'},toda:{m:38,d:'車38分',mode:'car'},saitama:{m:55,d:'車55分',mode:'car'}},
+ mikami:{honten:{m:19,d:'電車19分・北千住乗換',mode:'train',path:stp(['ayase','kitasenju','ueno'])},
+         toda:{m:45,d:'電車45分・上野乗換1回',mode:'train',path:stp(['ayase','kitasenju','ueno','tokyo','shinagawa','omori','kamata_st']),alt:{m:30,d:'車30分・環七（外回り直行直帰前提）',mode:'car'}},
+         saitama:{m:58,d:'電車58分・新宿乗換',mode:'train',path:stp(['ayase','kitasenju','ueno','tokyo','shinjuku','tachikawa_st'])}},
+ miyashita:{honten:{m:8,d:'電車8分（田端→上野）',mode:'train',path:stp(['tabata','ueno'])},
+         toda:{m:36,d:'電車36分（京浜東北直通）',mode:'train',path:stp(['tabata','ueno','tokyo','shinagawa','omori','kamata_st'])},
+         saitama:{m:52,d:'電車52分・新宿乗換',mode:'train',path:stp(['tabata','ueno','tokyo','shinjuku','tachikawa_st'])}},
+ tokura:{honten:{m:34,d:'車34分',mode:'car'},toda:{m:8,d:'車8分',mode:'car'},saitama:{m:60,d:'車60分',mode:'car'}},
+ ohira:{honten:{m:55,d:'車55分',mode:'car'},toda:{m:65,d:'車65分',mode:'car'},saitama:{m:12,d:'車12分',mode:'car'}}
+};
+function commuteOf(k,b){ var c=COM[k]&&COM[k][b]; if(!c)return null; if(k==='mikami'&&b==='toda'&&vars.soto&&c.alt)return c.alt; return c; }
+
+var EXTRA={mikami:'—',miyashita:'来年、拠点経験をさせたい（社長）',sakaki:'担当31社・限界申告2回',minagawa:'保育園送りで8:45以降着（3/8面談）',ohira:'持ち家・立川',karasawa:'—',ashida:'—',tokura:'—'};
+var vars={soto:false,home:false};
+var detK=null, detB=null;
+function tagsHtml(p){ return p.tags.map(t=>'<span class="tag '+(t[1].indexOf('新')>=0?'new':'p')+'">'+t[0]+'<span class="gl">（'+t[1]+'）</span></span>').join(''); }
+function showPerson(k){ detK=k; detB=null; var p=P[k]; var c=p.fixed?null:commuteOf(k,p.base);
+  document.getElementById('det-h').textContent='人材カルテ：'+p.nm+'（'+p.rl+'）';
+  document.getElementById('det-b').style.color='#22262b';
+  document.getElementById('det-b').innerHTML='<table class="kv" style="margin-bottom:8px;">'
+   +'<tr><th style="width:120px;">所属</th><td>'+BASES[p.base].nm+(p.base!==HOME[k]?'（移動中の案）':'')+'</td></tr>'
+   +(p.htxt?'<tr><th>住まい・通勤</th><td>🏠 '+p.htxt+(c?'　→ いまの案では '+c.d:'')+'</td></tr>':'')
+   +'<tr><th>小暮さんのタグ</th><td>'+tagsHtml(p)+'</td></tr>'
+   +'<tr><th>事情・制約</th><td>'+(EXTRA[k]||'—')+'</td></tr></table>'
+   +'<div class="gl">タグの出典はすべて小暮さんの記録。読み取りは表示例＝確定は小暮さん。評価・給与には接続しません。</div>'; }
+function showBase(b){ detB=b; detK=null;
+  var mem=Object.keys(P).filter(k=>P[k].base===b);
+  var rows=mem.map(k=>{var p=P[k];return '<tr><td style="width:110px;"><b>'+p.nm+'</b><div class="gl">'+p.rl+(p.fixed?'・固定':'')+'</div></td><td>'+tagsHtml(p)+'</td><td style="width:160px;">'+(EXTRA[k]||'—')+'</td></tr>';}).join('');
+  var ld=BASES[b].load();
+  document.getElementById('det-h').textContent='拠点：'+BASES[b].nm+'　所属 '+mem.length+'名（'+BASES[b].info+'／'+ld[1]+'）';
+  document.getElementById('det-b').style.color='#22262b';
+  document.getElementById('det-b').innerHTML='<table>'+rows+'</table>'; }
+function refreshDetail(){ if(detK)showPerson(detK); else if(detB)showBase(detB); }
+function aiSuggest(){
+  var snap={}; Object.keys(P).forEach(k=>snap[k]=P[k].base);
+  var cands=['mikami','miyashita','tokura','ohira','sakaki'].filter(k=>HOME[k]!=='toda');
+  var res=[];
+  cands.forEach(k=>{
+    Object.keys(P).forEach(x=>P[x].base=HOME[x]);
+    P[k].base='toda';
+    var r=calc();
+    var bads=r.A.filter(a=>a.s==='bad').length, mids=r.A.filter(a=>a.s==='mid').length;
+    var avg=Math.round(((r.aish||0)+(r.car||50)+(r.uke||0))/3);
+    res.push({k:k,bads:bads,mids:mids,avg:avg,aish:r.aish,car:r.car,uke:r.uke});
+  });
+  Object.keys(P).forEach(x=>P[x].base=snap[x]);
+  res.sort((a,b)=> a.bads-b.bads || b.avg-a.avg);
+  var top=res[0];
+  var rows=res.map((r,i)=>'<tr'+(i===0?' style="background:#f4f9f5;"':'')+'><td>'+(i===0?'◎ ':'')+P[r.k].nm+'さんを蒲田へ</td><td>衝突 '+r.bads+'・注意 '+r.mids+'</td><td>相性'+(r.aish??'—')+'／キャリア'+(r.car??'—')+'／受入'+(r.uke??'—')+'</td></tr>').join('');
+  detK=null; detB=null;
+  document.getElementById('det-h').textContent='AIの見立て（参考）── いまの変数'+ovCount+'個で全案を計算';
+  document.getElementById('det-b').style.color='#22262b';
+  document.getElementById('det-b').innerHTML=
+   '<div class="alert good"><span class="h">見立て：'+P[top.k].nm+'さんを蒲田へ、が現時点の変数ではいちばん衝突が少ない</span><br>'
+   +(top.k==='miyashita'?'キャリア方針（12月・社長）と過去の成功パターン（2022配置）に整合。残る論点＝本店の穴（榊さんの負荷）——<b>次の問いは「本店に誰を、どう補うか」。</b>':'残る衝突と注意を、面談で確かめてから。')
+   +'</div><table><tr><th>案</th><th>衝突・注意</th><th>スコア</th></tr>'+rows+'</table>'
+   +'<div class="note"><b>これは見立てであって、決定ではありません。</b>手帳の書き留めが一つ増えれば、この順位は入れ替わります（三上さんの案は「外回り志向」「褒め型」の2枚で化けました）。決めるのは、本人との面談と、社長です。</div>';
+}
+var sel=null, lastMoved=null, ovCount=24, drag=null, prevScores=null;
+
+function salesAt(b){ return Object.keys(P).filter(k=>!P[k].leader&&P[k].rl.indexOf('営業')>=0&&P[k].base===b).length; }
+function q(t,src){ return '<span class="quote">'+t+'</span><span class="gl">（'+src+'）</span>'; }
+
+// ====== 判定エンジン（決定論） ======
+function calc(){
+  var A=[]; var moved=Object.keys(P).filter(k=>P[k].base!==HOME[k]);
+  var aish=70, aiw=[];
+  if(P.mikami.base==='toda'){
+    aish-=40; aiw.push('−40 押しが強い×電話苦手（4/2記録）');
+    aish-=15; aiw.push('−15 同型配置で離職1名（2021記録）');
+    if(vars.home){ aish+=25; aiw.push('＋25 褒め型なら成立の余地（戸倉談・新変数）'); }
+    A.push({s:vars.home?'mid':'bad',h:'相性リスク（唐沢 × 三上）',b:q('押しが強い','唐沢・4/2小暮メモ')+' × '+q('新規の電話が苦手','三上・4/2面談')+'。過去、同型の配置で1名離職（2021配置記録）。'+(vars.home?'<br><b>手帳の書き留めで緩和：</b>'+q('褒めて育てるが効く','戸倉談')+'——成立の余地。<b>面談で確かめる一点はここ。</b>':'')});
+    if(vars.soto){ A.push({s:'good',h:'仕事の型：外回り中心なら強みは消えない',b:'手帳の書き留め '+q('外回り志向','6/20雑談')+'——「電話」でなく「訪問」の比重なら '+q('丁寧・既存客に好かれる','6月 客の声')+' が活きる読み。通勤も電車33分→<b>車17分</b>に変わった。'}); }
+    else { aish-=10; aiw.push('−10 強みが消える配置（既存客型×新規拠点）'); A.push({s:'bad',h:'仕事の型：強みが消える配置',b:'三上さんの強みは既存客対応。新規開拓中心の拠点では出番が薄い。'}); }
+  }
+  if(P.miyashita.base==='toda'){ aish+=20; aiw.push('＋20 サポート型×押しの強い上長＝成功パターン（2022記録）');
+    A.push({s:'good',h:'相性：過去の成功パターンと同型',b:'サポート型 × 押しの強い拠点長＝'+q('唐沢さんと補完関係','戸倉・配置記録2022')+'と同じ組み合わせ。'}); }
+  if(P.ohira.base!==HOME.ohira){ aish-=30; aiw.push('−30 本人意向と衝突（1/12面談）'); A.push({s:'bad',h:'大平さん：本人の意向と衝突',b:q('異動希望なし','1/12面談')+'・持ち家（立川）。この案は本人面談が先。'}); }
+  // 通勤（地図から）
+  moved.forEach(k=>{ var c=commuteOf(k,P[k].base);
+    if(c&&c.m>=28){ A.push({s:'mid',h:'通勤：'+P[k].nm+'さん '+c.d,b:'家は'+P[k].htxt.split('・')[0]+'。単体では可・他の衝突と重なると重い。'}); }
+  });
+  var car=null,carw=[];
+  if(P.miyashita.base==='toda'){ car=90; carw.push('＋ 拠点経験の方針と一致（12月・社長）※1年前倒し'); A.push({s:'good',h:'キャリア整合（宮下）',b:q('幹部候補・来年拠点経験を','12月 社長')+'——1年前倒しだが方向は一致。'}); }
+  if(P.mikami.base==='toda'){ if(car==null){car=vars.soto?75:55;} else {car=Math.round((car+(vars.soto?75:55))/2);} carw.push(vars.soto?'＋ 外回り志向と整合（6/20雑談・新変数）':'± 本人のキャリア志向の記録なし＝面談で確認'); }
+  var uke,ukew=[]; var ts=salesAt('toda');
+  if(ts<2){ uke=25; ukew.push('− 欠員未充足・残業22h'); A.push({s:'mid',h:'蒲田の欠員：未充足',b:'営業が'+ts+'名のまま。誰かを動かすか、採るか——決めるのは人。'}); }
+  else if(ts===2){ uke=65; ukew.push('＋ 充足。受け入れ直後の教え方は唐沢さんの型次第'); }
+  else { uke=30; ukew.push('− 過剰配置（席は2・現在'+ts+'名）'); A.push({s:'bad',h:'蒲田に席がない：営業は2席',b:'欠員は1。'+ts+'名は過剰配置＝誰かの席がない。玉突きの計画が先。'}); }
+  var hs=salesAt('honten');
+  if(hs<3 && P.sakaki.base==='honten'){ A.push({s:'mid',h:'玉突き：本店の営業が'+hs+'名に',b:q('担当31社・限界申告2回','榊・7/8要請')+'——本店の穴をどうするかが、次の問い。'}); }
+  if(P.sakaki.base!==HOME.sakaki){ A.push({s:'bad',h:'榊さんの移動：31社の引き継ぎが発生',b:'空き連絡の7割が榊さん個人宛（受信記録）。関係は付いてくるが、担当31社に引き継ぎ先がない。'}); }
+  return {A:A,moved:moved,aish:Math.max(0,Math.min(100,aish)),aiw:aiw,car:car,carw:carw,uke:uke,ukew:ukew};
+}
+
+// ====== 地図描画 ======
+var NS='http://www.w3.org/2000/svg';
+function el(t,a){ var e=document.createElementNS(NS,t); for(var k in a)e.setAttribute(k,a[k]); return e; }
+function pline(pts,attrs){ var e=el('polyline',Object.assign({points:pts.map(p=>p.join(',')).join(' '),fill:'none'},attrs)); return e; }
+function drawMap(){
+  var s=document.getElementById('map'); s.innerHTML='';
+  // 地
+  s.appendChild(el('rect',{x:0,y:0,width:1000,height:620,fill:'#eef0e2'}));
+  // 川（隅田川・荒川・多摩川）
+  s.appendChild(el('path',{d:'M 725 60 C 735 200, 700 380, 742 620 L 762 620 C 720 380, 755 200, 745 60 Z',fill:'#bcd6e8'}));
+  s.appendChild(el('path',{d:'M 795 60 C 810 220, 790 420, 828 620 L 852 620 C 814 420, 834 220, 819 60 Z',fill:'#bcd6e8'}));
+  s.appendChild(el('path',{d:'M -10 560 C 200 610, 420 590, 640 640 L -10 640 Z',fill:'#bcd6e8'}));
+  var rv=el('text',{x:770,y:90,'font-size':10.5,fill:'#7a9ab5'}); rv.textContent='隅田川'; s.appendChild(rv);
+  var rv2=el('text',{x:842,y:90,'font-size':10.5,fill:'#7a9ab5'}); rv2.textContent='荒川'; s.appendChild(rv2);
+  var rv3=el('text',{x:120,y:600,'font-size':10.5,fill:'#7a9ab5'}); rv3.textContent='多摩川'; s.appendChild(rv3);
+  // 道路（環七・甲州街道）
+  s.appendChild(pline([[742,168],[600,220],[500,330],[520,470],[600,540]],{stroke:'#d8d2c2','stroke-width':7,'stroke-linecap':'round',fill:'none'}));
+  s.appendChild(pline([[668,372],[478,340],[186,312],[84,330]],{stroke:'#d8d2c2','stroke-width':7,'stroke-linecap':'round',fill:'none'}));
+  // 路線
+  var lines=[
+   {c:'#31a3dd',pts:['akabane','oji','tabata','ueno','tokyo','shinagawa','omori','kamata_st'],nm:'京浜東北線',lx:596,ly:498},
+   {c:'#f15a22',pts:['tokyo','shinjuku','tachikawa_st','hachioji'],nm:'中央線',lx:320,ly:296},
+   {c:'#00b261',pts:['ueno','kitasenju','ayase'],nm:'常磐線',lx:742,ly:196},
+   {c:'#c9a400',pts:['shinjuku','akihabara','kameido','shinkoiwa'],nm:'総武線',lx:760,ly:322}
+  ];
+  lines.forEach(L=>{ s.appendChild(pline(L.pts.map(n=>[STA[n][0],STA[n][1]]),{stroke:L.c,'stroke-width':4,'stroke-linecap':'round',fill:'none'}));
+    var t=el('text',{x:L.lx,y:L.ly,'font-size':10.5,fill:L.c,'font-weight':'bold'}); t.textContent=L.nm; s.appendChild(t); });
+  Object.keys(STA).forEach(n=>{ var st=STA[n];
+    s.appendChild(el('circle',{cx:st[0],cy:st[1],r:4.5,fill:'#fff',stroke:'#5d6773','stroke-width':1.5}));
+    var t=el('text',{x:st[0]+7,y:st[1]-6,'font-size':10.5,fill:'#5d6773'}); t.textContent=st[2]; s.appendChild(t); });
+  // 非対象の7拠点（小表示）＝都内10拠点
+  MINOR.forEach(mb=>{ s.appendChild(el('rect',{x:mb[1]-5,y:mb[2]-5,width:10,height:10,fill:'#c3c9cf',stroke:'#9aa1aa'}));
+    var t=el('text',{x:mb[1]+9,y:mb[2]+4,'font-size':9.5,fill:'#9aa1aa'}); t.textContent=mb[0]+'拠点'; s.appendChild(t); });
+  // 通勤ライン（現在の配属へ）
+  Object.keys(P).forEach(k=>{ var p=P[k]; if(p.fixed||!p.home)return;
+    var c=commuteOf(k,p.base); if(!c)return;
+    var bp=BPOS[p.base];
+    if(c.mode==='train'&&c.path){ var pts=[p.home].concat(c.path).concat([bp]);
+      s.appendChild(pline(pts,{stroke:p.col,'stroke-width':2.6,'stroke-opacity':.85,'stroke-dasharray':'none'}));
+    } else { s.appendChild(pline([p.home,bp],{stroke:p.col,'stroke-width':2.6,'stroke-opacity':.8,'stroke-dasharray':'7 5'})); }
+    var mid=[(p.home[0]+bp[0])/2,(p.home[1]+bp[1])/2-8];
+    var bgw=c.d.length*10.5+10;
+    s.appendChild(el('rect',{x:mid[0]-bgw/2,y:mid[1]-12,width:bgw,height:17,rx:8,fill:'#fff','fill-opacity':.92,stroke:p.col,'stroke-width':1}));
+    var t=el('text',{x:mid[0],y:mid[1],'font-size':10.5,fill:'#33404e','text-anchor':'middle'}); t.textContent=(c.mode==='train'?'🚃':'🚗')+c.d; s.appendChild(t);
+  });
+  // 拠点ビル
+  Object.keys(BPOS).forEach(b=>{ var bp=BPOS[b], ld=BASES[b].load();
+    s.appendChild(el('circle',{cx:bp[0],cy:bp[1],r:40,fill:ld[0],'fill-opacity':.14,stroke:ld[0],'stroke-width':2,'stroke-opacity':.55,'class':'basehit','data-b':b}));
+    var g=el('g',{'data-b':b,cursor:'pointer'});
+    var t=el('text',{x:bp[0],y:bp[1]+9,'font-size':26,'text-anchor':'middle'}); t.textContent='🏢'; g.appendChild(t);
+    var lb=el('text',{x:bp[0],y:bp[1]+27,'font-size':11.5,'font-weight':'bold',fill:'#2a3b2e','text-anchor':'middle'}); lb.textContent=BASES[b].nm; g.appendChild(lb);
+    var inf=el('text',{x:bp[0],y:bp[1]+41,'font-size':9.5,fill:'#8a929c','text-anchor':'middle'}); inf.textContent=BASES[b].info+'／'+ld[1]; g.appendChild(inf);
+    s.appendChild(g);
+  });
+  // 家＋コマ
+  Object.keys(P).forEach(k=>{ var p=P[k]; if(p.fixed||!p.home)return;
+    var hg=el('g',{}); var ht=el('text',{x:p.home[0],y:p.home[1]+4,'font-size':15,'text-anchor':'middle'}); ht.textContent='🏠'; hg.appendChild(ht);
+    var hl=el('text',{x:p.home[0],y:p.home[1]+18,'font-size':9.5,fill:'#8a929c','text-anchor':'middle'}); hl.textContent=p.htxt; hg.appendChild(hl);
+    s.appendChild(hg);
+    // コマ＝配属先の脇
+    var bp=BPOS[p.base]; var idx=Object.keys(P).filter(x=>!P[x].fixed&&P[x].base===p.base&&x<=k).length;
+    var tx=bp[0]-46+idx*30, ty=bp[1]-34;
+    var g=el('g',{'class':'token','data-k':k,cursor:'grab'});
+    g.appendChild(el('circle',{cx:tx,cy:ty,r:14,fill:p.col,stroke:'#fff','stroke-width':2.5}));
+    if(P[k].base!==HOME[k]) g.appendChild(el('circle',{cx:tx,cy:ty,r:18,fill:'none',stroke:p.col,'stroke-width':1.5,'stroke-dasharray':'3 3'}));
+    var tt=el('text',{x:tx,y:ty+4.5,'font-size':12,'font-weight':'bold',fill:'#fff','text-anchor':'middle','pointer-events':'none'}); tt.textContent=p.nm[0]; g.appendChild(tt);
+    var nl=el('text',{x:tx,y:ty-19,'font-size':9.5,fill:'#33404e','text-anchor':'middle','pointer-events':'none'}); nl.textContent=p.nm; g.appendChild(nl);
+    s.appendChild(g);
+  });
+  bindDrag();
+}
+// ====== ドラッグ＆ドロップ ======
+function svgPt(ev){ var s=document.getElementById('map'); var pt=s.createSVGPoint(); pt.x=ev.clientX; pt.y=ev.clientY; var p=pt.matrixTransform(s.getScreenCTM().inverse()); return [p.x,p.y]; }
+function bindDrag(){
+  document.querySelectorAll('#map .token').forEach(g=>{
+    g.addEventListener('pointerdown',ev=>{ ev.preventDefault(); var k=g.getAttribute('data-k'); var p0=svgPt(ev); drag={k:k,g:g,x0:p0[0],y0:p0[1]}; g.setAttribute('cursor','grabbing'); g.setPointerCapture&&g.setPointerCapture(ev.pointerId); });
+  });
+  var s=document.getElementById('map');
+  s.onpointermove=ev=>{ if(!drag)return; var p=svgPt(ev); var c=drag.g.querySelector('circle'); var dx=p[0]-c.getAttribute('cx'), dy=p[1]-c.getAttribute('cy'); drag.g.setAttribute('transform','translate('+(p[0]-c.getAttribute('cx'))+','+(p[1]-c.getAttribute('cy'))+')'); };
+  s.onpointerup=ev=>{
+    var p=svgPt(ev);
+    if(drag){
+      var k=drag.k; var wasClick=Math.hypot(p[0]-drag.x0,p[1]-drag.y0)<7; drag=null;
+      if(wasClick){ showPerson(k); renderAll(); return; }
+      var hit=null; Object.keys(BPOS).forEach(b=>{ var bp=BPOS[b]; if(Math.hypot(p[0]-bp[0],p[1]-bp[1])<52)hit=b; });
+      if(hit&&P[k].base!==hit){ var before=calc(); P[k].base=hit; lastMoved=k; LOCKHASH=false; renderAll(); popDeltas(before,BPOS[hit]); }
+      else { renderAll(); }
+      return;
+    }
+    var hb=null; Object.keys(BPOS).forEach(b=>{ var bp=BPOS[b]; if(Math.hypot(p[0]-bp[0],p[1]-bp[1])<52)hb=b; });
+    if(hb){ showBase(hb); return; }
+    Object.keys(P).forEach(k=>{ var q=P[k]; if(q.home && Math.hypot(p[0]-q.home[0],p[1]-q.home[1])<22){ showPerson(k); } });
+  };
+}
+// ====== スコアポップ ======
+function popDeltas(before,bp){
+  var after=calc(); var pops=[];
+  if(after.moved.length){
+    if(before.aish!==after.aish){ var d=after.aish-before.aish; pops.push([(d>0?'＋':'')+d+' 相性', d>0?'#2e6b38':'#a03030']); }
+    if(after.car!=null){ pops.push(['キャリア '+after.car, after.car>=70?'#2e6b38':'#8a6116']); }
+    var bads=after.A.filter(a=>a.s==='bad').length; pops.push(['⚠ 衝突 '+bads+'件','#a03030']);
+  }
+  var wrap=document.getElementById('mapwrap'), svg=document.getElementById('map');
+  var scale=wrap.clientWidth/1000;
+  pops.forEach((p,i)=>{ var d=document.createElement('div'); d.className='pop'; d.style.left=(bp[0]*scale-30)+'px'; d.style.top=((bp[1]-60-i*24)*scale)+'px'; d.style.color=p[1]; d.textContent=p[0];
+    document.getElementById('pops').appendChild(d); setTimeout(()=>d.remove(),2200); });
+}
+// ====== パネル ======
+function scls(v){ return v==null?null:(v<40?'#c0564a':(v<70?'#d99a3d':'#5b8c68')); }
+function gauge(label,v,w){ var col=scls(v);
+  return '<div class="sbox"><div class="l">'+label+'</div><div class="gauge"><i style="width:'+(v==null?0:v)+'%;background:'+(col||'#cfd4da')+'"></i></div><div class="vv" style="color:'+(col||'#9aa1aa')+'">'+(v==null?'—':v+' / 100')+'</div><div class="w">'+w+'</div></div>'; }
+function renderPanel(){
+  var r=calc(); var moved=r.moved.length>0;
+  document.getElementById('scores').innerHTML=
+    gauge('① 相性・定着（いちばん勘に近い層＝出典は全部 小暮さんの記録）', moved?r.aish:null, moved?(r.aiw.join('<br>')||'加減点なし'):'コマを動かすと計算します')+
+    gauge('② キャリア整合（出典＝文書化された言葉）', moved?r.car:null, moved?(r.carw.join('<br>')||'該当データなし'):'—')+
+    gauge('③ 受け入れ力（出典＝数字：案件・残業・欠員）', moved?r.uke:null, moved?r.ukew.join('<br>'):'—');
+  var ah='';
+  if(!moved){ ah='<div class="alert good"><span class="h">現在の配置（変更なし）</span><br>地図の上に、5人の家と通勤が見えています。まず「三上さんのコマを蒲田拠点へ」——社長の言う「素直な補充」をドラッグで試してみてください。</div>'; }
+  r.A.forEach(a=>{ ah+='<div class="alert '+(a.s==='bad'?'':a.s)+'"><span class="h">'+a.h+'</span><br>'+a.b+'</div>'; });
+  document.getElementById('alerts').innerHTML=ah;
+  var bads=r.A.filter(a=>a.s==='bad').length;
+  document.getElementById('ah2').textContent='衝突と整合（スコアの内訳・全件表示）── 衝突 '+bads+'件';
+  document.getElementById('quest-st').textContent = salesAt('toda')>=2 ? '充足——残る論点を面談へ' : '未充足';
+  document.getElementById('anote').innerHTML=(vars.soto||vars.home)
+   ? '<b>手帳の書き留めで、スコアと通勤が変わりました。</b>道具は最初から賢いのではなく、小暮さんが「それ、考慮されてない」と言うたびに賢くなります（3ヶ月で'+ovCount+'個）。残った衝突だけを、面談で確かめればいい。'
+   : 'スコアは確率ではなく<b>台帳の変数×固定ルールの積算</b>（内訳を常に表示）。衝突は「ダメ」でなく<b>面談で確かめることのリスト</b>。あえて厳しい環境に置く育成もある——押し切る判断は下のオーバーライドで人に残しています。';
+}
+function renderAll(){ drawMap(); renderPanel(); refreshDetail(); }
+function addVar(v){ if(vars[v])return; if(Object.keys(P).every(k=>P[k].base===HOME[k])){ document.getElementById('anote').innerHTML='<b>まず、コマを動かしてください。</b>手帳のカードは、配置案に対して効きます。'; return; } vars[v]=true; ovCount++; var e=document.getElementById('chip-'+v); e.classList.add('used'); e.textContent='✓ 登録済み：'+(v==='soto'?'三上：外回り志向':'唐沢：褒めて育てるが効く'); if(v==='soto'){P.mikami.tags.push(['外回り志向','6/20雑談・新']);}else{P.karasawa.tags.push(['褒めて育てるが効く','戸倉談・新']);} renderAll(); }
+function doOverride(){ var t=document.getElementById('ovtext').value.trim(); if(!t)return; if(!lastMoved){ document.getElementById('ovlog').style.color='#8a6116'; document.getElementById('ovlog').textContent='まず、コマを動かしてください——オーバーライドは配置案に対して記録します。'; return; } document.getElementById('ovlog').style.color='#2e6b38'; ovCount++; var who=P[lastMoved].nm+'さん'; P[lastMoved].tags.push([t,'オーバーライド・7/10・新']); document.getElementById('ovlog').textContent='✓ 変数台帳に記録（'+who+'・「'+t+'」・出典：オーバーライド 7/10）。累計 '+ovCount+'個。'; document.getElementById('ovtext').value=''; renderAll(); }
+function resetSim(){ LOCKHASH=false; Object.keys(P).forEach(k=>{P[k].base=HOME[k]; P[k].tags=ORIGTAGS[k].map(t=>t.slice());}); vars={soto:false,home:false}; ovCount=24; lastMoved=null;
+  var c1=document.getElementById('chip-soto'); c1.classList.remove('used'); c1.textContent='📝 三上：外回り志向（6/20雑談）';
+  var c2=document.getElementById('chip-home'); c2.classList.remove('used'); c2.textContent='📝 唐沢：褒めて育てるが効く（戸倉談）';
+  document.getElementById('ovlog').textContent=''; document.getElementById('ovtext').value='';
+  renderAll(); }
+// ====== 台帳 ======
+function renderD(){
+  var h='<tr><th style="width:110px;">人</th><th style="width:150px;">拠点・住まい・通勤</th><th>小暮さんのタグ（出典つき）</th><th style="width:170px;">事情・制約</th></tr>';
+  var extra={mikami:'—',miyashita:'来年、拠点経験をさせたい（社長）',sakaki:'担当31社・限界申告2回',minagawa:'保育園送りで8:45以降着（3/8面談）',ohira:'持ち家・立川'};
+  Object.keys(P).forEach(k=>{ var p=P[k];
+    var tg=p.tags.map(t=>'<span class="tag '+(t[1].indexOf('新')>=0?'new':'p')+'">'+t[0]+'<span class="gl">（'+t[1]+'）</span></span>').join('');
+    var c=p.fixed?null:commuteOf(k,p.base);
+    h+='<tr><td><b>'+p.nm+'</b><div class="gl">'+p.rl+(p.fixed?'・固定':'')+'</div></td><td>'+BASES[p.base].nm+(p.htxt?'<div class="gl">🏠'+p.htxt+(c?'／'+c.d:'')+'</div>':'')+'</td><td>'+tg+'</td><td>'+(extra[k]||'—')+'</td></tr>';
+  });
+  document.getElementById('dtable').innerHTML=h;
+}
+var LOCKHASH=false;
+function go(v){
+  document.querySelectorAll('.view').forEach(x=>x.classList.remove('show'));
+  document.getElementById('nav-m').classList.toggle('on',v==='map');
+  document.getElementById('nav-d').classList.toggle('on',v==='daicho');
+  document.getElementById('v-'+(v==='map'?'map':'daicho')).classList.add('show');
+  if(v==='daicho') renderD(); else renderAll();
+  if(!LOCKHASH && location.hash!=='#'+v) history.replaceState(null,'','#'+v);
+  window.scrollTo(0,0);
+}
+var h=(location.hash||'#map').replace('#','');
+if(h==='daicho'){ go('daicho'); }
+else if(h==='move'){ LOCKHASH=true; P.mikami.base='toda'; lastMoved='mikami'; go('map'); showPerson('mikami'); }
+else if(h==='var'){ LOCKHASH=true; P.mikami.base='toda'; lastMoved='mikami'; vars.soto=true; P.mikami.tags.push(['外回り志向','6/20雑談・新']); vars.home=true; P.karasawa.tags.push(['褒めて育てるが効く','戸倉談・新']); go('map');
+  ['soto','home'].forEach(v=>{ var e=document.getElementById('chip-'+v); e.classList.add('used'); e.textContent='✓ 登録済み：'+(v==='soto'?'三上：外回り志向':'唐沢：褒めて育てるが効く'); }); ovCount=26; renderAll(); }
+else if(h==='ai'){ go('map'); aiSuggest(); }
+else { go('map'); }
+</script>
+</body>
+</html>

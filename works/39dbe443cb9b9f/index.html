@@ -1,0 +1,278 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>一次対応の3点セット ── みなと通信（表示例）</title>
+<style>
+  :root{
+    --bg:#eef1f4; --panel:#ffffff; --ink:#1f2933; --sub:#6b7684; --line:#d4dae1;
+    --head:#1e2a38; --headink:#e8edf2; --stripe:#2f6f8f;
+    --accent:#17627a; --accentln:#0f4658;
+    --rule:#5b4a9e; --rulebg:#ece9f7; --ruleln:#c9c0e6;
+    --ai:#b26a00; --aibg:#fbf0dc; --ailn:#e6cd9b;
+    --warn:#c0392b; --warnbg:#fbe6e0; --warnln:#e3b3ac;
+    --ok:#3a7d4f; --okbg:#e7f3ec; --okln:#bcdcc7;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{font-family:-apple-system,"Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,sans-serif;
+    background:var(--bg); color:var(--ink); line-height:1.7}
+  .wrap{max-width:1040px; margin:0 auto; padding:0 0 60px}
+
+  .topbar{background:var(--head); color:var(--headink); padding:14px 22px; border-top:5px solid var(--stripe)}
+  .topbar .app{font-size:12.5px; font-weight:800; letter-spacing:.04em}
+  .topbar .sub{font-size:11px; color:#9fb0c0; margin-top:2px}
+
+  .lead{padding:24px 22px 4px}
+  .lead h1{font-size:20px; margin:0 0 10px; line-height:1.5}
+  .lead .story{font-size:13.5px; color:var(--sub); background:var(--panel); border:1px solid var(--line);
+    border-left:4px solid var(--stripe); border-radius:6px; padding:12px 15px; margin:0 0 18px}
+
+  .panel{background:var(--panel); border:1px solid var(--line); border-radius:6px; margin:0 22px 18px; overflow:hidden}
+  .panel h2{font-size:12.5px; margin:0; padding:10px 15px; background:#f4f6f8; border-bottom:1px solid var(--line);
+    letter-spacing:.02em; color:#3a4552; display:flex; justify-content:space-between; align-items:center}
+  .panel h2 .hint{font-size:10.5px; font-weight:600; color:var(--sub)}
+
+  .formgrid{display:grid; grid-template-columns:1fr 1fr; gap:0}
+  .fitem{padding:10px 15px; border-bottom:1px solid #eef1f4; border-right:1px solid #eef1f4}
+  .fitem:nth-child(2n){border-right:none}
+  .fitem .flabel{font-size:10.5px; color:var(--sub); font-weight:700; margin-bottom:4px; display:flex; align-items:center}
+  .fitem .fval{font-size:13px; font-weight:600; background:#f9fafb; border:1px solid var(--line); border-radius:4px; padding:6px 9px}
+  .fitem.wide{grid-column:1 / -1; border-right:none}
+  .finput{width:100%; font:inherit; font-size:13px; font-weight:700; padding:6px 9px; border:1px solid var(--line); border-radius:4px; background:#fff}
+  .finput[readonly]{background:#f9fafb; color:#3a4552}
+  .autobadge{display:none; font-size:9.5px; background:var(--rulebg); color:var(--rule); border:1px solid var(--ruleln); border-radius:10px; padding:1px 7px; margin-left:6px; font-weight:800}
+  .autobadge.show{display:inline-block}
+  .memoinput{width:100%; font:inherit; font-size:13px; padding:8px 10px; border:1px solid var(--line); border-radius:4px; resize:vertical; min-height:44px}
+  .phrasebar{display:flex; flex-wrap:wrap; gap:6px; margin-bottom:6px}
+  .chipgroup{display:flex; flex-wrap:wrap; gap:6px}
+  .chip{appearance:none; font:inherit; font-size:11.5px; padding:6px 11px; border-radius:20px; border:1px solid var(--line);
+    background:#fff; cursor:pointer; color:var(--sub)}
+  .chip.sel{background:var(--accent); border-color:var(--accentln); color:#fff; font-weight:700}
+  .chip.phrase{background:#f4f6f8}
+
+  .actions{padding:12px 15px; border-top:1px solid var(--line)}
+  .btn{appearance:none; cursor:pointer; font:inherit; font-size:13px; font-weight:700; padding:10px 18px;
+    border-radius:6px; border:1px solid var(--accentln); background:var(--accent); color:#fff}
+  .btn:hover{background:var(--accentln)}
+
+  .out{display:none}
+  .out.show{display:block}
+  .badge{display:inline-block; font-size:10px; font-weight:800; padding:2px 8px; border-radius:20px; border:1px solid; margin-left:8px}
+  .badge.rule{color:var(--rule); background:var(--rulebg); border-color:var(--ruleln)}
+  .badge.ai{color:var(--ai); background:var(--aibg); border-color:var(--ailn)}
+
+  .outsec{padding:13px 15px; border-top:1px solid var(--line)}
+  .outsec h3{font-size:11.5px; margin:0 0 8px; color:#3a4552; letter-spacing:.02em; display:flex; align-items:center}
+  .doc{background:#fbfbfb; border:1px solid var(--line); border-radius:6px; padding:12px 14px; font-size:12.5px; white-space:pre-wrap; margin-bottom:10px}
+  .facts{background:#fbfbfb; border:1px solid var(--line); border-radius:6px; padding:12px 14px; font-size:12.5px}
+  .facts .frow{display:flex; padding:3px 0; border-bottom:1px solid #f0f0f0}
+  .facts .frow:last-child{border-bottom:none}
+  .facts .frow .k{width:110px; color:var(--sub); font-weight:700; flex-shrink:0}
+  .rulebox{background:var(--rulebg); border:1px solid var(--ruleln); border-radius:6px; padding:9px 12px; font-size:12px; color:#3d3470; margin-bottom:10px}
+  .rulebox b{color:var(--rule)}
+
+  table.ledger{width:100%; border-collapse:collapse; font-size:11.5px}
+  table.ledger th{background:#f9fafb; color:var(--sub); font-weight:700; font-size:10px; text-align:left; padding:6px 8px; border:1px solid var(--line)}
+  table.ledger td{padding:6px 8px; border:1px solid var(--line); vertical-align:top}
+
+  .note{background:#fff3de; border:1px solid #ecd6a4; border-radius:6px; padding:12px 15px; margin:0 22px 18px;
+    font-size:12px; color:#5b4212; line-height:1.85}
+  .note b{color:#8a4c00}
+  .foot{font-size:11px; color:var(--sub); padding:0 22px; line-height:1.9}
+  .foot .cap{display:inline-block; background:#fff; border:1px solid var(--line); border-radius:5px; padding:1px 7px; margin:0 5px 5px 0}
+</style>
+
+<div style="position:sticky;top:0;z-index:99999;display:flex;gap:14px;align-items:center;justify-content:space-between;flex-wrap:wrap;padding:9px 14px;background:#12121F;color:#fff;font:600 13px/1.6 'Noto Sans JP','Hiragino Sans',sans-serif;">
+<a href="/#cases" style="display:inline-flex;align-items:center;gap:8px;padding:9px 18px;border-radius:999px;background:#fff;color:#12121F;text-decoration:none;font-weight:700;white-space:nowrap;">← アプリ一覧へ戻る</a>
+<span style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;"><span style="opacity:.7;font-weight:500;">架空の会社のデータで動きます。実際のデータは使っていません。</span><a href="https://zenn.dev/hiroshift/articles/39dbe443cb9b9f" target="_blank" rel="noopener" style="color:#fff;text-decoration:none;border-bottom:1px solid rgba(255,255,255,.4);white-space:nowrap;">設計の解説を読む</a></span>
+</div>
+<div class="wrap">
+
+  <div class="topbar">
+    <div class="app">みなと通信　サポート窓口・一次対応支援（表示例）</div>
+    <div class="sub">対象データ：入電中にその場で記入する受付フォーム（電話応対で本来必ず把握する情報）／OFFLINE・架空DEMO・端末内で完結</div>
+  </div>
+
+  <div class="lead">
+    <h1>電話を切ったあと、3つの文書を一から書いていた。</h1>
+    <div class="story">サポート窓口の沢渡さん（架空・在籍10年）は、入電を受けるたびに、①客への一次返信文②技術部門への調査依頼③台帳記入、の3つを電話を切ってから手で書いています。この道具がやるのは、<b>電話応対中にその場で受付フォームへ記入した内容を、そのまま3つの文書に組み立てる</b>ことだけです。緊急度などの分類は毎回同じ基準で機械的に決め、返信の送信・訪問日程の確約は人が行います。</div>
+  </div>
+
+  <div class="panel">
+    <h2>受付フォーム（入電中に、その場で記入）<span class="hint">片手・音声優先＝タップと契約IDだけで埋まる設計</span></h2>
+    <div class="formgrid">
+      <div class="fitem"><div class="flabel">受付時刻</div><div class="fval">10:02（自動）</div></div>
+      <div class="fitem">
+        <div class="flabel">契約ID（打つと契約者名・プランが自動で埋まる）</div>
+        <input class="finput" id="cid" value="S-2091" oninput="lookupCustomer()" inputmode="text">
+      </div>
+      <div class="fitem">
+        <div class="flabel">契約者名<span class="autobadge show" id="nameBadge">自動反映</span></div>
+        <input class="finput" id="cname" value="中●様" readonly>
+      </div>
+      <div class="fitem">
+        <div class="flabel">サービス種別<span class="autobadge show" id="planBadge">自動反映</span></div>
+        <input class="finput" id="cplan" value="インターネット（戸建てプラン）" readonly>
+      </div>
+      <div class="fitem wide">
+        <div class="flabel">症状メモ（よく使う言い回しをタップして貼り付け・足りない分だけ入力）</div>
+        <div class="phrasebar">
+          <button type="button" class="chip phrase" data-phrase="夜になると遅い">夜になると遅い</button>
+          <button type="button" class="chip phrase" data-phrase="今日は朝から全く繋がらない">今日は朝から全く繋がらない</button>
+          <button type="button" class="chip phrase" data-phrase="工事のあとから調子が悪い">工事のあとから調子が悪い</button>
+          <button type="button" class="chip phrase" data-phrase="ランプが赤く点滅している">ランプが赤く点滅している</button>
+        </div>
+        <textarea class="memoinput" id="memo">「夜になると遅かったが、今日は朝から全く繋がらない」</textarea>
+      </div>
+      <div class="fitem wide">
+        <div class="flabel">発生範囲</div>
+        <div class="chipgroup" data-group="range">
+          <button type="button" class="chip sel">全回線・不通</button>
+          <button type="button" class="chip">一部屋のみ</button>
+          <button type="button" class="chip">特定機器のみ</button>
+          <button type="button" class="chip">断続的</button>
+        </div>
+      </div>
+      <div class="fitem wide">
+        <div class="flabel">実施済みの対応</div>
+        <div class="chipgroup" data-group="done">
+          <button type="button" class="chip sel">未実施</button>
+          <button type="button" class="chip">再起動案内済み</button>
+          <button type="button" class="chip">リモート確認済み</button>
+        </div>
+      </div>
+      <div class="fitem wide">
+        <div class="flabel">訪問希望</div>
+        <div class="chipgroup" data-group="visit">
+          <button type="button" class="chip sel">至急・今日中</button>
+          <button type="button" class="chip">数日中でよい</button>
+          <button type="button" class="chip">訪問不要・相談のみ</button>
+        </div>
+      </div>
+      <div class="fitem wide">
+        <div class="flabel">ケース種別</div>
+        <div class="chipgroup" data-group="case">
+          <button type="button" class="chip sel">断続切断／完全不通</button>
+          <button type="button" class="chip">速度低下</button>
+          <button type="button" class="chip">請求関連</button>
+          <button type="button" class="chip">不明（未分類）</button>
+        </div>
+      </div>
+    </div>
+    <div class="actions">
+      <button class="btn" id="goBtn">一次対応を作成する</button>
+    </div>
+  </div>
+
+  <div class="out" id="out">
+
+    <div class="panel">
+      <h2>緊急度の判定<span class="badge rule">ルールで自動確定</span></h2>
+      <div class="outsec">
+        <div class="rulebox"><b>緊急度＝高（2時間以内に一次回答）</b> — 症状メモ・訪問希望に「今日」「至急」「全く」が含まれるため、機械的なルールでこの区分に確定しています（LLMには判断させません）。</div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>①顧客への一次返信<span class="badge ai">AIが生成</span></h2>
+      <div class="outsec">
+        <div class="doc">中●様
+
+ご連絡ありがとうございます。「今日は朝から全く繋がらない」とのこと、
+ご不便をおかけし申し訳ございません。
+
+担当部門にて状況を確認いたします。
+
+恐れ入りますが、以下をご確認ください。
+・現在、ルーターの電源ランプは点灯していますか（はい／いいえ）
+
+一次回答は2時間以内にご連絡いたします。</div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>②技術部門への調査依頼<span class="badge ai">AIが生成</span></h2>
+      <div class="outsec">
+        <div class="facts">
+          <div class="frow"><span class="k">契約ID</span><span>S-2091</span></div>
+          <div class="frow"><span class="k">サービス種別</span><span>インターネット（戸建てプラン）</span></div>
+          <div class="frow"><span class="k">発生範囲</span><span>全回線・不通</span></div>
+          <div class="frow"><span class="k">症状</span><span>夜間の速度低下から、本日は完全不通に悪化</span></div>
+          <div class="frow"><span class="k">実施済みの対応</span><span>未実施</span></div>
+        </div>
+        <div class="doc">依頼事項：
+1. 回線側の障害情報の有無を最優先で確認
+2. リモートでの再起動要否を判断
+3. 一次見解の返答期限：2時間以内</div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>③対応記録台帳・1行<span class="badge rule">分類はルール・値の転記はAI</span></h2>
+      <div class="outsec">
+        <div style="overflow-x:auto">
+        <table class="ledger">
+          <tr><th>受付日時</th><th>契約ID</th><th>契約者名</th><th>ケース種別</th><th>緊急度</th><th>発生範囲</th><th>実施済み対応</th><th>一次回答期限</th><th>ステータス</th><th>担当</th></tr>
+          <tr><td>10:02</td><td>S-2091</td><td>中●様</td><td>完全不通</td><td>高（2時間以内）</td><td>全回線</td><td>未実施</td><td>2時間以内</td><td>受付</td><td>沢渡</td></tr>
+        </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="note">
+    ※この画面は、架空の入電内容に対する<b>表示例</b>です（あらかじめ用意したもので、その場のライブ判定ではありません）。この道具は<b>返信を送信しません・訪問日程を確定しません</b>。緊急度・案件種別といった分類はテンプレートのルールで毎回同じ基準で機械的に確定し、LLMには文章の組み立てだけをさせています。返信の送信・訪問日程の確約は、人が行います。契約者情報を含むため、生の個人情報を外部の汎用AIサービスへそのまま投げない前提（ローカルLLM、または学習に使わない契約のプライベートAPI）で設計しています。
+  </div>
+
+  <div class="foot">
+    <span class="cap">架空の会社・データです</span><span class="cap">送信・日程確定はしません（3点セットを作るだけです）</span><span class="cap">端末内で完結します</span>
+  </div>
+
+</div>
+
+<script>
+  // 契約IDを打つだけで契約者名・プランを既存の顧客マスタから自動反映（新規入力ではなく既存データの参照）
+  var CUSTOMERS = {
+    "S-2091": {name:"中●様", plan:"インターネット（戸建てプラン）"},
+    "S-1187": {name:"森●様", plan:"インターネット（集合住宅プラン）"},
+    "S-3350": {name:"平●様", plan:"未契約（新規のお問い合わせ）"}
+  };
+  function lookupCustomer(){
+    var id = document.getElementById("cid").value.trim().toUpperCase();
+    var hit = CUSTOMERS[id];
+    var nameEl = document.getElementById("cname"), planEl = document.getElementById("cplan");
+    var nameBadge = document.getElementById("nameBadge"), planBadge = document.getElementById("planBadge");
+    if(hit){
+      nameEl.value = hit.name; planEl.value = hit.plan;
+      nameBadge.classList.add("show"); planBadge.classList.add("show");
+    } else {
+      nameEl.value = ""; planEl.value = "";
+      nameBadge.classList.remove("show"); planBadge.classList.remove("show");
+    }
+  }
+
+  // チップは1グループ1タップで単一選択（片手・音声優先で操作できるように）
+  document.querySelectorAll(".chipgroup").forEach(function(g){
+    g.addEventListener("click", function(e){
+      var c = e.target.closest(".chip"); if(!c) return;
+      g.querySelectorAll(".chip").forEach(function(x){ x.classList.remove("sel"); });
+      c.classList.add("sel");
+    });
+  });
+
+  // よく使う言い回しをタップで症状メモへ追記（打鍵を減らす）
+  document.querySelectorAll(".phrasebar .chip.phrase").forEach(function(c){
+    c.addEventListener("click", function(){
+      var ta = document.getElementById("memo");
+      var p = c.getAttribute("data-phrase");
+      ta.value = ta.value ? (ta.value.replace(/」$/, "") + "。" + p + "」") : ("「" + p + "」");
+    });
+  });
+
+  document.getElementById("goBtn").addEventListener("click", function(){
+    document.getElementById("out").classList.add("show");
+  });
+  if(location.hash === "#go"){
+    document.getElementById("out").classList.add("show");
+  }
+</script>

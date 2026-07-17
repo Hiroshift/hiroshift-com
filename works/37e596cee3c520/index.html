@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta name="robots" content="noindex">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>見積レンジ｜過去実績から「似た案件」をたぐる</title>
+<style>
+  :root{
+    --ink:#2b2b2b; --sub:#8a8a8a; --line:#e7e7e3; --bg:#fbfbf9;
+    --accent:#3a4a63; --warn:#9a6a3a; --panel:#ffffff;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:-apple-system,"Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,sans-serif;
+    line-height:1.7; -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:980px; margin:0 auto; padding:56px 28px 80px}
+  header h1{font-size:21px; font-weight:600; letter-spacing:.02em; margin:0 0 6px}
+  header p{color:var(--sub); font-size:13.5px; margin:0}
+  .hr{height:1px; background:var(--line); margin:28px 0}
+  .grid{display:grid; grid-template-columns:1fr; gap:26px}
+  @media(min-width:760px){ .panels{display:grid; grid-template-columns:1fr 1fr; gap:22px} }
+  .card{background:var(--panel); border:1px solid var(--line); border-radius:3px; padding:22px 22px}
+  .form-row{display:flex; flex-wrap:wrap; gap:18px 26px; align-items:flex-end}
+  .field{display:flex; flex-direction:column; gap:6px}
+  .field label{font-size:12px; color:var(--sub); letter-spacing:.03em}
+  select,input[type=number]{
+    border:1px solid var(--line); background:#fff; border-radius:2px;
+    padding:8px 10px; font-size:14px; color:var(--ink); min-width:96px;
+  }
+  .procs{display:flex; flex-wrap:wrap; gap:6px 14px; max-width:420px}
+  .procs label{font-size:13px; color:var(--ink); display:flex; align-items:center; gap:5px}
+  .btn{
+    border:1px solid var(--accent); background:var(--accent); color:#fff;
+    padding:9px 22px; border-radius:2px; font-size:14px; cursor:pointer; letter-spacing:.04em;
+  }
+  .btn:hover{opacity:.9}
+  h2{font-size:14px; font-weight:600; margin:0 0 4px; letter-spacing:.03em}
+  .h2sub{font-size:12px; color:var(--sub); margin:0 0 16px}
+  .range{font-size:26px; font-weight:600; letter-spacing:.01em; margin:4px 0 2px}
+  .range .yen{font-size:15px; color:var(--sub); font-weight:400}
+  .note{font-size:12px; color:var(--sub); margin-top:10px; border-top:1px dashed var(--line); padding-top:10px}
+  .item{border-top:1px solid var(--line); padding:11px 0; font-size:13px}
+  .item:first-of-type{border-top:none}
+  .item .top{display:flex; justify-content:space-between; gap:10px}
+  .item .price{font-weight:600}
+  .item .why{color:var(--sub); font-size:12px; margin-top:3px}
+  .tag{font-size:10.5px; border:1px solid var(--line); border-radius:2px; padding:1px 6px; color:var(--sub); margin-left:6px}
+  .tag.warn{color:var(--warn); border-color:#e3d4bf}
+  .empty{color:var(--warn); font-size:13.5px}
+  .vlookcard{background:#fcfbf8}
+  .summary{font-size:13.5px; color:var(--ink); background:#fff; border:1px solid var(--line); border-left:3px solid var(--accent); border-radius:2px; padding:14px 16px; margin-top:24px}
+  .foot{color:var(--sub); font-size:12px; margin-top:30px; text-align:center}
+</style>
+</head>
+<body>
+<div style="position:sticky;top:0;z-index:99999;display:flex;gap:14px;align-items:center;justify-content:space-between;flex-wrap:wrap;padding:9px 14px;background:#12121F;color:#fff;font:600 13px/1.6 'Noto Sans JP','Hiragino Sans',sans-serif;">
+<a href="/#cases" style="display:inline-flex;align-items:center;gap:8px;padding:9px 18px;border-radius:999px;background:#fff;color:#12121F;text-decoration:none;font-weight:700;white-space:nowrap;">← アプリ一覧へ戻る</a>
+<span style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;"><span style="opacity:.7;font-weight:500;">架空の会社のデータで動きます。実際のデータは使っていません。</span><a href="https://zenn.dev/hiroshift/articles/37e596cee3c520" target="_blank" rel="noopener" style="color:#fff;text-decoration:none;border-bottom:1px solid rgba(255,255,255,.4);white-space:nowrap;">設計の解説を読む</a></span>
+</div>
+<div class="wrap">
+  <header>
+    <h1>見積レンジ ── 過去実績から「似た案件」をたぐる</h1>
+    <p>金属加工の単価は、図面が完全一致することはほぼ無い。だから「完全一致検索」では幅が出ない。似ている度でたぐる。（架空の合成データで動くデモ）</p>
+  </header>
+
+  <div class="hr"></div>
+
+  <div class="card">
+    <div class="form-row">
+      <div class="field">
+        <label>材質</label>
+        <select id="zai"></select>
+      </div>
+      <div class="field">
+        <label>板厚 (mm)</label>
+        <input type="number" id="ita" step="0.1" min="0.5" max="9" value="2.0">
+      </div>
+      <div class="field">
+        <label>ロット (個)</label>
+        <input type="number" id="lot" step="1" min="1" value="50">
+      </div>
+      <div class="field" style="flex:1; min-width:260px">
+        <label>工程（複数可）</label>
+        <div class="procs" id="procs"></div>
+      </div>
+      <button class="btn" id="go">レンジを出す</button>
+    </div>
+  </div>
+
+  <div style="height:24px"></div>
+
+  <div class="panels">
+    <div class="card">
+      <h2>AIの類似度推論</h2>
+      <p class="h2sub">完全一致でなく「似ている度」で近接案件を重み付けして拾う</p>
+      <div id="aiRange" class="range">—</div>
+      <div id="aiItems"></div>
+      <div class="note">AIは値段を決めません。似た案件を幅で並べるだけ。<br>最後の一発（いくらで出すか）は人が決めます。<span class="tag warn">安売り</span>は重みを割り引いています。</div>
+    </div>
+
+    <div class="card vlookcard">
+      <h2>素直な自動化（属性が完全一致＝VLOOKUP相当）</h2>
+      <p class="h2sub">材質・板厚・ロット・工程がぴったり一致する行だけ返す</p>
+      <div id="vlRange" class="range">—</div>
+      <div id="vlItems"></div>
+      <div class="note">完全一致は「同じ図面」前提。現場の引き合いはいつも少しずつ違うので、ほとんど当たらない。当たっても1件＝その1件が安売りでも気づかず拾う。</div>
+    </div>
+  </div>
+
+  <div class="summary" id="summary"></div>
+
+  <p class="foot">架空・合成データのデモ。実在の企業・取引とは無関係です。<br>「『あの人しかできない』を、ほどく。」Build30</p>
+</div>
+
+<script>
+// ===== 架空・合成データ（実在の取引とは無関係。本人が後で差し替え可） =====
+const MATERIALS = ["SS400","SPCC","SUS304","SUS430","AL5052","AL5083"];
+const FAMILY = {SS400:"鉄",SPCC:"鉄",SUS304:"ステン",SUS430:"ステン",AL5052:"アルミ",AL5083:"アルミ"};
+const PROCS = ["レーザー","タレパン","ベンダー曲げ","溶接","バリ取り","表面処理"];
+
+// region: 単価は材質×板厚×工程数×ロットでざっくり妥当に、ばらつきと安売りを混ぜた架空値
+const DATA = [
+  {zai:"SS400", ita:1.6, procs:["レーザー","ベンダー曲げ"], lot:50, tanka:480, kbn:"通常"},
+  {zai:"SS400", ita:2.3, procs:["レーザー","ベンダー曲げ","バリ取り"], lot:30, tanka:760, kbn:"通常"},
+  {zai:"SS400", ita:3.2, procs:["レーザー","溶接"], lot:20, tanka:1180, kbn:"通常"},
+  {zai:"SS400", ita:2.3, procs:["レーザー","ベンダー曲げ"], lot:100, tanka:430, kbn:"通常"},
+  {zai:"SS400", ita:2.0, procs:["タレパン","ベンダー曲げ"], lot:60, tanka:360, kbn:"安売り"},
+  {zai:"SS400", ita:4.5, procs:["レーザー","溶接","バリ取り"], lot:10, tanka:2050, kbn:"通常"},
+  {zai:"SPCC", ita:1.0, procs:["タレパン","ベンダー曲げ"], lot:200, tanka:185, kbn:"通常"},
+  {zai:"SPCC", ita:1.6, procs:["レーザー","ベンダー曲げ"], lot:120, tanka:300, kbn:"通常"},
+  {zai:"SPCC", ita:1.6, procs:["タレパン","ベンダー曲げ","バリ取り"], lot:80, tanka:340, kbn:"通常"},
+  {zai:"SPCC", ita:2.0, procs:["レーザー","ベンダー曲げ"], lot:50, tanka:420, kbn:"通常"},
+  {zai:"SPCC", ita:1.2, procs:["タレパン"], lot:300, tanka:120, kbn:"安売り"},
+  {zai:"SUS304", ita:1.5, procs:["レーザー","ベンダー曲げ"], lot:40, tanka:980, kbn:"通常"},
+  {zai:"SUS304", ita:2.0, procs:["レーザー","ベンダー曲げ","バリ取り"], lot:30, tanka:1380, kbn:"通常"},
+  {zai:"SUS304", ita:2.0, procs:["レーザー","溶接","表面処理"], lot:15, tanka:2250, kbn:"通常"},
+  {zai:"SUS304", ita:3.0, procs:["レーザー","溶接"], lot:20, tanka:2480, kbn:"通常"},
+  {zai:"SUS304", ita:1.5, procs:["レーザー","ベンダー曲げ"], lot:120, tanka:760, kbn:"通常"},
+  {zai:"SUS304", ita:2.0, procs:["レーザー","ベンダー曲げ"], lot:25, tanka:1280, kbn:"安売り"},
+  {zai:"SUS430", ita:1.5, procs:["レーザー","ベンダー曲げ"], lot:50, tanka:720, kbn:"通常"},
+  {zai:"SUS430", ita:2.0, procs:["レーザー","ベンダー曲げ","バリ取り"], lot:40, tanka:980, kbn:"通常"},
+  {zai:"SUS430", ita:1.2, procs:["タレパン","ベンダー曲げ"], lot:150, tanka:520, kbn:"通常"},
+  {zai:"AL5052", ita:2.0, procs:["レーザー","ベンダー曲げ"], lot:50, tanka:560, kbn:"通常"},
+  {zai:"AL5052", ita:3.0, procs:["レーザー","ベンダー曲げ","バリ取り"], lot:30, tanka:880, kbn:"通常"},
+  {zai:"AL5052", ita:2.0, procs:["レーザー","溶接"], lot:20, tanka:1320, kbn:"通常"},
+  {zai:"AL5052", ita:1.5, procs:["タレパン","ベンダー曲げ"], lot:100, tanka:430, kbn:"通常"},
+  {zai:"AL5052", ita:2.0, procs:["レーザー","ベンダー曲げ"], lot:80, tanka:470, kbn:"安売り"},
+  {zai:"AL5083", ita:3.0, procs:["レーザー","溶接","バリ取り"], lot:15, tanka:1980, kbn:"通常"},
+  {zai:"AL5083", ita:4.0, procs:["レーザー","溶接"], lot:12, tanka:2380, kbn:"通常"},
+  {zai:"AL5083", ita:2.5, procs:["レーザー","ベンダー曲げ"], lot:40, tanka:980, kbn:"通常"},
+  {zai:"SS400", ita:2.0, procs:["レーザー","ベンダー曲げ"], lot:40, tanka:560, kbn:"通常"},
+  {zai:"SS400", ita:2.0, procs:["レーザー","ベンダー曲げ","表面処理"], lot:35, tanka:980, kbn:"通常"},
+  {zai:"SUS304", ita:2.0, procs:["レーザー","ベンダー曲げ"], lot:50, tanka:1180, kbn:"通常"},
+  {zai:"AL5052", ita:2.0, procs:["レーザー","ベンダー曲げ"], lot:50, tanka:540, kbn:"通常"},
+];
+
+// ===== UI初期化 =====
+const $ = s => document.querySelector(s);
+const zaiSel = $("#zai"), procsBox = $("#procs");
+MATERIALS.forEach(m=>{ const o=document.createElement("option"); o.value=m; o.textContent=`${m}（${FAMILY[m]}）`; zaiSel.appendChild(o); });
+zaiSel.value = "SUS304";
+PROCS.forEach(p=>{
+  const lab=document.createElement("label");
+  const cb=document.createElement("input"); cb.type="checkbox"; cb.value=p;
+  if(p==="レーザー"||p==="ベンダー曲げ") cb.checked=true;
+  lab.appendChild(cb); lab.appendChild(document.createTextNode(p)); procsBox.appendChild(lab);
+});
+
+function getInput(){
+  const procs = [...procsBox.querySelectorAll("input:checked")].map(c=>c.value);
+  return { zai: zaiSel.value, ita: parseFloat($("#ita").value), lot: parseInt($("#lot").value,10), procs };
+}
+function jaccard(a,b){ const A=new Set(a),B=new Set(b); const inter=[...A].filter(x=>B.has(x)).length; const uni=new Set([...a,...b]).size; return uni?inter/uni:0; }
+
+// 類似度スコア（特徴量ベース。本番ではLLM/embeddingでより意味的にできる）
+function score(rec, q){
+  let s=0;
+  if(rec.zai===q.zai) s+=40; else if(FAMILY[rec.zai]===FAMILY[q.zai]) s+=22;          // 材質：一致/同系統
+  s += Math.max(0, 22 - Math.abs(rec.ita-q.ita)*9);                                    // 板厚の近さ
+  s += jaccard(rec.procs,q.procs)*26;                                                  // 工程の重なり
+  const r = Math.min(rec.lot,q.lot)/Math.max(rec.lot,q.lot); s += r*12;                // ロットの近さ
+  return s;
+}
+function reason(rec,q){
+  const r=[];
+  if(rec.zai===q.zai) r.push("材質一致"); else if(FAMILY[rec.zai]===FAMILY[q.zai]) r.push(`同系統(${FAMILY[q.zai]})`);
+  const d=Math.abs(rec.ita-q.ita); if(d<=0.5) r.push("板厚ほぼ同じ"); else if(d<=1.0) r.push("板厚近い");
+  const shared=rec.procs.filter(p=>q.procs.includes(p)); if(shared.length) r.push(`工程${shared.length}つ重複`);
+  const r2=Math.min(rec.lot,q.lot)/Math.max(rec.lot,q.lot); if(r2>=0.7) r.push("ロット近い");
+  return r.join("・")||"弱い類似";
+}
+const yen = n => n.toLocaleString("ja-JP");
+
+function render(){
+  const q=getInput();
+  // --- 類似度推論 ---
+  const ranked = DATA.map(rec=>({rec, sc:score(rec,q)})).sort((a,b)=>b.sc-a.sc).slice(0,5);
+  const aiItems=$("#aiItems"); aiItems.innerHTML="";
+  // レンジ＝通常案件の単価から（安売りは割り引き＝バンドに入れず参考表示）
+  const normals = ranked.filter(x=>x.rec.kbn==="通常").map(x=>x.rec.tanka);
+  let lo,hi;
+  if(normals.length){ lo=Math.min(...normals); hi=Math.max(...normals); }
+  else { const all=ranked.map(x=>x.rec.tanka); lo=Math.min(...all); hi=Math.max(...all); }
+  $("#aiRange").innerHTML = `¥${yen(lo)} 〜 ¥${yen(hi)} <span class="yen">/個（目安レンジ）</span>`;
+  ranked.forEach(({rec,sc})=>{
+    const warn = rec.kbn==="安売り";
+    const el=document.createElement("div"); el.className="item";
+    el.innerHTML = `<div class="top"><span>${rec.zai}・t${rec.ita}・${rec.procs.join("/")}・${rec.lot}個`
+      + `${warn?'<span class="tag warn">安売り＝割引</span>':''}</span>`
+      + `<span class="price">¥${yen(rec.tanka)}</span></div>`
+      + `<div class="why">似ている理由：${reason(rec,q)}（類似度 ${Math.round(sc)}）</div>`;
+    aiItems.appendChild(el);
+  });
+
+  // --- VLOOKUP（属性完全一致） ---
+  const exact = DATA.filter(rec=> rec.zai===q.zai && Math.abs(rec.ita-q.ita)<1e-9 && rec.lot===q.lot
+      && rec.procs.length===q.procs.length && rec.procs.every(p=>q.procs.includes(p)));
+  const vlItems=$("#vlItems"); vlItems.innerHTML="";
+  if(exact.length===0){
+    $("#vlRange").innerHTML = `該当 0 件`;
+    vlItems.innerHTML = `<div class="empty">完全一致なし＝レンジが出せない（＝この道具は黙る）。</div>`;
+  } else {
+    const ps=exact.map(r=>r.tanka);
+    $("#vlRange").innerHTML = exact.length===1 ? `¥${yen(ps[0])} <span class="yen">/個（1件のみ）</span>`
+      : `¥${yen(Math.min(...ps))} 〜 ¥${yen(Math.max(...ps))} <span class="yen">/個</span>`;
+    exact.forEach(rec=>{
+      const warn=rec.kbn==="安売り";
+      const el=document.createElement("div"); el.className="item";
+      el.innerHTML=`<div class="top"><span>${rec.zai}・t${rec.ita}・${rec.procs.join("/")}・${rec.lot}個`
+        +`${warn?'<span class="tag warn">安売り</span>':''}</span><span class="price">¥${yen(rec.tanka)}</span></div>`
+        +`${warn?'<div class="why" style="color:var(--warn)">これしか無いと、この安売り単価をそのまま採用してしまう</div>':''}`;
+      vlItems.appendChild(el);
+    });
+  }
+
+  // --- サマリ ---
+  $("#summary").innerHTML = `同じ引き合いでも、<b>完全一致では ${exact.length} 件</b>しか拾えず幅が出ない。`
+    + `<b>類似度なら ${ranked.length} 件</b>を「似ている度」でたぐり、安売りの傷を割り引いて ¥${yen(lo)}〜¥${yen(hi)} のレンジが出る。`
+    + `── 鶴田さんが頭の中でやっていたのは、検索でなく、これ。`;
+}
+$("#go").addEventListener("click", render);
+render(); // 初期表示
+</script>
+</body>
+</html>

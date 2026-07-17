@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta name="robots" content="noindex">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>実行予算の配分｜総額という器に、予備費を残して費目を相互に配る</title>
+<style>
+  :root{
+    --ink:#2b2b2b; --sub:#8a8a8a; --line:#e7e7e3; --bg:#fbfbf9;
+    --accent:#3a4a63; --warn:#9a6a3a; --bad:#9a3a3a; --panel:#ffffff;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:-apple-system,"Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,sans-serif;
+    line-height:1.7; -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:980px; margin:0 auto; padding:56px 28px 80px}
+  header h1{font-size:21px; font-weight:600; letter-spacing:.02em; margin:0 0 6px}
+  header p{color:var(--sub); font-size:13.5px; margin:0}
+  .hr{height:1px; background:var(--line); margin:28px 0}
+  @media(min-width:760px){ .panels{display:grid; grid-template-columns:1fr 1fr; gap:22px} }
+  .card{background:var(--panel); border:1px solid var(--line); border-radius:3px; padding:22px 22px}
+  .form-row{display:flex; flex-wrap:wrap; gap:18px 26px; align-items:flex-end}
+  .field{display:flex; flex-direction:column; gap:6px}
+  .field label{font-size:12px; color:var(--sub); letter-spacing:.03em}
+  select,input[type=number]{
+    border:1px solid var(--line); background:#fff; border-radius:2px;
+    padding:8px 10px; font-size:14px; color:var(--ink); min-width:96px;
+  }
+  .btn{
+    border:1px solid var(--accent); background:var(--accent); color:#fff;
+    padding:9px 22px; border-radius:2px; font-size:14px; cursor:pointer; letter-spacing:.04em;
+  }
+  .btn:hover{opacity:.9}
+  .frame{background:#fff; border:1px solid var(--line); border-left:3px solid var(--accent); border-radius:2px; padding:12px 16px; margin:18px 0 4px; font-size:13px}
+  .frame b{color:var(--accent)}
+  h2{font-size:14px; font-weight:600; margin:0 0 4px; letter-spacing:.03em}
+  .h2sub{font-size:12px; color:var(--sub); margin:0 0 16px; min-height:30px}
+  .planname{font-size:12.5px; color:var(--accent); font-weight:600; margin:18px 0 2px}
+  .planname:first-of-type{margin-top:6px}
+  .src{font-size:11.5px; color:var(--sub); margin:0 0 8px}
+  table{width:100%; border-collapse:collapse; font-size:13px}
+  td{padding:6px 0; border-top:1px solid var(--line)}
+  tr:first-child td{border-top:none}
+  td.num{text-align:right; font-variant-numeric:tabular-nums; white-space:nowrap}
+  td.pct{text-align:right; color:var(--sub); font-size:11.5px; width:52px; font-variant-numeric:tabular-nums}
+  .reserve td{color:var(--accent); font-weight:600}
+  .reserve.broken td{color:var(--bad)}
+  .total td{border-top:2px solid var(--ink); font-weight:600; padding-top:8px}
+  .total.over td{color:var(--bad)}
+  .tag{font-size:10.5px; border:1px solid var(--line); border-radius:2px; padding:1px 6px; color:var(--sub); margin-left:6px; white-space:nowrap}
+  .tag.thin{color:var(--warn); border-color:#e3d4bf}
+  .tag.bad{color:var(--bad); border-color:#e0c2c2}
+  .tag.ok{color:var(--accent); border-color:#cfd6e0}
+  .note{font-size:12px; color:var(--sub); margin-top:12px; border-top:1px dashed var(--line); padding-top:10px}
+  .note.warn{color:var(--warn)}
+  .naivecard{background:#fcfbf8}
+  .summary{font-size:13.5px; color:var(--ink); background:#fff; border:1px solid var(--line); border-left:3px solid var(--accent); border-radius:2px; padding:14px 16px; margin-top:24px}
+  .foot{color:var(--sub); font-size:12px; margin-top:30px; text-align:center}
+</style>
+</head>
+<body>
+<div style="position:sticky;top:0;z-index:99999;display:flex;gap:14px;align-items:center;justify-content:space-between;flex-wrap:wrap;padding:9px 14px;background:#12121F;color:#fff;font:600 13px/1.6 'Noto Sans JP','Hiragino Sans',sans-serif;">
+<a href="/#cases" style="display:inline-flex;align-items:center;gap:8px;padding:9px 18px;border-radius:999px;background:#fff;color:#12121F;text-decoration:none;font-weight:700;white-space:nowrap;">← アプリ一覧へ戻る</a>
+<span style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;"><span style="opacity:.7;font-weight:500;">架空の会社のデータで動きます。実際のデータは使っていません。</span><a href="https://zenn.dev/hiroshift/articles/ac4cadb39c3e51" target="_blank" rel="noopener" style="color:#fff;text-decoration:none;border-bottom:1px solid rgba(255,255,255,.4);white-space:nowrap;">設計の解説を読む</a></span>
+</div>
+<div class="wrap">
+  <header>
+    <h1>実行予算の配分 ── 総額という器に、予備費を残して費目を相互に配る</h1>
+    <p>受注金額が決まった後、その総額を「大工・材料・外注…」へいくらずつ振るか。費目は足し合わせて総額に収まる制約があるので、一つを厚くすれば他を削るしかない。（架空の合成データで動くデモ）</p>
+  </header>
+
+  <div class="hr"></div>
+
+  <div class="card">
+    <div class="form-row">
+      <div class="field">
+        <label>案件タイプ</label>
+        <select id="type"></select>
+      </div>
+      <div class="field">
+        <label>延床 (㎡)</label>
+        <input type="number" id="area" step="1" min="20" max="400" value="100">
+      </div>
+      <div class="field">
+        <label>受注総額 (円)</label>
+        <input type="number" id="order" step="100000" min="1000000" value="30000000">
+      </div>
+      <div class="field">
+        <label>予備費の下限 (%)</label>
+        <input type="number" id="floor" step="0.5" min="0" max="20" value="5">
+      </div>
+      <button class="btn" id="go">配分案を出す</button>
+    </div>
+  </div>
+
+  <div class="frame" id="frame"></div>
+
+  <div class="panels">
+    <div class="card">
+      <h2>制約付き配分（似た完工案件＋総額に収める）</h2>
+      <p class="h2sub">予備費の下限を先に確保し、残りを“似た案件”の比率で配る。合計は必ず総枠ぴったり。複数案＋薄い費目の警告つき。</p>
+      <div id="goodOut"></div>
+      <div class="note">AIは「正解の一案」を出しません。<b style="color:var(--accent)">総額に収まる候補</b>を複数、各案の<b style="color:var(--warn)">薄い費目</b>つきで差し出すだけ。どの案を採るかは人が握ります。</div>
+    </div>
+
+    <div class="card naivecard">
+      <h2>素直な自動化（費目ごとに過去平均%）</h2>
+      <p class="h2sub">全案件の費目別シェアを単純平均して、そのまま総額に掛ける。タイプも予備費の下限も見ない。</p>
+      <div id="naiveOut"></div>
+      <div class="note warn">平均は「この案件が改修だということ」と「過去の予備費の薄さ」まで平均してしまう。土台が薄いまま現場が始まる。</div>
+    </div>
+  </div>
+
+  <div class="summary" id="summary"></div>
+
+  <p class="foot">架空・合成データのデモ。実在の企業・取引とは無関係です。<br>「『あの人しかできない』を、ほどく。」Build30</p>
+</div>
+
+<script>
+// ===== 架空・合成データ（実在の取引とは無関係。本人が後で差し替え可） =====
+// r = [労務(大工), 材料, 外注(設備), 仮設・重機, 現場経費, 予備費] の％（合計≒100）
+const HIMOKU = ["労務(大工)","材料","外注(設備)","仮設・重機","現場経費","予備費"];
+const TYPES  = ["改修","内装","新築","外構"];
+const JOBS = [
+  {name:"本町 全面改修",   type:"改修", area:105, r:[41,27,18,7,5,2]},
+  {name:"山手邸 全面改修", type:"改修", area:95,  r:[40,26,19,7,6,2]},
+  {name:"中村ビル 改修",   type:"改修", area:140, r:[38,25,21,8,6,2]},
+  {name:"緑が丘 部分改修", type:"改修", area:75,  r:[42,23,18,7,7,3]},
+  {name:"さつき 部分改修", type:"改修", area:80,  r:[43,24,17,6,8,2]},
+  {name:"旭ハイツ 内装",   type:"内装", area:60,  r:[34,24,28,5,6,3]},
+  {name:"若葉荘 内装改修", type:"内装", area:55,  r:[33,22,31,5,6,3]},
+  {name:"港南ビル 内装",   type:"内装", area:90,  r:[35,23,29,5,6,2]},
+  {name:"桜台 新築",       type:"新築", area:110, r:[37,30,18,8,5,2]},
+  {name:"東台 新築",       type:"新築", area:125, r:[36,31,17,9,5,2]},
+  {name:"みなと 外構",     type:"外構", area:200, r:[30,33,16,13,6,2]},
+  {name:"西原 外構",       type:"外構", area:160, r:[31,32,17,12,6,2]},
+];
+
+// ===== UI初期化 =====
+const $ = s => document.querySelector(s);
+const typeSel = $("#type");
+TYPES.forEach(t=>{ const o=document.createElement("option"); o.value=t; o.textContent=t; typeSel.appendChild(o); });
+typeSel.value="改修";
+
+const yen = n => "¥"+Math.round(n).toLocaleString("ja-JP");
+
+// 案件タイプ＋延床で「似ている度」（デモは単純な特徴量。本番はLLMで備考・特記まで意味的に）
+function score(job,q){
+  let s=0;
+  if(job.type===q.type) s+=60;                                  // タイプ一致が最重要
+  s += Math.max(0, 24 - Math.abs(job.area-q.area)*0.4);          // 延床の近さ
+  return s;
+}
+
+// 端数を吸収して合計をtargetにぴったり合わせる（最大費目で調整）
+function fitTo(amounts, target){
+  const rounded = amounts.map(a=>Math.round(a/1000)*1000);
+  const diff = target - rounded.reduce((x,y)=>x+y,0);
+  let maxi=0; for(let i=1;i<rounded.length;i++){ if(rounded[i]>rounded[maxi]) maxi=i; }
+  rounded[maxi]+=diff;
+  return rounded;
+}
+
+function himokuRow(label,amount,total,opts){
+  opts = opts||{};
+  const pct=(amount/total*100);
+  const cls = opts.cls||"";
+  const tag = opts.tag||"";
+  return `<tr class="${cls}"><td>${label}${tag}</td>`
+       + `<td class="num">${yen(amount)}</td>`
+       + `<td class="pct">${pct.toFixed(1)}%</td></tr>`;
+}
+
+function render(){
+  const q = { type: typeSel.value, area: parseFloat($("#area").value)||100 };
+  const order = parseInt($("#order").value,10)||30000000;
+  const floorPct = (parseFloat($("#floor").value)||0)/100;
+  const PROFIT = 0.15;                       // 会社が残す利益＋本社経費（固定・デモ）
+  const total = Math.round(order*(1-PROFIT)/1000)*1000;  // 現場に使える実行予算の総枠
+  const reserve = Math.round(total*floorPct/1000)*1000;  // 予備費の下限（先取り）
+  const distributable = total - reserve;                 // 5費目へ配る原資
+
+  $("#frame").innerHTML =
+    `受注総額 <b>${yen(order)}</b> ／ 会社の利益・本社経費 ${(PROFIT*100)}% を除いた `
+    + `<b>実行予算の総枠 ${yen(total)}</b> を、6費目に配ります。`
+    + `<br>この総枠は<b>動かせません</b>。だから一つを厚くすれば、必ずどこかを削ることになります（＝相互依存）。`;
+
+  // 全案件の費目別シェア（構造的なベースライン）＝相対的な薄さの基準にも使う
+  const avg = HIMOKU.map(function(_,i){ return JOBS.reduce(function(s,j){return s+j.r[i];},0)/JOBS.length; });
+  const avgSum = avg.reduce(function(x,y){return x+y;},0);
+  const avgPct = avg.map(function(v){ return v/avgSum*100; });   // 各費目の典型シェア%
+
+  // ---- 制約付き配分：似た完工案件 上位2件をベースに ----
+  const ranked = JOBS.map(j=>({j,s:score(j,q)})).sort((a,b)=>b.s-a.s).slice(0,2);
+  let goodHtml="";
+  const plans=[];
+  ranked.forEach(({j},idx)=>{
+    const base = j.r.slice(0,5);                       // 予備費を除く5費目
+    const sum = base.reduce((x,y)=>x+y,0);
+    const raw = base.map(v=> v/sum*distributable);     // 下限を引いた原資に正規化
+    const amt = fitTo(raw, distributable);             // 合計＝distributableぴったり
+    // 薄い費目＝絶対額の最小でなく「典型シェアに対していちばん薄い」費目（＝相互依存の弱点）
+    let mini=0, minGap=Infinity;
+    for(let i=0;i<5;i++){ const gap = (amt[i]/total*100) - avgPct[i]; if(gap<minGap){ minGap=gap; mini=i; } }
+    plans.push({amt:amt,reserve:reserve,thin:mini});
+    const planLabel = idx===0?"案A":"案B";
+    let rows="";
+    amt.forEach((a,i)=>{
+      const tag = i===mini ? '<span class="tag thin">薄い</span>' : '';
+      rows += himokuRow(HIMOKU[i], a, total, {tag:tag});
+    });
+    rows += himokuRow("予備費", reserve, total, {cls:"reserve", tag:'<span class="tag ok">下限を確保</span>'});
+    rows += `<tr class="total"><td>合計</td><td class="num">${yen(total)}</td><td class="pct">100%</td></tr>`;
+    goodHtml += `<div class="planname">${planLabel}（${j.type}・${j.area}㎡）</div>`
+             + `<p class="src">根拠＝近接完工「${j.name}」の費目バランス</p>`
+             + `<table>${rows}</table>`;
+  });
+  // 案Aと案Bの相互依存コメント（外注の差）
+  if(plans.length===2){
+    const dExt = plans[1].amt[2]-plans[0].amt[2];
+    if(Math.abs(dExt)>=100000){
+      const thicker = dExt>0?"案B":"案A", thinner = dExt>0?"案A":"案B";
+      goodHtml += `<p class="note">${thicker}は外注（設備）を ${yen(Math.abs(dExt))} 厚く取っています。`
+        + `総枠は動かせないので、その分は、ほかの費目を薄くして捻出しています＝<b style="color:var(--accent)">厚くした費目の裏で、必ず別の費目が薄くなる</b>。`
+        + `設備の多い改修なら${thicker}、大工主体なら${thinner}——その判断は、現場を知る人が握ります。</p>`;
+    }
+  }
+  $("#goodOut").innerHTML = goodHtml;
+
+  // ---- 素直な自動化：全案件の費目別シェアを単純平均（タイプ無視・下限無視） ----
+  const naiveAmt = avg.map(p=> p/avgSum*total);        // 総額に正規化（avg/avgSumは上で算出済）
+  const naiveReserve = naiveAmt[5];
+  let nrows="";
+  naiveAmt.forEach((a,i)=>{
+    if(i===5) return;
+    nrows += himokuRow(HIMOKU[i], a, total);
+  });
+  const broken = naiveReserve < reserve;
+  nrows += himokuRow("予備費", naiveReserve, total, {
+    cls: broken?"reserve broken":"reserve",
+    tag: broken?`<span class="tag bad">下限割れ −${yen(reserve-naiveReserve).slice(1)}</span>`:''
+  });
+  nrows += `<tr class="total"><td>合計</td><td class="num">${yen(total)}</td><td class="pct">100%</td></tr>`;
+  $("#naiveOut").innerHTML = `<table>${nrows}</table>`
+    + `<div class="note warn">予備費は過去平均の <b>${(avg[5]/avgSum*100).toFixed(1)}%</b> しか積まれず、設定した下限 ${(floorPct*100)}% を割っています。`
+    + `さらに労務は ${yen(naiveAmt[0])}＝改修の近接案件が示す ${yen(plans[0]?plans[0].amt[0]:0)} 前後より薄く、`
+    + `足りない分は結局この“ゼロに近い予備費”を食う＝<b style="color:var(--bad)">着工前から綱渡り</b>。</div>`;
+
+  // ---- サマリ ----
+  $("#summary").innerHTML =
+    `足して総額に収まるのは、平均でも同じです。でも平均は<b>「この案件が${q.type}だということ」</b>と`
+    + `<b>「過去の予備費の薄さ」</b>まで平均してしまう。`
+    + `宮本さんが頭の中で守っていたのは——総額の器の中で、まず予備費を下限まで積み、案件の質に合わせて費目を<b>相互に削り合って</b>収めること。`
+    + `<b>平均一発では、出てきません。</b>`;
+}
+$("#go").addEventListener("click", render);
+render(); // 初期表示
+</script>
+</body>
+</html>

@@ -1,0 +1,243 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>惰性支払いの棚卸し ── 村岡商店（表示例）</title>
+<style>
+  :root{
+    --bg:#eef0f2; --panel:#ffffff; --ink:#22262b; --sub:#6b7280; --line:#d7dbe1;
+    --head:#2b3440; --headink:#e7ebf0;
+    --strong:#c0392b; --strongbg:#fbe9e7; --strongln:#e3b3ac;
+    --mid:#a9720b; --midbg:#fbf1de; --midln:#e3cd9e;
+    --weak:#3a7d44; --weakbg:#e9f3ea; --weakln:#bcdcc1;
+    --accent:#2f5fa8;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{font-family:-apple-system,"Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,sans-serif;
+    background:var(--bg); color:var(--ink); line-height:1.75}
+  .wrap{max-width:920px; margin:0 auto; padding:0 0 60px}
+
+  .topbar{background:var(--head); color:var(--headink); padding:14px 22px}
+  .topbar .app{font-size:12.5px; font-weight:800; letter-spacing:.04em}
+  .topbar .sub{font-size:11px; color:#a7b0bb; margin-top:2px}
+
+  .lead{padding:26px 22px 6px}
+  .lead h1{font-size:21px; margin:0 0 10px; line-height:1.5}
+  .lead p{font-size:14.5px; color:#3a3f46; margin:0 0 14px}
+  .lead .story{font-size:13.5px; color:var(--sub); background:var(--panel); border:1px solid var(--line);
+    border-radius:6px; padding:12px 15px; margin:0 0 20px}
+
+  .panel{background:var(--panel); border:1px solid var(--line); border-radius:6px; margin:0 22px 20px; overflow:hidden}
+  .panel h2{font-size:13px; margin:0; padding:11px 15px; background:#f4f5f7; border-bottom:1px solid var(--line);
+    letter-spacing:.02em; color:#333}
+
+  table{width:100%; border-collapse:collapse; font-size:12.8px}
+  thead th{background:#f9fafb; color:var(--sub); font-weight:700; font-size:11px; text-align:left;
+    padding:8px 10px; border-bottom:1px solid var(--line); white-space:nowrap}
+  tbody td{padding:9px 10px; border-bottom:1px solid #eef0f3; vertical-align:middle}
+  tbody tr:last-child td{border-bottom:none}
+  .num{color:#8a8f96; font-size:11.5px}
+  .name{font-weight:700}
+  .kind{color:#555}
+  .memo{color:var(--sub); font-size:11.8px}
+  .acct{color:#7a828c; font-size:11.3px; font-family:"SF Mono",Menlo,monospace}
+
+  .actions{padding:14px 15px; display:flex; justify-content:center; border-top:1px solid var(--line)}
+  .runbtn{appearance:none; cursor:pointer; font:inherit; font-size:13.5px; font-weight:800; padding:9px 22px;
+    border-radius:6px; border:1px solid var(--accent); background:var(--accent); color:#fff}
+  .runbtn:disabled{opacity:.5; cursor:default}
+
+  .resultrow{display:none}
+  .resultrow.show{display:table-row; animation:fade .3s ease}
+  @keyframes fade{from{opacity:0}to{opacity:1}}
+
+  .badge{display:inline-block; font-size:11px; font-weight:800; padding:2px 8px; border-radius:20px; border:1px solid}
+  .badge.strong{color:var(--strong); background:var(--strongbg); border-color:var(--strongln)}
+  .badge.mid{color:var(--mid); background:var(--midbg); border-color:var(--midln)}
+  .badge.weak{color:var(--weak); background:var(--weakbg); border-color:var(--weakln)}
+
+  .why{font-size:11.6px; color:var(--sub); margin-top:3px}
+
+  .qbtns{display:flex; gap:6px}
+  .qbtn{appearance:none; cursor:pointer; font:inherit; font-size:11.6px; font-weight:700; padding:5px 10px;
+    border-radius:5px; border:1px solid var(--line); background:#fbfbfc; color:var(--ink); white-space:nowrap}
+  .qbtn:hover{border-color:#aab; }
+  .qbtn:disabled{opacity:.45; cursor:default}
+  .qbtn.pick{border-color:var(--accent); color:var(--accent); background:#eef2fb}
+
+  .rowdone{opacity:.4}
+
+  .checklist-panel{display:none}
+  .checklist-panel.show{display:block; animation:fade .35s ease}
+  .clitem{display:flex; justify-content:space-between; align-items:center; padding:9px 15px; border-bottom:1px solid #eef0f3; font-size:12.8px}
+  .clitem:last-child{border-bottom:none}
+  .clitem .q{color:var(--sub); font-size:11.8px}
+
+  .note{background:#fff8e1; border:1px solid #eaddaa; border-radius:6px; padding:12px 15px; margin:0 22px 22px;
+    font-size:12px; color:#5b4b12; line-height:1.85}
+  .note b{color:#8a5a00}
+
+  .foot{font-size:11px; color:var(--sub); padding:0 22px; line-height:1.9}
+  .foot .cap{display:inline-block; background:#fff; border:1px solid var(--line); border-radius:5px; padding:1px 7px; margin:0 5px 5px 0}
+</style>
+
+<div style="position:sticky;top:0;z-index:99999;display:flex;gap:14px;align-items:center;justify-content:space-between;flex-wrap:wrap;padding:9px 14px;background:#12121F;color:#fff;font:600 13px/1.6 'Noto Sans JP','Hiragino Sans',sans-serif;">
+<a href="/#cases" style="display:inline-flex;align-items:center;gap:8px;padding:9px 18px;border-radius:999px;background:#fff;color:#12121F;text-decoration:none;font-weight:700;white-space:nowrap;">← アプリ一覧へ戻る</a>
+<span style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;"><span style="opacity:.7;font-weight:500;">架空の会社のデータで動きます。実際のデータは使っていません。</span><a href="https://zenn.dev/hiroshift/articles/c7201aeaaa656f" target="_blank" rel="noopener" style="color:#fff;text-decoration:none;border-bottom:1px solid rgba(255,255,255,.4);white-space:nowrap;">設計の解説を読む</a></span>
+</div>
+<div class="wrap">
+
+  <div class="topbar">
+    <div class="app">村岡商店 経理サブシステム ／ 定期支払い棚卸し（表示例）</div>
+    <div class="sub">対象データ：会計ソフトの支払いマスタ・銀行引落明細から抽出（架空）／OFFLINE・架空DEMO</div>
+  </div>
+
+  <div class="lead">
+    <h1>父の代から続く支払いが、うちにもまだ、たくさんあります。</h1>
+    <p>酒類卸「村岡商店」の二代目・村岡さん（架空）は、5年前に先代から会社を継ぎました。毎月の引き落としの中に「これ、何のための支払いだっけ」というものが混じっている。切りたいが、理由も相手との経緯もわからないまま、角が立つのが怖くて毎年更新してきました。</p>
+    <div class="story">金額の大きい順に見ても、家賃や主力の仕入れが一番上に来るだけで、削れるものは見えてきません。本当に見えていないのは、金額でなく——<b>「ずっと続いているのに、最近だれもその効果を語っていない支払い」</b>です。</div>
+  </div>
+
+  <div class="panel">
+    <h2>定期支払い・会費・契約 マスタ（表示例）</h2>
+    <table>
+      <thead>
+        <tr><th>#</th><th>取引・契約</th><th>種別</th><th>頻度</th><th>継続年数</th><th>引落口座／伝票番号</th><th>直近の社内メモ・言及</th></tr>
+      </thead>
+      <tbody id="tbl">
+        <tr><td class="num">1</td><td class="name">田中酒造 歳暮贈答</td><td class="kind">贈答・慣例</td><td class="kind">年1回</td><td class="kind">32年</td><td class="acct">普口座＊＊3382 / 起票T-0041</td><td class="memo">先代の手帳に記載あり／本人の代の記録なし</td></tr>
+        <tr><td class="num">2</td><td class="name">商工会青年部 会費</td><td class="kind">会費</td><td class="kind">年次</td><td class="kind">25年</td><td class="acct">普口座＊＊3382 / 起票T-0055</td><td class="memo">直近5年、出席記録なし</td></tr>
+        <tr><td class="num">3</td><td class="name">業界紙「酒販タイムス」購読</td><td class="kind">定期購読</td><td class="kind">年次</td><td class="kind">15年</td><td class="acct">普口座＊＊3382 / 起票T-0062</td><td class="memo">閲覧・回覧の記録なし</td></tr>
+        <tr><td class="num">4</td><td class="name">地元FM局 スポット広告</td><td class="kind">広告契約</td><td class="kind">月次</td><td class="kind">10年</td><td class="acct">当座＊＊7710 / 契約No.C-118</td><td class="memo">効果を話した記録なし</td></tr>
+        <tr><td class="num">5</td><td class="name">顧問社労士 顧問料</td><td class="kind">顧問契約</td><td class="kind">月次</td><td class="kind">8年</td><td class="acct">当座＊＊7710 / 契約No.C-072</td><td class="memo">先月、就業規則の相談で利用</td></tr>
+      </tbody>
+    </table>
+    <div class="actions">
+      <button class="runbtn" id="runBtn">この一覧を棚卸しする</button>
+    </div>
+  </div>
+
+  <div class="panel" id="resultPanel" style="display:none">
+    <h2>棚卸し結果 ── 惰性の強さ順（金額の大小では並べていません）</h2>
+    <table>
+      <thead><tr><th>#</th><th>取引・契約</th><th>惰性スコア</th><th></th><th>まず、これだけ確認</th></tr></thead>
+      <tbody id="resultTbl">
+        <tr class="resultrow" data-row="1">
+          <td class="num">1</td><td class="name">田中酒造 歳暮贈答</td>
+          <td><span class="badge strong">強</span><div class="why">32年継続・本人の代の言及ゼロ＝最も惰性が強い候補</div></td>
+          <td colspan="2">
+            <div class="qbtns">
+              <button class="qbtn" data-c="keep">まだ効いている</button>
+              <button class="qbtn" data-c="check">わからない・確認する</button>
+            </div>
+          </td>
+        </tr>
+        <tr class="resultrow" data-row="2">
+          <td class="num">2</td><td class="name">商工会青年部 会費</td>
+          <td><span class="badge strong">強</span><div class="why">25年継続・直近5年出席なし</div></td>
+          <td colspan="2">
+            <div class="qbtns">
+              <button class="qbtn" data-c="keep">まだ効いている</button>
+              <button class="qbtn" data-c="check">わからない・確認する</button>
+            </div>
+          </td>
+        </tr>
+        <tr class="resultrow" data-row="3">
+          <td class="num">3</td><td class="name">業界紙「酒販タイムス」購読</td>
+          <td><span class="badge strong">強</span><div class="why">15年継続・閲覧記録なし</div></td>
+          <td colspan="2">
+            <div class="qbtns">
+              <button class="qbtn" data-c="keep">まだ効いている</button>
+              <button class="qbtn" data-c="check">わからない・確認する</button>
+            </div>
+          </td>
+        </tr>
+        <tr class="resultrow" data-row="4">
+          <td class="num">4</td><td class="name">地元FM局 スポット広告</td>
+          <td><span class="badge mid">中</span><div class="why">10年継続・効果の言及なし（開始は比較的新しい）</div></td>
+          <td colspan="2">
+            <div class="qbtns">
+              <button class="qbtn" data-c="keep">まだ効いている</button>
+              <button class="qbtn" data-c="check">わからない・確認する</button>
+            </div>
+          </td>
+        </tr>
+        <tr class="resultrow" data-row="5">
+          <td class="num">5</td><td class="name">顧問社労士 顧問料</td>
+          <td><span class="badge weak">弱</span><div class="why">先月、実際の相談実績あり＝惰性でない</div></td>
+          <td colspan="2">
+            <div class="qbtns">
+              <button class="qbtn" data-c="keep">まだ効いている</button>
+              <button class="qbtn" data-c="check">わからない・確認する</button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="panel checklist-panel" id="clPanel">
+    <h2>今週、村岡さんが確認すべき順（心当たりの薄い順・あなたの回答で決まります）</h2>
+    <div id="clList"></div>
+  </div>
+
+  <div class="note">
+    ※この画面の惰性スコア・並び順は、架空データに対する<b>表示例</b>です（あらかじめ用意したもので、その場のライブ判定ではありません）。本番のAIは「継続年数×最近の言及の有無」という<b>惰性の強さ</b>だけを見て並べ、金額もやめる判断も出しません。<b>この一覧は、何も「やめろ」と言いません。</b>「わからない」を押した契約だけが、村岡さん自身の記憶をもとに確認リストへ並び替わります。切るかどうかは、村岡さんが決めます。
+  </div>
+
+  <div class="foot">
+    <span class="cap">架空の会社・データです</span><span class="cap">金額・削減額は表示していません</span><span class="cap">このページは端末内で完結します</span>
+  </div>
+
+</div>
+
+<script>
+  var runBtn = document.getElementById("runBtn");
+  var resultPanel = document.getElementById("resultPanel");
+  var clPanel = document.getElementById("clPanel");
+  var clList = document.getElementById("clList");
+
+  var NAMES = {
+    "1":"田中酒造 歳暮贈答", "2":"商工会青年部 会費", "3":"業界紙「酒販タイムス」購読",
+    "4":"地元FM局 スポット広告", "5":"顧問社労士 顧問料"
+  };
+  var checked = [];
+
+  runBtn.addEventListener("click", function(){
+    resultPanel.style.display = "block";
+    runBtn.disabled = true;
+    runBtn.textContent = "棚卸し済み";
+    document.querySelectorAll(".resultrow").forEach(function(r, i){
+      setTimeout(function(){ r.classList.add("show"); }, i * 90);
+    });
+  });
+
+  document.getElementById("resultTbl").addEventListener("click", function(e){
+    var btn = e.target.closest(".qbtn");
+    if(!btn) return;
+    var tr = btn.closest("tr");
+    var rowId = tr.getAttribute("data-row");
+    var c = btn.getAttribute("data-c");
+    tr.querySelectorAll(".qbtn").forEach(function(b){ b.disabled = true; });
+    btn.classList.add("pick");
+
+    if(c === "check"){
+      tr.classList.remove("rowdone");
+      checked.push(rowId);
+      renderChecklist();
+    } else {
+      tr.classList.add("rowdone");
+    }
+  });
+
+  function renderChecklist(){
+    clPanel.classList.add("show");
+    clList.innerHTML = "";
+    checked.forEach(function(id, idx){
+      var div = document.createElement("div");
+      div.className = "clitem";
+      div.innerHTML = "<span>" + (idx+1) + "位　" + NAMES[id] + "</span>" +
+        "<span class='q'>最後に使ったの、覚えていますか？</span>";
+      clList.appendChild(div);
+    });
+  }
+</script>

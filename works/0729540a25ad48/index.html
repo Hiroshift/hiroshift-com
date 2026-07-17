@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta name="robots" content="noindex">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>まきば食堂 値上げの台帳</title>
+<style>
+:root{
+  --paper:#F3EEE3; --sheet:#FCFAF4; --rule:#E2DAC9;
+  --ink:#2A241C; --sub:#736657;
+  --green:#5C8A3E; --keep:#6B5F4F; --red:#C33A2E;
+  --indigo:#2E5A7D; --gold:#C08A2E; --gold2:#8A5A16; --juten:#2E5A7D;
+  --font-serif:"Yu Mincho","YuMincho","Hiragino Mincho ProN","Noto Serif JP",serif;
+  --font-sans:"Hiragino Kaku Gothic ProN","Yu Gothic","YuGothic","Noto Sans JP",sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{font-size:16px}
+body{background:var(--paper);color:var(--ink);font-family:var(--font-sans);line-height:1.55;
+  font-feature-settings:"palt" 1;-webkit-font-smoothing:antialiased}
+.num{font-variant-numeric:tabular-nums}
+.wrap{max-width:860px;margin:0 auto;padding:24px 22px 40px}
+
+.brand{font-family:var(--font-serif);font-size:25px;font-weight:500;letter-spacing:.03em}
+.brand small{font-family:var(--font-sans);font-size:13px;font-weight:500;color:var(--sub);display:block;margin-top:5px;letter-spacing:0}
+
+.card{background:var(--sheet);border:1.5px solid var(--rule);border-radius:12px;padding:22px 24px;margin:18px 0 20px}
+.sit{font-size:15px;color:var(--sub)}
+.sit b{color:var(--red);font-variant-numeric:tabular-nums}
+.plan{font-family:var(--font-serif);font-size:29px;font-weight:600;margin:8px 0 2px;line-height:1.3}
+.plan.ok{color:var(--green)} .plan.ng{color:var(--red)} .plan.zero{color:var(--sub);font-size:20px}
+.plan .n{font-family:var(--font-sans);font-weight:700;font-variant-numeric:tabular-nums}
+.sum{font-size:14px;color:var(--sub);margin-top:6px}
+.sum .s{margin-right:14px}
+.tagline{font-family:var(--font-serif);font-size:17px;color:var(--ink);margin-top:14px}
+.controls{display:flex;gap:22px;flex-wrap:wrap;align-items:center;font-size:13px;color:var(--sub);margin-top:16px;padding-top:14px;border-top:1px solid var(--rule)}
+.controls input[type=number]{width:92px;font:600 15px/1 var(--font-sans);font-variant-numeric:tabular-nums;text-align:right;padding:6px 9px;border:1px solid var(--rule);border-radius:5px;background:var(--paper);color:var(--ink)}
+.controls input[type=range]{width:150px;accent-color:var(--indigo);vertical-align:middle}
+.controls b{color:var(--indigo);font-variant-numeric:tabular-nums}
+
+.sec{font-family:var(--font-serif);font-size:18px;margin:0 2px 4px}
+.secsub{font-size:12px;color:var(--sub);margin:0 2px 12px}
+
+.ai{background:var(--sheet);border:1.5px solid var(--rule);border-radius:12px;padding:18px 20px;margin-bottom:22px}
+.ai .q{display:flex;gap:8px;flex-wrap:wrap}
+.ai input[type=text]{flex:1;min-width:220px;font:400 15px/1.4 var(--font-sans);padding:11px 13px;border:1px solid var(--rule);border-radius:8px;background:var(--paper);color:var(--ink)}
+.ai .go{font:600 15px/1 var(--font-sans);padding:11px 18px;border-radius:8px;border:none;background:var(--indigo);color:#fff;cursor:pointer}
+.ai .go:active{transform:translateY(1px)}
+.exs{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
+.ex{font:500 12.5px/1 var(--font-sans);color:var(--sub);border:1px solid var(--rule);border-radius:16px;padding:6px 11px;background:var(--paper);cursor:pointer}
+.read{font-size:14px;line-height:1.7;color:var(--ink);background:var(--paper);border:1px solid var(--rule);border-left:3px solid var(--indigo);border-radius:6px;padding:12px 14px;margin-top:12px;display:none}
+.read.show{display:block}
+.read .k{color:var(--indigo);font-weight:600}
+.ainote{font-size:11.5px;color:var(--sub);margin-top:9px}
+
+.dish{background:var(--sheet);border:1.5px solid var(--rule);border-radius:10px;padding:13px 16px;margin-bottom:10px;
+  display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;transition:border-color .3s}
+.dish.juten{border-color:#A9BFCF}
+.dish.drop{opacity:.5}
+.dinfo{min-width:300px;flex:1}
+.dname{font-size:16px;font-weight:600;display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.juten-tag{font:600 11px/1.5 var(--font-sans);color:var(--juten);border:1px solid var(--juten);border-radius:3px;padding:0 5px}
+.dfields{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:12.5px;color:var(--sub)}
+.mi{font:600 13px/1 var(--font-sans);font-variant-numeric:tabular-nums;text-align:right;padding:5px 6px;border:1px solid var(--rule);border-radius:5px;background:var(--paper);color:var(--ink)}
+.mi.p{width:58px}.mi.r{width:44px}.mi.q{width:42px}
+.calc{margin-left:6px}
+.calc .up{color:var(--gold2);font-weight:600}
+.dctrl{display:flex;gap:6px;flex-wrap:wrap}
+.seg{font:600 13px/1 var(--font-sans);padding:9px 11px;border-radius:7px;cursor:pointer;border:1.5px solid var(--rule);background:var(--paper);color:var(--sub)}
+.seg:active{transform:translateY(1px)}
+.seg.on{color:#fff;border-color:transparent}
+.seg.juten.on{background:var(--juten)} .seg.keep.on{background:var(--keep)}
+.seg.r50.on{background:var(--gold)} .seg.r100.on{background:var(--gold2)}
+.seg.drop.on{background:var(--red)}
+
+.note{font-size:13px;color:var(--sub);background:var(--sheet);border:1px solid var(--rule);border-radius:8px;padding:12px 14px;margin-top:14px}
+.foot{margin-top:18px;font-size:12.5px;color:var(--sub);line-height:1.8}
+</style>
+</head>
+<body>
+<div style="position:sticky;top:0;z-index:99999;display:flex;gap:14px;align-items:center;justify-content:space-between;flex-wrap:wrap;padding:9px 14px;background:#12121F;color:#fff;font:600 13px/1.6 'Noto Sans JP','Hiragino Sans',sans-serif;">
+<a href="/#cases" style="display:inline-flex;align-items:center;gap:8px;padding:9px 18px;border-radius:999px;background:#fff;color:#12121F;text-decoration:none;font-weight:700;white-space:nowrap;">← アプリ一覧へ戻る</a>
+<span style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;"><span style="opacity:.7;font-weight:500;">架空の会社のデータで動きます。実際のデータは使っていません。</span><a href="https://zenn.dev/hiroshift/articles/0729540a25ad48" target="_blank" rel="noopener" style="color:#fff;text-decoration:none;border-bottom:1px solid rgba(255,255,255,.4);white-space:nowrap;">設計の解説を読む</a></span>
+</div>
+<div class="wrap">
+
+  <div class="brand">まきば食堂　値上げの台帳
+    <small>困りごとを話すと、重点（看板）はそのまま、影響の大きい数品だけ少し上げて黒字に戻す案が出ます。入れるのは料理ごとに3つだけ。</small>
+  </div>
+
+  <div class="card">
+    <div class="sit" id="sit"></div>
+    <div class="plan" id="plan"></div>
+    <div class="sum" id="sum"></div>
+    <div class="tagline">全部は上げない。ここだけ。</div>
+    <div class="controls">
+      <span>仕入れがこの先 <input type="range" id="hike" min="0" max="40" step="1" value="0"> <b id="hikev">0</b>% 上がったら</span>
+      <span>1日の固定費 <input type="number" id="fixed" value="48000" step="1000" min="0">円</span>
+    </div>
+  </div>
+
+  <div class="sec">① まず、困りごとを話す</div>
+  <div class="secsub">思っていることを、そのままの言葉で。AIが「何が上がって、どうしたいか」を読み取り、その食材を使う料理に絞って案の下書きにします。</div>
+  <div class="ai">
+    <div class="q">
+      <input type="text" id="nl" placeholder="例：豚と油が上がってきつい。でも常連の生姜焼きは上げたくない">
+      <button class="go" id="nlgo">案を出す</button>
+    </div>
+    <div class="exs" id="exs"></div>
+    <div class="read" id="read"></div>
+    <div class="ainote">※本番はAIが、どんな言い回しでも読み取ります。このデモは代表的な言い方に例として反応し、食材から「その皿かどうか」までを見ます（外部送信なし・手元で完結）。状況を読むのがAI、案を組むのは固定のルール、決めるのは店主です。</div>
+  </div>
+
+  <div class="sec">② 料理ごとに決める</div>
+  <div class="secsub">売価・原価率・食数は、いつもの数字を入れるだけ（プロの勘でOK）。重点＝上げない看板。＋50/＋100円＝少し上げる。外す＝数の出ない一皿。</div>
+  <div id="list"></div>
+
+  <div class="note" id="note"></div>
+
+  <div class="foot">
+    決めるのは店主です。この台帳は案を下書きするだけ。<br>
+    レシピも仕入れ帳も要りません。持っているのは売価と原価率と食数だけ。お客様・従業員の情報はありません。
+  </div>
+</div>
+
+<script>
+"use strict";
+// 料理ごとに3つだけ：売価 price / 今のざっくり原価率 rate(%) / 1日の食数 qty ／ ing＝主な食材（AIの読み取り用の目印・原価計算には使わない）
+function menusInit(){return [
+  {id:"shoga", n:"生姜焼き定食", price:850, rate:51, qty:18, ing:["豚","キャベツ","玉ねぎ"]},
+  {id:"kara",  n:"唐揚げ定食",   price:880, rate:46, qty:20, ing:["鶏","油","粉","キャベツ"]},
+  {id:"sakana",n:"焼き魚定食",   price:800, rate:38, qty:12, ing:["魚","さば"]},
+  {id:"oyako", n:"親子丼",       price:750, rate:46, qty:15, ing:["鶏","卵","玉ねぎ","米"]},
+  {id:"higa",  n:"日替わり定食", price:780, rate:48, qty:25, ing:["豚","卵","キャベツ","玉ねぎ"]},
+  {id:"miso1", n:"味噌汁",       price:150, rate:35, qty:10, ing:["だし","味噌","わかめ","豆腐"]},
+  {id:"coffee",n:"食後のコーヒー",price:400, rate:15, qty:14, ing:["コーヒー","牛乳"]},
+  {id:"purin", n:"手作りプリン", price:350, rate:16, qty:6,  ing:["卵","牛乳"]},
+];}
+let menus=[], hike=0, fixed=48000;
+function loadState(){menus=menusInit();hike=0;fixed=48000;
+  menus.forEach(m=>{m.act=(m.id==="shoga")?"juten":"keep";});}
+function curRate(m){return m.rate*(1+hike/100);}
+function costOf(m){return m.price*(m.rate/100)*(1+hike/100);}
+function addOf(m){return m.act==="r50"?50:m.act==="r100"?100:0;}
+function yen(n){return "¥"+Math.round(n).toLocaleString("ja-JP");}
+function profitAt(useAct){let sales=0,cogs=0;menus.forEach(m=>{
+  if(useAct&&m.act==="drop")return;
+  sales+=(m.price+(useAct?addOf(m):0))*m.qty; cogs+=costOf(m)*m.qty;});
+  return sales-cogs-fixed;}
+function hasPlan(){return menus.some(m=>m.act==="r50"||m.act==="r100"||m.act==="drop");}
+
+function render(){
+  const base=profitAt(false), plan=profitAt(true);
+  document.getElementById("sit").innerHTML = base<0
+    ? `いまの数字だと、何もしなければ <b>${yen(-base)}</b> の赤字／日。`
+    : `いまは <b style="color:var(--green)">${yen(base)}</b> の黒字／日。無理な値上げは要りません。`;
+  const planEl=document.getElementById("plan");
+  if(!hasPlan()){
+    planEl.className="plan zero";
+    planEl.innerHTML=`まず下で困りごとを話すか、料理ごとに「重点／少し上げる」を選んでください。`;
+  }else{
+    planEl.className="plan "+(plan>=0?"ok":"ng");
+    planEl.innerHTML = plan>=0 ? `この案なら、黒字 <span class="n">${yen(plan)}</span>／日` : `この案では、まだ <span class="n">${yen(-plan)}</span> 足りません`;
+  }
+  let jt=0,keep=0,up=0,drop=0; menus.forEach(m=>{if(m.act==="drop")drop++;else if(m.act==="juten")jt++;else if(m.act==="r50"||m.act==="r100")up++;else keep++;});
+  document.getElementById("sum").innerHTML=`<span class="s">重点 <b class="num">${jt}</b>品</span><span class="s">据え置き <b class="num">${keep}</b>品</span><span class="s">値上げ <b class="num">${up}</b>品</span><span class="s">外す <b class="num">${drop}</b>品</span>`;
+
+  const list=document.getElementById("list"); list.innerHTML="";
+  menus.forEach(m=>{
+    const cr=curRate(m), cost=costOf(m), sell=m.price+addOf(m), gp=sell-cost;
+    const box=document.createElement("div");
+    box.className="dish"+(m.act==="juten"?" juten":"")+(m.act==="drop"?" drop":"");
+    const upTxt=addOf(m)?`<span class="up">→ ${yen(sell)}（+${addOf(m)}円）</span>`:"";
+    box.innerHTML=`
+      <div class="dinfo">
+        <div class="dname">${m.n}${m.act==="juten"?'<span class="juten-tag">重点</span>':""}</div>
+        <div class="dfields">
+          売価<input class="mi p num" data-f="price" value="${m.price}">円
+          原価率<input class="mi r num" data-f="rate" value="${m.rate}">%
+          <input class="mi q num" data-f="qty" value="${m.qty}">食
+          <span class="calc">今 ${cr.toFixed(0)}%・1杯${yen(gp)} ${upTxt}</span>
+        </div>
+      </div>
+      <div class="dctrl">
+        <button class="seg juten ${m.act==="juten"?"on":""}" data-a="juten">重点</button>
+        <button class="seg keep ${m.act==="keep"?"on":""}" data-a="keep">据え置き</button>
+        <button class="seg r50 ${m.act==="r50"?"on":""}" data-a="r50">+50円</button>
+        <button class="seg r100 ${m.act==="r100"?"on":""}" data-a="r100">+100円</button>
+        <button class="seg drop ${m.act==="drop"?"on":""}" data-a="drop">外す</button>
+      </div>`;
+    box.querySelectorAll(".seg").forEach(b=>b.onclick=()=>{m.act=b.dataset.a;render();});
+    box.querySelectorAll(".mi").forEach(inp=>inp.addEventListener("change",e=>{
+      const v=Math.max(0,+e.target.value||0); m[e.target.dataset.f]=v; render();}));
+    list.appendChild(box);
+  });
+
+  const note=document.getElementById("note");
+  if(!hasPlan()) note.textContent = base<0 ? `いまは案がありません。困りごとを話すか、料理ごとに選ぶと、赤字を黒字に戻す案が出ます。` : `いまは黒字です。無理な値上げは要りません。`;
+  else if(plan>=0 && base<0) note.textContent=`重点の看板はそのまま。少し上げるだけで、赤字が黒字に戻りました。あとは店主が決めるだけです。`;
+  else if(plan<0) note.textContent=`まだ ${yen(-plan)} 足りません。重点は残したまま、もう一品だけ上げるか、数の出ない一皿を外すか。`;
+  else note.textContent=`いまは黒字です。値上げは、赤字になってからでも間に合います。`;
+}
+
+// AIの読み取り（デモ＝例文に反応・本番はLLM）。食材→その食材を使う皿、まで見て案に反映する。
+const KW=["豚","鶏","魚","さば","卵","米","油","キャベツ","玉ねぎ","コーヒー","牛乳","粉","だし","味噌","わかめ","豆腐"];
+function think(text){
+  let dets=KW.filter(k=>text.includes(k));
+  if(text.includes("肉")){ if(!dets.includes("豚"))dets.push("豚"); if(!dets.includes("鶏"))dets.push("鶏"); }
+  // 影響する皿＝その食材を使う皿。食材が読み取れなければ、原価率の高い皿を対象にする。
+  const affected = dets.length ? menus.filter(m=>m.ing.some(i=>dets.includes(i)))
+                               : menus.filter(m=>curRate(m)>45);
+  const affSet=new Set(affected.map(m=>m.id));
+  menus.forEach(m=>{ if(m.act==="juten")return; m.act = affSet.has(m.id) ? "r50" : "keep"; });
+  render();
+  const upN=menus.filter(m=>m.act==="r50"||m.act==="r100").length;
+  const jutenHit=affected.some(m=>m.act==="juten");
+  const what = dets.length ? `<span class="k">「${dets.join("・")}」の値上がり</span>` : `<span class="k">材料費の上昇</span>`;
+  const read=document.getElementById("read");
+  read.innerHTML=`AIの読み取り：${what}として、それを使う料理を見ました。${jutenHit?"重点の看板（生姜焼き）は据え置きのまま、":"重点は据え置きのまま、"}影響の大きい <span class="k">${upN}品</span> に <span class="k">+50円</span> の案を出しました。<br>——決めるのは店主です。下の②で、料理ごとに直せます。`;
+  read.classList.add("show");
+}
+
+const EXS=["豚と油が上がってきつい","全体的に仕入れが上がった","値上げしたいけど常連が心配"];
+const exsEl=document.getElementById("exs");
+EXS.forEach(t=>{const b=document.createElement("button");b.className="ex";b.textContent=t;
+  b.onclick=()=>{document.getElementById("nl").value=t;think(t);};exsEl.appendChild(b);});
+document.getElementById("nlgo").onclick=()=>{const t=document.getElementById("nl").value.trim();if(t)think(t);};
+document.getElementById("nl").addEventListener("keydown",e=>{if(e.key==="Enter"){const t=e.target.value.trim();if(t)think(t);}});
+document.getElementById("hike").addEventListener("input",e=>{hike=+e.target.value;document.getElementById("hikev").textContent=hike;render();});
+document.getElementById("fixed").addEventListener("change",e=>{fixed=+e.target.value||0;render();});
+
+loadState(); render();
+if(location.hash.indexOf("ai")>=0){const t="豚と油が上がってきつい";document.getElementById("nl").value=t;think(t);}
+</script>
+</body>
+</html>

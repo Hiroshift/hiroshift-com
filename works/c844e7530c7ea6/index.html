@@ -1,0 +1,305 @@
+<meta charset="utf-8">
+<title>特採ふりかえりデスク ｜ 東和プレス工業 品質保証（社内・ローカル）</title>
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: "Hiragino Kaku Gothic ProN", "Yu Gothic", Meiryo, sans-serif;
+    background: #eceef1; color: #1c2530; font-size: 14px; line-height: 1.5;
+  }
+  header {
+    background: #1f3a5f; color: #fff; padding: 10px 16px;
+    display: flex; align-items: center; gap: 14px; border-bottom: 3px solid #16233a;
+  }
+  header .logo { font-weight: 700; font-size: 15px; letter-spacing: .5px; }
+  header .sys { font-size: 12px; color: #a9c2e0; }
+  header .spacer { flex: 1; }
+  header .who { font-size: 12px; color: #cfe0f2; }
+  header .who b { color: #fff; }
+  .privacy {
+    background: #dfe8f0; color: #33475b; font-size: 12px;
+    padding: 6px 16px; border-bottom: 1px solid #c3d1de;
+    display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  }
+  .privacy .lock { font-weight: 700; color: #1f6b3a; }
+  .demo-tag {
+    background: #b5411f; color: #fff; font-size: 11px; font-weight: 700;
+    padding: 2px 8px; border-radius: 3px; margin-left: auto;
+  }
+  .wrap { display: flex; gap: 0; align-items: stretch; }
+  .pane { padding: 14px 16px; }
+  .left { width: 340px; background: #f6f8fa; border-right: 1px solid #cdd6df; min-height: 720px; }
+  .right { flex: 1; background: #fff; min-height: 720px; }
+  h2.sec {
+    font-size: 13px; color: #33475b; margin: 0 0 10px; padding-bottom: 6px;
+    border-bottom: 2px solid #1f3a5f; font-weight: 700; letter-spacing: .3px;
+  }
+  .field { margin-bottom: 11px; }
+  .field label { display: block; font-size: 12px; color: #55636f; margin-bottom: 3px; font-weight: 600; }
+  .field select, .field input {
+    width: 100%; padding: 7px 8px; border: 1px solid #b6c2cd; border-radius: 3px;
+    background: #fff; font-size: 13px; color: #1c2530;
+  }
+  .btn {
+    width: 100%; margin-top: 4px; padding: 10px; background: #1f6bb5; color: #fff;
+    border: none; border-radius: 4px; font-size: 14px; font-weight: 700; cursor: pointer;
+  }
+  .btn:hover { background: #185a99; }
+  .note-left { margin-top: 14px; font-size: 11.5px; color: #6b7885; line-height: 1.7;
+    background: #eef2f6; border: 1px solid #d6dee6; border-radius: 4px; padding: 9px 10px; }
+  .result-head { display: flex; align-items: baseline; gap: 10px; margin-bottom: 4px; }
+  .result-head .cnt { font-size: 19px; font-weight: 700; color: #1f3a5f; }
+  .result-head .cnt b { color: #b5411f; }
+  .result-head .ex {
+    margin-left: auto; background: #f0dcd4; color: #8a3316; font-size: 10.5px; font-weight: 700;
+    padding: 2px 7px; border-radius: 3px; border: 1px solid #dcb7a6;
+  }
+  .result-sub { font-size: 12px; color: #6b7885; margin-bottom: 12px; }
+  .result-sub b { color: #1f3a5f; }
+  .trend {
+    background: #fbf3e6; border: 1px solid #e4c68a; border-left: 4px solid #d68a1e;
+    border-radius: 4px; padding: 10px 12px; margin-bottom: 14px; font-size: 13px; color: #6b4a12;
+  }
+  .trend b { color: #8a5a10; }
+  .card { border: 1px solid #d0d9e1; border-radius: 5px; margin-bottom: 10px; overflow: hidden; }
+  .card.match { border-color: #1f6bb5; border-left: 4px solid #1f6bb5; box-shadow: 0 0 0 1px #cfe0f2 inset; }
+  .card.ref { opacity: .82; }
+  .card .top {
+    display: flex; align-items: center; gap: 10px; padding: 7px 11px;
+    background: #f1f4f7; border-bottom: 1px solid #dce3ea; font-size: 12px; color: #4a5762;
+  }
+  .card.match .top { background: #e9f1fa; }
+  .card .top .date { font-variant-numeric: tabular-nums; color: #33475b; font-weight: 600; }
+  .card .top .cust { background: #33475b; color: #fff; padding: 1px 7px; border-radius: 3px; font-weight: 700; font-size: 11px; }
+  .card .top .refbadge { background: #7b8894; color: #fff; padding: 1px 7px; border-radius: 3px; font-size: 10.5px; font-weight: 700; }
+  .card .top .spacer { flex: 1; }
+  .badge { padding: 2px 9px; border-radius: 3px; font-size: 11px; font-weight: 700; color: #fff; white-space: nowrap; }
+  .b-ok { background: #2e8b57; }
+  .b-trouble { background: #c0392b; }
+  .b-cond { background: #c98a15; }
+  .card .body { padding: 9px 11px; display: grid; grid-template-columns: 1fr 1fr; gap: 4px 14px; font-size: 12.5px; }
+  .card .body .row { display: flex; gap: 6px; }
+  .card .body .k { color: #7b8894; min-width: 66px; }
+  .card .body .v { color: #1c2530; font-weight: 600; }
+  .card .memo {
+    grid-column: 1 / 3; margin-top: 2px; padding-top: 6px; border-top: 1px dashed #dce3ea;
+    color: #45525d; font-weight: 400; font-size: 12.5px;
+  }
+  .card .memo b { color: #b5411f; }
+  /* 元記録（Before）→ 上の構造（After） */
+  .raw {
+    grid-column: 1 / 3; margin-top: 8px; background: #f5f6f8; border: 1px solid #e0e5ea;
+    border-radius: 4px; padding: 8px 10px; font-size: 12px; color: #4a5762; line-height: 1.65;
+  }
+  .raw .lbl { display: block; color: #8794a0; font-size: 10.5px; font-weight: 700; margin-bottom: 3px; letter-spacing: .3px; }
+  .raw .txt { font-family: "SF Mono", Consolas, "Yu Gothic", monospace; color: #33475b; }
+  .raw .arrow { color: #1f6bb5; font-size: 11px; font-weight: 700; margin-top: 4px; }
+  .disclaimer {
+    margin-top: 16px; background: #f0f4f8; border: 1px solid #cdd9e3; border-radius: 5px;
+    padding: 11px 13px; font-size: 12.5px; color: #33475b; line-height: 1.75;
+  }
+  .disclaimer b { color: #1f3a5f; }
+  .disclaimer .where { display: block; margin-top: 6px; padding-top: 6px; border-top: 1px solid #dbe4ec; color: #45525d; }
+  .disclaimer .where b { color: #1f6b3a; }
+  .empty { background: #f5f6f8; border: 1px dashed #bcc7d1; border-radius: 5px; padding: 16px; color: #6b7885; font-size: 13px; }
+</style>
+
+<div style="position:sticky;top:0;z-index:99999;display:flex;gap:14px;align-items:center;justify-content:space-between;flex-wrap:wrap;padding:9px 14px;background:#12121F;color:#fff;font:600 13px/1.6 'Noto Sans JP','Hiragino Sans',sans-serif;">
+<a href="/#cases" style="display:inline-flex;align-items:center;gap:8px;padding:9px 18px;border-radius:999px;background:#fff;color:#12121F;text-decoration:none;font-weight:700;white-space:nowrap;">← アプリ一覧へ戻る</a>
+<span style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;"><span style="opacity:.7;font-weight:500;">架空の会社のデータで動きます。実際のデータは使っていません。</span><a href="https://zenn.dev/hiroshift/articles/c844e7530c7ea6" target="_blank" rel="noopener" style="color:#fff;text-decoration:none;border-bottom:1px solid rgba(255,255,255,.4);white-space:nowrap;">設計の解説を読む</a></span>
+</div>
+<header>
+  <span class="logo">東和プレス工業</span>
+  <span class="sys">品質保証 ／ 特採ふりかえりデスク</span>
+  <span class="spacer"></span>
+  <span class="who">担当：<b>森田</b>（品証・20年）</span>
+</header>
+
+<div class="privacy">
+  <span class="lock">🔒 この端末の中だけで動きます</span>
+  <span>／ 得意先は符号（A・B・C…）で保存 ／ 読み込むのは「不適合の記録」だけ（図面・原価・取引条件は渡しません）</span>
+  <span class="demo-tag">画面は表示例（あらかじめ用意した架空データ）</span>
+</div>
+
+<div class="wrap">
+  <div class="pane left">
+    <h2 class="sec">いま、出荷を迷っている品</h2>
+    <div class="field">
+      <label>得意先（符号）</label>
+      <select id="cust">
+        <option value="C" selected>得意先C（自動車内装部品）</option>
+        <option value="A">得意先A（家電筐体）</option>
+        <option value="B">得意先B（建材金具）</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>部品／用途</label>
+      <select id="part">
+        <option value="締結" selected>ブラケット（取付・ボルト締結）</option>
+        <option value="外観">カバー（外観・見え掛かり）</option>
+        <option value="内部">ステー（内部・非外観）</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>逸脱の種類</label>
+      <select id="dev">
+        <option value="hole" selected>穴位置ズレ</option>
+        <option value="warp">反り・そり</option>
+        <option value="burr">バリ</option>
+        <option value="scratch">キズ・打痕</option>
+        <option value="dim">外形寸法</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>程度（規格からの外れ）</label>
+      <input id="amt" value="規格 ±0.1 に対し +0.15mm">
+    </div>
+    <button class="btn" id="run">過去の似た特採をたぐる</button>
+
+    <div class="note-left">
+      この道具は<b style="color:#b5411f">特採の可否を判定しません</b>。<br>
+      過去の不適合報告・是正記録から「似た逸脱が、どの客で、どう転んだか」を並べるだけです。<br>
+      並び順は<b>選んだ用途を優先</b>し、外れ幅の近い順。用途を変えると、前に出るカードが変わります。<br>
+      出す・止める・客に特採を依頼するは、森田さん（と後任）が決めます。
+    </div>
+  </div>
+
+  <div class="pane right" id="out">
+    <div class="empty">左で品を選んで「過去の似た特採をたぐる」を押すと、ここに過去の似た逸脱と結末が並びます。</div>
+  </div>
+</div>
+
+<script>
+// ── 架空の過去実績（品証が書いた“元記録＝自由記述”付き。表示例） ──
+// rawText＝品証が是正処置記録に手で書いた自由文（Before）。
+// その他の欄＝AIがrawTextから取り出した構造（After）。dataは架空。
+const HISTORY = {
+  C: {
+    hole: {
+      trendByCat: {
+        締結: '得意先C × 穴位置ズレ × <b>締結部</b> は<b>厳しい</b>（過去2件で1件クレーム・1件は選別で回避）。締結穴は組付治具に直結＝外れ幅が小さくても揉めやすい。',
+        内部: '得意先C × 穴位置ズレ × <b>内部部品</b> は、過去1件が特採で無事通過。用途が変わると結末も変わる。',
+        外観: '得意先C × 穴位置ズレ × 外観部品の実績はありません。近い用途（締結・内部）を参考に、客へ確認を。'
+      },
+      cards: [
+        { date:'2024-11-12', cust:'C', part:'ブラケット（締結）', cat:'締結', dev:'穴位置 +0.14mm', amt:0.14, act:'特採で出荷', end:'trouble', endLabel:'客からクレーム',
+          raw:'11/12 得意先C ブラケット。穴位置＋0.14で社内特採を切って出荷。翌週、客先の組付治具に入らずライン停止の一報。以後この客の締結穴は特採不可で申し合わせ。',
+          memo:'組付治具に入らず<b>ライン停止</b>。締結部の穴位置は、外れ幅が小さくても後で揉めた一件。' },
+        { date:'2023-06-03', cust:'C', part:'ブラケット（締結）', cat:'締結', dev:'穴位置 +0.12mm', amt:0.12, act:'全数選別→良品のみ', end:'cond', endLabel:'条件付きで通過',
+          raw:'6/3 得意先C ブラケット。穴位置＋0.12。特採は切らず全数選別で良品のみ納入。客も選別実施を条件に受領。特採依頼はしていない。',
+          memo:'特採でなく<b>選別で対応</b>。「特採を頼む」以外の逃げ道があった例。' },
+        { date:'2022-09-20', cust:'C', part:'ステー（内部）', cat:'内部', dev:'穴位置 +0.18mm', amt:0.18, act:'特採で出荷', end:'ok', endLabel:'無事通過',
+          raw:'9/20 得意先C ステー（内部）。穴位置＋0.18だが非締結・非外観で機能影響なしと判断。特採で出荷、問題なし。',
+          memo:'同じ穴位置でも<b>非外観・非締結のステー</b>なら＋0.18で通った。<b>用途で結末が分かれた</b>一例。' }
+      ]
+    },
+    warp: {
+      trendByCat: { 外観:'得意先C × 反り × 外観部品は過去1件のみ＝<b>実績が薄い</b>。数字で判断せず客に確認を。',
+        締結:'得意先C × 反り × 締結部の実績はありません。', 内部:'得意先C × 反り × 内部部品の実績はありません。' },
+      cards:[ { date:'2023-02-15', cust:'C', part:'カバー（外観）', cat:'外観', dev:'反り 0.3mm/100', amt:0.3, act:'手直し（プレス矯正）', end:'ok', endLabel:'無事通過',
+        raw:'2/15 得意先C カバー（外観）。反り0.3mm/100。プレスで矯正して規格内に戻してから出荷。特採ではない。',
+        memo:'矯正して規格内に戻してから出荷。<b>特採を切らずに済ませた</b>例。' } ]
+    }
+  },
+  A: {
+    hole: {
+      trendByCat: {
+        内部:'得意先A × 穴位置ズレ × <b>内部部品</b> は<b>比較的寛容</b>（過去1件が特採で通過）。',
+        締結:'得意先A × 穴位置ズレ × <b>締結部</b> は1件通ったが、是正計画の提出が条件だった。',
+        外観:'得意先A × 穴位置ズレ × 外観部品の実績はありません。'
+      },
+      cards:[
+        { date:'2024-08-05', cust:'A', part:'ステー（内部）', cat:'内部', dev:'穴位置 +0.16mm', amt:0.16, act:'特採で出荷', end:'ok', endLabel:'無事通過',
+          raw:'8/5 得意先A ステー（内部）。穴位置＋0.16、非締結のため機能影響なしと客も判断。特採書1枚で受領。',
+          memo:'内部・非締結のため機能影響なしと客も判断。特採書1枚で通った。' },
+        { date:'2023-12-11', cust:'A', part:'ブラケット（締結）', cat:'締結', dev:'穴位置 +0.13mm', amt:0.13, act:'特採で出荷', end:'cond', endLabel:'条件付きで通過',
+          raw:'12/11 得意先A ブラケット。穴位置＋0.13で特採。次回以降の是正計画の提出を条件に受領。',
+          memo:'通ったが<b>是正計画の提出</b>という宿題が残った。' }
+      ]
+    }
+  },
+  B: { hole: { trendByCat:{}, cards:[] } }
+};
+
+function part2cat(v){ return v; } // selectのvalue自体が用途カテゴリ
+function pickAmt(s){ const m=String(s).match(/\+\s*([0-9]+\.?[0-9]*)\s*mm/); return m?parseFloat(m[1]):null; }
+function badgeClass(e){ return e==='ok'?'b-ok':(e==='trouble'?'b-trouble':'b-cond'); }
+function devLabel(d){ return {hole:'穴位置ズレ',warp:'反り・そり',burr:'バリ',scratch:'キズ・打痕',dim:'外形寸法'}[d]||d; }
+
+function render(cust, dev, cat, amtStr){
+  const out = document.getElementById('out');
+  const rec = (HISTORY[cust]||{})[dev];
+  const amt = pickAmt(amtStr);
+  if(!rec || !rec.cards || rec.cards.length === 0){
+    out.innerHTML =
+      '<h2 class="sec">たぐった結果</h2>'+
+      '<div class="empty" style="text-align:left">'+
+        '<b>該当する過去実績がありません。</b><br><br>'+
+        '得意先'+cust+' × '+devLabel(dev)+' の「通した／揉めた」の記録が手元にありません。'+
+        '数字（'+amtStr+'）だけで判断せず、<b>森田さんか、客に直接</b>確認してください。'+
+        '<br><br>実績のない組み合わせに、この道具は答えを作りません。'+
+      '</div>'+ disclaimer();
+    return;
+  }
+  // 用途一致を優先し、外れ幅の近い順に並べる（＝入力の用途・程度を実際に使う）
+  const cards = rec.cards.slice().sort((a,b)=>{
+    const am=(a.cat===cat)?0:1, bm=(b.cat===cat)?0:1;
+    if(am!==bm) return am-bm;
+    if(amt==null) return 0;
+    return Math.abs((a.amt||0)-amt) - Math.abs((b.amt||0)-amt);
+  });
+  const trend = (rec.trendByCat && rec.trendByCat[cat]) || '該当用途の傾向データがありません。近い用途を参考に。';
+  const html = cards.map(c => {
+    const isMatch = (c.cat===cat);
+    return '<div class="card '+(isMatch?'match':'ref')+'">'+
+      '<div class="top">'+
+        '<span class="date">'+c.date+'</span>'+
+        '<span class="cust">得意先'+c.cust+'</span>'+
+        (isMatch?'':'<span class="refbadge">参考：別の用途（'+c.cat+'）</span>')+
+        '<span class="spacer"></span>'+
+        '<span class="badge '+badgeClass(c.end)+'">'+c.endLabel+'</span>'+
+      '</div>'+
+      '<div class="body">'+
+        '<div class="row"><span class="k">部品／用途</span><span class="v">'+c.part+'</span></div>'+
+        '<div class="row"><span class="k">逸脱</span><span class="v">'+c.dev+'</span></div>'+
+        '<div class="row"><span class="k">その時の処置</span><span class="v">'+c.act+'</span></div>'+
+        '<div class="row"><span class="k">結末</span><span class="v">'+c.endLabel+'</span></div>'+
+        '<div class="memo">'+c.memo+'</div>'+
+        '<div class="raw">'+
+          '<span class="lbl">元の記録（品証が是正処置記録に手で書いた自由文）</span>'+
+          '<span class="txt">'+c.raw+'</span>'+
+          '<div class="arrow">↑ この自由文から、上の「客・用途・逸脱・処置・結末」をAIが取り出しています</div>'+
+        '</div>'+
+      '</div>'+
+    '</div>';
+  }).join('');
+
+  out.innerHTML =
+    '<h2 class="sec">たぐった結果</h2>'+
+    '<div class="result-head"><span class="cnt">過去の似た逸脱：<b>'+cards.length+'</b>件</span>'+
+      '<span class="ex">表示例（架空データ）</span></div>'+
+    '<div class="result-sub">条件：得意先'+cust+' ／ 用途=<b>'+cat+'</b> ／ '+devLabel(dev)+' ／ '+amtStr+'　'+
+      '<span style="color:#8794a0">（用途「'+cat+'」の実績を上に、外れ幅の近い順）</span></div>'+
+    '<div class="trend">📌 この客の傾向：'+trend+'</div>'+
+    html + disclaimer();
+}
+function disclaimer(){
+  return '<div class="disclaimer">'+
+    '<b>この道具は、可否を決めません。</b> 出しても良いか・止めるべきか・客に特採を依頼するかは、'+
+    '過去の結末を見た<b>人</b>が決めます。AIがやるのは「品証が手で書いた自由文の記録を、客・用途・結末で整えて、迷った時にその場で並べる」ところまで。'+
+    '<br>賢さより、ブレなさ。同じ逸脱には、同じ過去を、毎回同じように出します。'+
+    '<span class="where">🖥 <b>AIはどこで動くか</b>：社内のローカルLLMで動かすのが基本です（記録を外に出さない）。'+
+    'クラウドのAIを使う場合も、渡すのは<b>逸脱の種類と結末ラベルだけ</b>——客名・図面・原価は渡しません。</span>'+
+  '</div>';
+}
+function run(){
+  render(
+    document.getElementById('cust').value,
+    document.getElementById('dev').value,
+    document.getElementById('part').value,
+    document.getElementById('amt').value
+  );
+}
+document.getElementById('run').addEventListener('click', run);
+if(location.hash === '#go'){ run(); }
+</script>

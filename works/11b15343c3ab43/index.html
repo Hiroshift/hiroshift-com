@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta name="robots" content="noindex">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>値引き、どこまで下げていい？ ── 過去の実績に相談する</title>
+<style>
+  :root{--ink:#2b2b2b;--sub:#8a8a8a;--line:#e7e7e3;--bg:#f3f1ec;--accent:#3a4a63;--warn:#9a6a3a;--bad:#9a3a3a;--paper:#fffefb;--ok:#3a634a;}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,"Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,sans-serif;line-height:1.7;-webkit-font-smoothing:antialiased;}
+  .wrap{max-width:720px;margin:0 auto;padding:46px 20px 70px}
+  header h1{font-size:19px;font-weight:600;letter-spacing:.02em;margin:0 0 6px}
+  header p{color:var(--sub);font-size:13px;margin:0}
+  .hr{height:1px;background:var(--line);margin:22px 0}
+  .ingest{font-size:12.5px;color:var(--sub);background:var(--paper);border:1px solid var(--line);border-radius:5px;padding:11px 14px;margin-bottom:18px}
+  .ingest b{color:var(--ink)} .ingest a{color:var(--accent);cursor:pointer;text-decoration:underline;text-underline-offset:2px}
+  .datawrap{overflow-x:auto;margin-top:10px;display:none}
+  .datawrap.show{display:block}
+  table.data{width:100%;border-collapse:collapse;font-size:11.5px;white-space:nowrap}
+  table.data th{font-size:10px;color:var(--sub);text-align:left;padding:5px 7px;border-bottom:1px solid var(--line)}
+  table.data td{padding:5px 7px;border-bottom:1px solid #f0eee8;font-variant-numeric:tabular-nums}
+  table.data td.l{white-space:normal;min-width:180px;color:#555}
+  table.data td.c{text-align:center}
+
+  /* 相談フォーム */
+  .ask{background:var(--paper);border:1px solid #ddd9cf;border-radius:8px;padding:16px 18px;box-shadow:0 1px 0 #e9e6dd}
+  .ask .lead{font-size:13px;color:var(--accent);font-weight:600;margin:0 0 12px}
+  .row{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:flex-end}
+  .field{display:flex;flex-direction:column;gap:5px}
+  label{font-size:10.5px;color:var(--sub)}
+  select{border:1px solid #d8d6cf;background:#fff;border-radius:4px;padding:7px 9px;font-size:13px;color:var(--ink)}
+  .btn{border:1px solid var(--accent);background:var(--accent);color:#fff;padding:9px 22px;border-radius:20px;font-size:13.5px;cursor:pointer;letter-spacing:.04em;margin-top:14px}
+  .btn:hover{opacity:.9}
+
+  /* チャット */
+  .log{margin-top:8px}
+  .msg{display:flex;margin:16px 0;gap:10px}
+  .msg.me{justify-content:flex-end}
+  .bubble{max-width:90%;padding:11px 15px;border-radius:14px;font-size:13.5px}
+  .me .bubble{background:#e7ebf1;border:1px solid #dce1ea;border-bottom-right-radius:4px}
+  .ai .bubble{background:var(--paper);border:1px solid #ddd9cf;border-bottom-left-radius:4px;box-shadow:0 1px 0 #efece4}
+  .ai .bubble p{margin:0 0 8px} .ai .bubble p:last-child{margin:0}
+  .ai .bubble b{color:var(--accent)} .ai .bubble .bad{color:var(--bad)} .ai .bubble .warn{color:var(--warn)}
+  .avatar{flex:0 0 auto;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;background:#eef1f5;border:1px solid #d8dde5;color:var(--accent)}
+
+  /* 根拠カード */
+  .card{margin-top:10px;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:#fff}
+  .card .hd{font-size:10.5px;letter-spacing:.12em;color:var(--sub);padding:8px 13px;border-bottom:1px solid var(--line);background:#faf9f5}
+  .card .bd{padding:12px 14px}
+  .vbadge{display:inline-block;font-size:14px;font-weight:700;padding:4px 14px;border-radius:5px;margin-bottom:10px}
+  .vbadge.refuse{background:#f6e7e4;color:var(--bad);border:1px solid #e0c2c2}
+  .vbadge.tight{background:#f6efe4;color:var(--warn);border:1px solid #e3d4bf}
+  .vbadge.normal{background:#eef1f5;color:var(--accent);border:1px solid #cfd6e0}
+  .vbadge.go{background:#eaf1ec;color:var(--ok);border:1px solid #cdded3}
+  .krow{display:flex;justify-content:space-between;gap:12px;font-size:12.5px;padding:6px 0;border-top:1px dashed var(--line)}
+  .krow:first-of-type{border-top:none}
+  .krow .k{color:var(--sub)} .krow .v{text-align:right;font-variant-numeric:tabular-nums}
+  .krow .v.num{font-weight:700;color:var(--accent)}
+  .drv{display:inline-block;font-size:11px;border:1px solid var(--line);border-radius:12px;padding:1px 9px;margin:3px 5px 0 0}
+  .drv.hit{border-color:#cfd6e0;color:var(--accent);font-weight:600}
+  .cardnote{font-size:10.5px;color:var(--sub);margin:10px 0 0;border-top:1px solid var(--line);padding-top:8px}
+
+  details.why{margin-top:18px;background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:4px 14px}
+  details.why summary{font-size:12.5px;color:var(--accent);cursor:pointer;padding:8px 0}
+  .axis{display:flex;align-items:center;gap:10px;padding:5px 0}
+  .axis .name{flex:0 0 120px;font-size:12px}
+  .axis .track{flex:1;height:13px;background:#f1efe8;border-radius:3px;position:relative}
+  .axis .fill{position:absolute;top:0;bottom:0;border-radius:3px}
+  .axis .fill.pos{background:var(--accent);left:50%}.axis .fill.neg{background:#c2a070;right:50%}
+  .axis .mid{position:absolute;left:50%;top:-2px;bottom:-2px;width:1px;background:#d8d4ca}
+  .axis .val{flex:0 0 48px;text-align:right;font-size:11px;color:var(--sub)}
+  .axis.top .name{font-weight:700;color:var(--accent)}
+  .whytext{font-size:12.5px;color:#555;margin:8px 0 4px}
+
+  .privacy{font-size:11.5px;color:var(--sub);background:#faf8f3;border:1px solid #ece8df;border-left:3px solid #cbb89a;border-radius:5px;padding:11px 14px;margin-top:18px}
+  .privacy b{color:var(--warn)}
+  .foot{color:var(--sub);font-size:11.5px;margin-top:24px;text-align:center}
+</style>
+</head>
+<body>
+<div style="position:sticky;top:0;z-index:99999;display:flex;gap:14px;align-items:center;justify-content:space-between;flex-wrap:wrap;padding:9px 14px;background:#12121F;color:#fff;font:600 13px/1.6 'Noto Sans JP','Hiragino Sans',sans-serif;">
+<a href="/#cases" style="display:inline-flex;align-items:center;gap:8px;padding:9px 18px;border-radius:999px;background:#fff;color:#12121F;text-decoration:none;font-weight:700;white-space:nowrap;">← アプリ一覧へ戻る</a>
+<span style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;"><span style="opacity:.7;font-weight:500;">架空の会社のデータで動きます。実際のデータは使っていません。</span><a href="https://zenn.dev/hiroshift/articles/11b15343c3ab43" target="_blank" rel="noopener" style="color:#fff;text-decoration:none;border-bottom:1px solid rgba(255,255,255,.4);white-space:nowrap;">設計の解説を読む</a></span>
+</div>
+<div class="wrap">
+  <header>
+    <h1>値引き、どこまで下げていい？ ── 過去の実績に、相談する</h1>
+    <p>アパレルOEMの縫製工場。値引きの線はベテラン営業の勘の中。その勘を、過去の見積から起こして「相談できる根拠」に。AIは率を断定せず、断る根拠まで渡します。（架空の合成データで動くデモ）</p>
+  </header>
+  <div class="hr"></div>
+
+  <div class="ingest">
+    🗂 御社の過去見積 <b id="ndeals"></b> を読み込み済み。<a id="toggleData">生データを見る ▸</a>
+    <div class="datawrap" id="datawrap"><table class="data" id="dataTable"></table></div>
+  </div>
+
+  <div class="ask">
+    <p class="lead">迷っている案件を相談する</p>
+    <div class="row">
+      <div class="field"><label>発注元</label><select id="cust"></select></div>
+      <div class="field"><label>ロット</label><select id="lot"><option value="-1">小</option><option value="0" selected>標準</option><option value="1">大</option></select></div>
+      <div class="field"><label>原資（基準粗利）</label><select id="bm"><option value="18">厚い</option><option value="12" selected>標準</option><option value="7">薄い</option></select></div>
+      <div class="field"><label>仕様</label><select id="spec"><option value="0" selected>標準</option><option value="1">こだわり</option></select></div>
+      <div class="field"><label>手離れ</label><select id="touch"><option value="-1">手間</option><option value="0" selected>ふつう</option><option value="1">楽</option></select></div>
+      <div class="field"><label>納期</label><select id="due"><option value="0" selected>通常</option><option value="1">短納期</option></select></div>
+    </div>
+    <button class="btn" id="go">この案件、どこまで下げていい？</button>
+    <div class="log" id="log"></div>
+  </div>
+
+  <details class="why">
+    <summary>なぜそう言える？──AIが過去実績から起こした「あなたの値決めの軸」を見る</summary>
+    <p class="whytext" id="axisInsight"></p>
+    <div id="axes"></div>
+    <p class="whytext" id="resultText"></p>
+  </details>
+
+  <div class="privacy">
+    🔒 <b>この計算は、すべてこの画面の中（手元）で動いています。</b>外には何も送っていません（御社の見積データは外部に出ません）。
+    <br>次の一手（未実装の設計）：もっと自由に文章で相談したい時は、クラウドのLLMに繋げます。その時は——①送信前に<b>取引先名を手元で伏せる</b>（本人だけが戻せる）②<b>海外のサーバー（Google等）へ送る</b>ことを明記③<b>品名・数量・金額の組合せ次第で特定リスクは残る</b>と正直に開示。便利さと引き換えに何が起きるかを、隠さず選べる形にします。
+  </div>
+
+  <p class="foot">架空・合成データのデモ。実在の企業・取引とは無関係です。<br>「『あの人しかできない』を、ほどく。」Build30</p>
+</div>
+
+<script>
+// ===== 生データ（Excel過去見積／実在と無関係） =====
+const RAW=[
+ {c:"大成アパレル",getu:420,item:"長袖カットソー／定番天竺／完全データ支給",qty:1500,base:1200,g:20,disc:3.0,rush:0,rep:1},
+ {c:"大成アパレル",getu:420,item:"プルオーバー／度詰め・別注刺繍／パターン起こし／特急",qty:300,base:1400,g:8,disc:4.5,rush:1,rep:0},
+ {c:"大成アパレル",getu:420,item:"半袖T／定番／完全データ支給",qty:1800,base:900,g:19,disc:3.2,rush:0,rep:1},
+ {c:"大成アパレル",getu:420,item:"カットソー／サンプル反復・仕様未確定／特急",qty:90,base:1300,g:7,disc:4.0,rush:1,rep:0},
+ {c:"みなとリテール",getu:650,item:"インナー肌着／定番",qty:1600,base:600,g:18,disc:3.5,rush:0,rep:1},
+ {c:"みなとリテール",getu:650,item:"インナー／定番・完全データ／特急",qty:400,base:650,g:7,disc:5.0,rush:1,rep:0},
+ {c:"みなとリテール",getu:650,item:"保温インナー／起毛加工こだわり",qty:1500,base:750,g:16,disc:3.0,rush:0,rep:1},
+ {c:"旭スタイル",getu:180,item:"TシャツOEM／当社パターン起こし",qty:100,base:800,g:15,disc:2.0,rush:0,rep:1},
+ {c:"旭スタイル",getu:180,item:"Tシャツ／定番／特急",qty:350,base:780,g:8,disc:4.0,rush:1,rep:0},
+ {c:"旭スタイル",getu:180,item:"Tシャツ／定番・完全データ",qty:1400,base:760,g:17,disc:3.0,rush:0,rep:1},
+ {c:"西栄ブランド",getu:120,item:"別注ブルゾン／特殊素材・サンプル反復／特急",qty:80,base:2200,g:6,disc:3.5,rush:1,rep:0},
+ {c:"西栄ブランド",getu:120,item:"カットソー／標準",qty:300,base:1100,g:12,disc:2.5,rush:0,rep:1},
+ {c:"西栄ブランド",getu:120,item:"Tシャツ／標準／特急",qty:1300,base:820,g:7,disc:4.0,rush:1,rep:0},
+ {c:"山田工房",getu:55,item:"別注T小ロット／標準",qty:70,base:1000,g:16,disc:1.0,rush:0,rep:1},
+ {c:"山田工房",getu:55,item:"刺繍キャップ／別注・当社パターン起こし",qty:60,base:1500,g:14,disc:1.5,rush:0,rep:1},
+ {c:"山田工房",getu:55,item:"T／定番・完全データ",qty:250,base:850,g:15,disc:1.5,rush:0,rep:1},
+];
+const $=s=>document.querySelector(s);
+const lotOf=q=>q<=120?-1:q<=600?0:1;
+// 【品名・特記の文字列から こだわり仕様／手離れ を判定】＝AIが"読む"部分（デモはキーワード規則／本番はLLMでより精緻に）
+const classifySpec=it=>/度詰め|特殊素材|起毛|刺繍|こだわり/.test(it)?1:0;
+const classifyTouch=it=>/完全データ|データ支給/.test(it)?1:(/パターン起こし|サンプル反復|仕様未確定/.test(it)?-1:0);
+function derive(r){const genka=Math.round(r.base*(1-r.g/100));const kaku=Math.round(r.base*(1-r.disc/100));
+  return {...r,genka,kaku,lot:lotOf(r.qty),spec:classifySpec(r.item),touch:classifyTouch(r.item),baseMargin:(r.base-genka)/r.base*100,disc:(r.base-kaku)/r.base*100,prof:(kaku-genka)/kaku*100};}
+const DEALS=RAW.map(derive);
+const FEAT=["量(ロット)","仕様のこだわり","手離れの良さ","短納期","基準粗利(原資)","月商(太客度)"];
+const rowX=d=>[d.lot,d.spec,d.touch,d.rush,d.baseMargin,d.getu];
+function standardize(rows){const n=rows.length,p=rows[0].length,mean=Array(p).fill(0),std=Array(p).fill(0);
+  for(let j=0;j<p;j++){let s=0;for(const r of rows)s+=r[j];mean[j]=s/n;}
+  for(let j=0;j<p;j++){let s=0;for(const r of rows)s+=(r[j]-mean[j])**2;std[j]=Math.sqrt(s/n)||1;}
+  return {Z:rows.map(r=>r.map((v,j)=>(v-mean[j])/std[j])),mean,std};}
+function solve(A,b){const n=b.length,M=A.map((r,i)=>[...r,b[i]]);
+  for(let c=0;c<n;c++){let p=c;for(let r=c+1;r<n;r++)if(Math.abs(M[r][c])>Math.abs(M[p][c]))p=r;[M[c],M[p]]=[M[p],M[c]];
+    const d=M[c][c]||1e-9;for(let k=c;k<=n;k++)M[c][k]/=d;
+    for(let r=0;r<n;r++){if(r===c)continue;const f=M[r][c];for(let k=c;k<=n;k++)M[r][k]-=f*M[c][k];}}
+  return M.map(r=>r[n]);}
+function regress(deals){const Xr=deals.map(rowX),y=deals.map(d=>d.disc),{Z,mean,std}=standardize(Xr);
+  const p=Z[0].length,X=Z.map(z=>[1,...z]),XT=Array.from({length:p+1},(_,j)=>X.map(r=>r[j]));
+  const A=XT.map(rj=>XT.map(rk=>rj.reduce((s,_,i)=>s+rj[i]*rk[i],0))),b=XT.map(rj=>rj.reduce((s,_,i)=>s+rj[i]*y[i],0));
+  const w=solve(A,b);return {intercept:w[0],coef:w.slice(1),mean,std};}
+function predict(m,d){let v=m.intercept;const x=rowX(d);for(let j=0;j<x.length;j++)v+=m.coef[j]*((x[j]-m.mean[j])/m.std[j]);return v;}
+const M=regress(DEALS);
+const RANK=FEAT.map((f,i)=>({f,w:M.coef[i]})).sort((a,b)=>Math.abs(b.w)-Math.abs(a.w));
+const TOP=RANK[0];
+const avgP=a=>a.length?a.reduce((s,d)=>s+d.prof,0)/a.length:0;
+const repR=a=>a.length?a.filter(d=>d.rep).length/a.length*100:0;
+
+// データ表示トグル
+$("#ndeals").textContent=DEALS.length+"件";
+$("#toggleData").addEventListener("click",()=>{const w=$("#datawrap");w.classList.toggle("show");
+  if(w.classList.contains("show")&&!w.dataset.filled){
+    let h="<tr><th>発注元</th><th>品名・特記</th><th>数量</th><th>基準</th><th>原価</th><th>確定</th><th>月商</th></tr>";
+    for(const d of DEALS)h+=`<tr><td>${d.c}</td><td class="l">${d.item}</td><td class="c">${d.qty}</td><td class="c">¥${d.base}</td><td class="c">¥${d.genka}</td><td class="c">¥${d.kaku}</td><td class="c">${d.getu}万</td></tr>`;
+    $("#dataTable").innerHTML=h;w.dataset.filled="1";}
+});
+
+// なぜ＝軸
+(function(){const maxW=Math.max(...RANK.map(r=>Math.abs(r.w)));let h="";
+  RANK.forEach((r,i)=>{const pct=Math.abs(r.w)/maxW*50;
+    h+=`<div class="axis ${i===0?'top':''}"><div class="name">${r.f}</div><div class="track"><div class="mid"></div><div class="fill ${r.w>=0?'pos':'neg'}" style="width:${pct}%"></div></div><div class="val">${r.w>=0?'＋':'−'}${Math.abs(r.w).toFixed(2)}</div></div>`;});
+  $("#axes").innerHTML=h;
+  const lotRank=RANK.findIndex(r=>r.f==="量(ロット)")+1;
+  $("#axisInsight").innerHTML=`過去 ${DEALS.length}件を分析すると、あなたの値引きを実際にいちばん動かしているのは <b style="color:var(--accent)">${TOP.f}</b>。「量で決めている」つもりでも、量は${lotRank}番目。急かされると下げるクセが、いちばん強い。`;
+  const rush=DEALS.filter(d=>d.rush),hi=DEALS.filter(d=>d.disc>=3.5),lo=DEALS.filter(d=>d.disc<3.5);
+  $("#resultText").innerHTML=`そして検証：大きく下げた案件は確定利益率 ${avgP(hi).toFixed(1)}%・リピート${repR(hi).toFixed(0)}%、控えめは ${avgP(lo).toFixed(1)}%・${repR(lo).toFixed(0)}%。短納期で下げる手は、いちばん利益を削っていました（短納期の確定利益率 ${avgP(rush).toFixed(1)}%）。`;
+})();
+
+// 相談
+const CLIENTS=[...new Map(DEALS.map(d=>[d.c,{c:d.c,getu:d.getu}])).values()];
+CLIENTS.forEach((c,i)=>{const o=document.createElement("option");o.value=i;o.textContent=`${c.c}（月商${c.getu}万）`;$("#cust").appendChild(o);});
+const lotL={"-1":"小ロット","0":"標準","1":"大ロット"},bmL={"18":"原資厚い","12":"原資標準","7":"原資薄い"},specL={"0":"標準仕様","1":"こだわり"},touchL={"-1":"手間","0":"ふつうの手離れ","1":"手離れ良"},dueL={"0":"通常納期","1":"短納期"};
+
+function verdict(d){const past=predict(M,d);
+  if(d.baseMargin<8&&d.getu<150)return{lv:"断る",cls:"refuse",past};
+  if(past>=3.5||d.rush)return{lv:"渋く・要警戒",cls:"tight",past};
+  if(past>=2.0)return{lv:"普通",cls:"normal",past};
+  return{lv:"踏み込める",cls:"go",past};}
+
+function botText(cl,d,v){
+  const rush=DEALS.filter(x=>x.rush);
+  let p="";
+  if(v.cls==="refuse")
+    p=`<p>「${cl.c}」のこの引き合いですね。結論から言うと、<b class="bad">今回は断る</b>のが筋です。</p>`
+     +`<p>原資（基準粗利）が薄く、${cl.c}は太客でもない。<b>引く理由がない</b>案件です。若手が断れないのは、この“根拠”を持っていないから——だから根拠を渡します。これを見せれば、断っても角が立ちません。</p>`;
+  else if(v.cls==="tight")
+    p=`<p>「${cl.c}」のこの引き合いですね。<b class="warn">渋く・要警戒</b>です。</p>`
+     +`<p>過去のあなたなら、この型では約 <b>${Math.max(0,v.past).toFixed(1)}%</b> 下げています。でも——${d.rush?"<b class='bad'>短納期</b>で下げるこの手は、":"大きめに下げるこの手は、"}過去 <b class="bad">利益が残っていません</b>（短納期案件の確定利益率は ${avgP(rush).toFixed(1)}%）。同じ手を繰り返すか、ここで止めるか。今回は、根拠を持って選べます。</p>`;
+  else if(v.cls==="go")
+    p=`<p>「${cl.c}」のこの引き合いですね。<b style="color:var(--ok)">踏み込めます</b>。</p>`
+     +`<p>原資があり、過去 利益もリピートも残っている筋の良い型です。${TOP.f==="基準粗利(原資)"?"":"——ちなみにあなたは原資の厚い案件で攻めきれない傾向があるので、ここは取りに行く場面です。"}</p>`;
+  else
+    p=`<p>「${cl.c}」のこの引き合いですね。<b>普通</b>＝あなたの標準的な手の範囲です。</p>`
+     +`<p>過去のあなたなら約 <b>${Math.max(0,v.past).toFixed(1)}%</b>。大きく外れない線です。</p>`;
+  p+=`<p>そもそもあなたの値引きを動かしている一番の要因は <b>${TOP.f}</b>。今回それが${d.rush&&TOP.f==="短納期"?"<b class='warn'>効いている</b>＝要注意です":"どう働くかも、頭に置いてください"}。最後に数字を置くのは、あなたです。</p>`;
+  return p;
+}
+function cardHTML(d,v){
+  const drv=RANK.slice(0,3).map(r=>{
+    const hit=(r.f==="短納期"&&d.rush)||(r.f==="基準粗利(原資)"&&d.baseMargin<8)||(r.f==="量(ロット)"&&d.lot!==0)||(r.f==="月商(太客度)"&&d.getu>=400);
+    return `<span class="drv ${hit?'hit':''}">${r.f.replace(/\(.*\)/,'')}</span>`;}).join("");
+  return `<div class="card"><div class="hd">根拠カード（御社の実績からの計算）</div><div class="bd">`
+    +`<span class="vbadge ${v.cls}">${v.lv}</span>`
+    +`<div class="krow"><span class="k">過去のあなたの手</span><span class="v num">約${Math.max(0,v.past).toFixed(1)}%</span></div>`
+    +`<div class="krow"><span class="k">この案件</span><span class="v">${lotL[d.lot+""]}・${bmL[d.bm]}・${specL[d.spec+""]}・${touchL[d.touch+""]}・${dueL[d.rush+""]}</span></div>`
+    +`<div class="krow"><span class="k">効いているドライバ</span><span class="v">${drv}</span></div>`
+    +`<p class="cardnote">※御社の過去見積からの計算（回帰分析）です。LLM（生成AI）ではありません。だから出どころを全部たどれます。</p>`
+    +`</div></div>`;}
+
+function ask(){
+  const cl=CLIENTS[+$("#cust").value||0];
+  const d={lot:+$("#lot").value,spec:+$("#spec").value,touch:+$("#touch").value,rush:+$("#due").value,baseMargin:+$("#bm").value,bm:$("#bm").value,getu:cl.getu};
+  const v=verdict(d);
+  const q=`${cl.c}／${lotL[d.lot+""]}・${bmL[d.bm]}・${specL[d.spec+""]}・${touchL[d.touch+""]}・${dueL[d.rush+""]}。どこまで下げていい？`;
+  const log=$("#log");
+  log.insertAdjacentHTML("beforeend",`<div class="msg me"><div class="bubble">${q}</div></div>`);
+  log.insertAdjacentHTML("beforeend",`<div class="msg ai"><div class="avatar">勘</div><div class="bubble">${botText(cl,d,v)}${cardHTML(d,v)}</div></div>`);
+  log.lastElementChild.scrollIntoView({behavior:"smooth",block:"nearest"});
+}
+$("#go").addEventListener("click",ask);
+</script>
+</body>
+</html>
